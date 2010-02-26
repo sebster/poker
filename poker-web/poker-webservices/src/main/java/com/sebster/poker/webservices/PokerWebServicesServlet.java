@@ -18,6 +18,8 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 	public static final int DEFAULT_THREADS = 2;
 
 	public static final int DEFAULT_QUEUE_SIZE = 50;
+	
+	public static final int DEFAULT_CACHE_SIZE = 2048;
 
 	private static final long serialVersionUID = 1L;
 
@@ -40,12 +42,17 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 		if (queueSizeParam != null) {
 			queueSize = Integer.parseInt(queueSizeParam);
 		}
+		int cacheSize = DEFAULT_CACHE_SIZE;
+		final String cacheSizeParam = config.getInitParameter("cacheSize");
+		if (cacheSizeParam != null) {
+			cacheSize = Integer.parseInt(cacheSizeParam);
+		}
 
 		// Register our web service.
 		try {
 			JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
 			executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(queueSize));
-			bridge.registerObject("holdem", new HoldemWebServices(dbPath, executorService));
+			bridge.registerObject("holdem", new HoldemWebServices(dbPath, cacheSize, executorService));
 			bridge.registerSerializer(new HoleSerializer());
 			bridge.registerSerializer(new OddsSerializer());
 			bridge.registerSerializer(new CardSerializer());

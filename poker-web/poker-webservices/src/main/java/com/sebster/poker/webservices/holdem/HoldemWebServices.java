@@ -3,11 +3,14 @@ package com.sebster.poker.webservices.holdem;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.zip.GZIPInputStream;
 
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +34,9 @@ public class HoldemWebServices {
 
 	private final ThreadLocal<PreFlopOddsCalculator> calculator = new ThreadLocal<PreFlopOddsCalculator>();
 
-	public HoldemWebServices(final String dbPath, final ExecutorService exector) throws IOException {
+	private final LRUMap cache;
+
+	public HoldemWebServices(final String dbPath, final int cacheSize, final ExecutorService exector) throws IOException {
 
 		// Initialize compressed hand value db.
 		InputStream in = null;
@@ -44,6 +49,9 @@ public class HoldemWebServices {
 
 		// Initialize task thread pool.
 		this.executor = exector;
+
+		// Initialize the cache.
+		cache = new LRUMap(cacheSize);
 	}
 
 	public Odds[] calculateOdds(final Hole[] holes) throws InterruptedException, ExecutionException {
@@ -60,7 +68,19 @@ public class HoldemWebServices {
 				logger.debug("2 player odds calculated in {} ms", t2 - t1);
 				return new Odds[] { odds, odds.reverse() };
 			}
-			return executor.submit(new OddsCalculatorCallable(holes)).get();
+			final List<Hole> key = Arrays.asList(holes);
+			synchronized (cache) {
+				final Odds[] result = (Odds[]) cache.get(key);
+				if (result != null) {
+					logger.debug("n player odds result found in cache");
+					return result;
+				}
+			}
+			final Odds[] result = executor.submit(new OddsCalculatorCallable(holes)).get();
+			synchronized (cache) {
+				cache.put(key, result);
+			}
+			return result;
 		} else {
 			return PostFlopOddsCalculator.getInstance().calculateOdds(holes, board);
 		}
