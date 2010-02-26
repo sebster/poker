@@ -1,0 +1,52 @@
+<html>
+
+	<head>
+		<title>
+			Poker STT Web :: Tournament Equity
+		</title>
+	</head>
+	
+	<body>
+		<h1>Tournament Equity</h1>
+	
+		<p>When you buy into a $100+$9 10-player SNG with 1000 starting chips and a standard 5:3:2 prize structure,
+		you effectively exchange $100 for 2000 in chips (paying $9 to the house for the privilege of playing). It
+		seems then that each chip is worth $100/1000 = $0.10. However, if you win the tournament by winning all 10,000
+		chips in play, you only get paid $500, and so each chip now only seems to be worth $500/10000 = $0.05! Where did
+		the missing money go?
+		Well, the players who busted out in second and third place won money from the prize pool even though they
+		had 0 chips left. If this was a winner-take-all tournament, you would get paid the entire $1000 and each chip would
+		still be worth $1000/10000 = $0.10. But in tournaments with a different prize structure, the chips do not have a
+		constant monetary value! This is where tournament equity comes in.
+		</p>
+	
+		<p><i>Tournament equity</i> is your "rightful" share of the prize pool. It is the amount of money you win <i>on
+		average</i>, or mathmatically:
+		<pre>
+  equity = E(1st) + E(2nd) + E(3rd) + ...
+         = P(1st) * (1st prize) + P(2nd) * (2nd prize) + P(3rd) * (3rd prize) + ...</pre>
+	    </p>
+	    
+	    <p>     
+	    In the above SNG, assuming that all players have equal skill, your tournament equity will be exactly 1/10 of the
+	    prize pool or $100, because every player has the same equity and the total equity must add up to $1000. Another
+	    way to calculate this is by noticing that everybody is equally likely to finish in 1st place (since only luck plays
+	    a role), and idem for 2nd and 3rd place. Thus your probability of finishing 1st is 1/10, 2nd is 1/10, and 3rd is 1/10.
+	    Your tournament equity, calculated as above, is:
+	    
+		<pre>
+  equity = 1/10 * $500 + 1/10 * $300 + 1/10 * $200 = $50 + $30 + $20 = $100</pre>
+	    </p>
+	
+		<p>Of course not every player has the same skill. If a player is better than the average player in a tournament,
+		he has a higher than average equity. If he is worse than average, his equity is lower. The sum of all the equities
+		will still always equal the total amount in the prize pool (equity does not disappear).
+		<p>
+		 
+		<p>When playing tournaments, the only thing we care about in the end, is how much money we win on average. Thus we
+		want to make moves that increase our tournament equity. But how do we calculate our equity based on the number of
+		chips players have? One answer is using a model called the Independent Chip Model, or ICM.
+		</p>
+	</body>
+	
+</html>

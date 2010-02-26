@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcatProjectProperties>
+    <rootDir>/src/main/webapp</rootDir>
+    <exportSource>false</exportSource>
+    <reloadable>true</reloadable>
+    <redirectLogger>false</redirectLogger>
+    <updateXml>true</updateXml>
+    <warLocation></warLocation>
+    <extraInfo></extraInfo>
+    <webPath>ROOT</webPath>
+    <webClassPathEntries>
+        <webClassPathEntry>/poker-stt-web/target/classes</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/cglib/cglib-nodep/2.1_3/cglib-nodep-2.1_3.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/joda-time/joda-time/1.6/joda-time-1.6.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket-auth-roles/1.4.1/wicket-auth-roles-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket-datetime/1.4.1/wicket-datetime-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket-extensions/1.4.1/wicket-extensions-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket-ioc/1.4.1/wicket-ioc-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket-spring/1.4.1/wicket-spring-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/wicket/wicket/1.4.1/wicket-1.4.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/slf4j/slf4j-api/1.4.2/slf4j-api-1.4.2.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/slf4j/slf4j-log4j12/1.4.3/slf4j-log4j12-1.4.3.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/springframework/spring/2.5.6/spring-2.5.6.jar</webClassPathEntry>
+    </webClassPathEntries>
+</tomcatProjectProperties>

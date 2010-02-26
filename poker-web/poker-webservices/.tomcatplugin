@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tomcatProjectProperties>
+    <rootDir>src/main/webapp</rootDir>
+    <exportSource>false</exportSource>
+    <reloadable>true</reloadable>
+    <redirectLogger>true</redirectLogger>
+    <updateXml>true</updateXml>
+    <warLocation></warLocation>
+    <extraInfo></extraInfo>
+    <webPath>ROOT</webPath>
+    <webClassPathEntries>
+        <webClassPathEntry>/poker-core/target/classes</webClassPathEntry>
+        <webClassPathEntry>/poker-webservices/target/classes</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/log4j/log4j/1.2.14/log4j-1.2.14.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/apache/commons/commons-io/1.3.2/commons-io-1.3.2.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/jabsorb/jabsorb/1.3.1/jabsorb-1.3.1.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/slf4j/slf4j-api/1.4.3/slf4j-api-1.4.3.jar</webClassPathEntry>
+        <webClassPathEntry>M2_REPO/org/slf4j/slf4j-log4j12/1.4.3/slf4j-log4j12-1.4.3.jar</webClassPathEntry>
+    </webClassPathEntries>
+</tomcatProjectProperties>

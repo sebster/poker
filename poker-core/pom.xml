@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<groupId>com.sebster.poker</groupId>
+		<artifactId>project</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.sebster.poker</groupId>
+	<artifactId>poker-core</artifactId>
+	<packaging>jar</packaging>
+	<version>1.0</version>
+	<name>Poker Core</name>
+	<url>http://poker.sebster.com/</url>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>native-maven-plugin</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+
+					<!-- trigger javah execution -->
+					<javahClassNames>
+						<javahClassName>com.sebster.poker.holdem.odds.SpeedTestNative</javahClassName>
+					</javahClassNames>
+
+					<!-- enable additional javah interface in dependencies list -->
+					<javahSearchJNIFromDependencies>false</javahSearchJNIFromDependencies>
+
+					<compilerProvider>generic</compilerProvider>
+
+					<compilerStartOptions>
+						<compilerStartOption>-O3</compilerStartOption>
+						<compilerStartOption>-funroll-loops</compilerStartOption>
+					</compilerStartOptions>
+
+					<sources>
+						<source>
+							<directory>src/main/native</directory>
+							<fileNames>
+								<fileName>file3.c</fileName>
+								<fileName>file4.c</fileName>
+								<fileName>...</fileName>
+							</fileNames>
+						</source>
+					</sources>
+
+					<!--
+						deploy the accompany .lib file as well
+						<linkerSecondaryOutputExtensions>lib</linkerSecondaryOutputExtensions>
+
+						<linkerStartOptions> <linkerStartOption> /INCREMENTAL:NO /DLL
+						user32.lib advapi32.lib oldnames.lib kernel32.lib
+						</linkerStartOption> </linkerStartOptions>
+					-->
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

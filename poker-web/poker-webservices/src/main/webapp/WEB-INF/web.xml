@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.w3.org/2001/XMLSchema-instance http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<display-name>Poker Odds Web</display-name>
+
+	<servlet>
+		<servlet-name>webServicesServlet</servlet-name>
+		<servlet-class>com.sebster.poker.webservices.PokerWebServicesServlet</servlet-class>
+		<init-param>
+			<param-name>gzip_threshold</param-name>
+			<param-value>200</param-value>
+		</init-param>
+		<init-param>
+			<param-name>handValueDbLocation</param-name>
+			<param-value>/home/sebster/Work/poker/db/hand_value_db.lzfi.gz</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>webServicesServlet</servlet-name>
+		<url-pattern>/JSON-RPC</url-pattern>
+	</servlet-mapping>
+
+</web-app>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title></title>
+    <link href="styles/odds.styles.css" media="screen" rel="stylesheet" type="text/css" />
+    <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jsonrpc.js" ></script>
+    <script type="text/javascript" src="scripts/oddscalc.js" ></script>
+</head>
+<body>
+    
+    <div id="table">
+        <div id="deck">
+            <div class="card s" card="As">A</div>
+            <div class="card s" card="Ks">K</div>
+            <div class="card s" card="Qs">Q</div>
+            <div class="card s" card="Js">J</div>
+            <div class="card s" card="Ts">T</div>
+            <div class="card s" card="9s">9</div>
+            <div class="card s" card="8s">8</div>
+            <div class="card s" card="7s">7</div>
+            <div class="card s" card="6s">6</div>
+            <div class="card s" card="5s">5</div>
+            <div class="card s" card="4s">4</div>
+            <div class="card s" card="3s">3</div>
+            <div class="card s" card="2s">2</div>
+            <div class="card h" card="Ah">A</div>
+            <div class="card h" card="Kh">K</div>
+            <div class="card h" card="Qh">Q</div>
+            <div class="card h" card="Jh">J</div>
+            <div class="card h" card="Th">T</div>
+            <div class="card h" card="9h">9</div>
+            <div class="card h" card="8h">8</div>
+            <div class="card h" card="7h">7</div>
+            <div class="card h" card="6h">6</div>
+            <div class="card h" card="5h">5</div>
+            <div class="card h" card="4h">4</div>
+            <div class="card h" card="3h">3</div>
+            <div class="card h" card="2h">2</div>
+            <div class="card d" card="Ad">A</div>
+            <div class="card d" card="Kd">K</div>
+            <div class="card d" card="Qd">Q</div>
+            <div class="card d" card="Jd">J</div>
+            <div class="card d" card="Td">T</div>
+            <div class="card d" card="9d">9</div>
+            <div class="card d" card="8d">8</div>
+            <div class="card d" card="7d">7</div>
+            <div class="card d" card="6d">6</div>
+            <div class="card d" card="5d">5</div>
+            <div class="card d" card="4d">4</div>
+            <div class="card d" card="3d">3</div>
+            <div class="card d" card="2d">2</div>
+            <div class="card c" card="Ac">A</div>
+            <div class="card c" card="Kc">K</div>
+            <div class="card c" card="Qc">Q</div>
+            <div class="card c" card="Jc">J</div>
+            <div class="card c" card="Tc">T</div>
+            <div class="card c" card="9c">9</div>
+            <div class="card c" card="8c">8</div>
+            <div class="card c" card="7c">7</div>
+            <div class="card c" card="6c">6</div>
+            <div class="card c" card="5c">5</div>
+            <div class="card c" card="4c">4</div>
+            <div class="card c" card="3c">3</div>
+            <div class="card c" card="2c">2</div>
+        </div>
+        
+        <div id="p1" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p2" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p3" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p4" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p5" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p6" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p7" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p8" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p9" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+        <div id="p10" class="player">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="odds">
+                Win: <span class="win"></span>
+                <br />
+                Tie: <span class="tie"></span>
+            </div>
+        </div>
+
+        <div id="community">
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="card x"></div>
+            <div class="card x" id="turn"></div>
+            <div class="card x" id="river"></div>
+        </div>
+    </div>
+    
+</body>
+</html>

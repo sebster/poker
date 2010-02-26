@@ -1,0 +1,17 @@
+* make prod/dev profiles?
+* use spring to create the beans?
+* make three player odds db for 3 player hands
+* make odds calculator for hole categories
+* make odds calculator for hand ranges
+* add ICM calculator service?
+* limit threads per client IP
+
+DONE:
++ rename project to poker-webservices
++ export holdem services under holdem object
++ use two player odds db for 2 player hands
++ make odds class json serializer
++ make task queue for odds calculation requests
++ make odds calculator for post flop situations
++ make sure stack traces don't leak to client
+- make odds json deserializer? [no]

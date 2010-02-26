@@ -1,0 +1,1 @@
+* Bundle all odds calculations into one (static) utility class?
