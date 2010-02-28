@@ -16,6 +16,10 @@ public class SolverTest {
 		EnumSet<HoleCategory> pushRange, callRange;
 		TwoPlayerPreFlopHoleCategoryOddsDB.getInstance().getOdds(HoleCategory.pAA, HoleCategory.pAA);
 
+		pushRange = HoleRange.fromString("AA");
+		callRange = HoleRange.fromString("AA");
+		Assert.assertEquals(callRange, Solver.optimalBBStrategy(pushRange, 1000, 100));
+		
 		pushRange = HoleRange.fromString("66+,ATs+,AJo+");
 		callRange = HoleRange.fromString("99+,AKo,AQs+");
 		Assert.assertEquals(callRange, Solver.optimalBBStrategy(pushRange, 1000, 100));
