@@ -24,7 +24,7 @@ public abstract class Odds {
 	}
 
 	public double getLossProbability() {
-		return ((double) getWins()) / getTotal();
+		return ((double) getLosses()) / getTotal();
 	}
 
 	public int getWins() {
@@ -32,7 +32,7 @@ public abstract class Odds {
 	}
 
 	public double getWinProbability() {
-		return ((double) getLosses()) / getTotal();
+		return ((double) getWins()) / getTotal();
 	}
 
 	public int getSplits() {
