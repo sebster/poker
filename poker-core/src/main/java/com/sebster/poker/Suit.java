@@ -99,6 +99,24 @@ public enum Suit {
 	}
 
 	/**
+	 * Get the first suit, which is clubs.
+	 * 
+	 * @return the first suit
+	 */
+	public static Suit first() {
+		return values()[0];
+	}
+
+	/**
+	 * Get the last suit, which is spades.
+	 * 
+	 * @return the last suit
+	 */
+	public static Suit last() {
+		return values()[values().length - 1];
+	}
+
+	/**
 	 * Get the next suit, or null if this is the last suit.
 	 * 
 	 * @return the next suit or null if this is the last suit

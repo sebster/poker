@@ -8,6 +8,10 @@ import com.sebster.poker.Rank;
 
 public class HoleRange {
 
+	private HoleRange() {
+		// Utility class.
+	}
+
 	public static EnumSet<HoleCategory> pairs(final Rank bound1, final Rank bound2) {
 		final EnumSet<HoleCategory> pairs = EnumSet.noneOf(HoleCategory.class);
 		final int rank1 = bound2.getValue(), rank2 = bound1.getValue();

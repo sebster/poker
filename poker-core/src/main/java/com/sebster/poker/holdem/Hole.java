@@ -5,8 +5,9 @@ import com.sebster.poker.Deck;
 import com.sebster.poker.Rank;
 import com.sebster.poker.Suit;
 import com.sebster.poker.holdem.odds.Constants;
+import com.sebster.util.LinearOrder;
 
-public final class Hole implements Comparable<Hole> {
+public final class Hole implements LinearOrder<Hole> {
 
 	/**
 	 * The first (and highest) card in this hole.
@@ -75,6 +76,14 @@ public final class Hole implements Comparable<Hole> {
 		final int a = (int) Math.floor(51.5 - Math.sqrt(2652.25 - 2 * index));
 		final int b = index + (52 - a) * (51 - a) / 2 + a + 1 - Constants.HOLE_COUNT;
 		return new Hole(Card.values()[a], Card.values()[b]);
+	}
+
+	public static Hole first() {
+		return new Hole(Card.first(), Card.first().next());
+	}
+
+	public static Hole last() {
+		return new Hole(Card.last().prev(), Card.last());
 	}
 
 	public Hole next() {

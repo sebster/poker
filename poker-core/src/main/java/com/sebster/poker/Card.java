@@ -2,12 +2,14 @@ package com.sebster.poker;
 
 import java.util.EnumMap;
 
+import com.sebster.util.LinearOrder;
+
 /**
  * Enumeration of the cards.
  * 
  * @author sebster
  */
-public enum Card {
+public enum Card implements LinearOrder<Card> {
 
 	TWO_CLUBS(Rank.TWO, Suit.CLUBS),
 	TWO_DIAMONDS(Rank.TWO, Suit.DIAMONDS),
@@ -139,6 +141,24 @@ public enum Card {
 	}
 
 	/**
+	 * Get the first card, which is the two of clubs.
+	 * 
+	 * @return the first card
+	 */
+	public static Card first() {
+		return values()[0];
+	}
+
+	/**
+	 * Get the last cart, which is the ace of spades.
+	 * 
+	 * @return the last card
+	 */
+	public static Card last() {
+		return values()[values().length - 1];
+	}
+
+	/**
 	 * Get the next card, or null if this is the last card.
 	 * 
 	 * @return the card suit or null if this is the last card
@@ -208,12 +228,4 @@ public enum Card {
 		return byRankAndSuit(Rank.byName(rankName), Suit.byName(suitName));
 	}
 
-	public static Card first() {
-		return TWO_CLUBS;
-	}
-	
-	public static Card last() {
-		return ACE_SPADES;
-	}
-	
 }

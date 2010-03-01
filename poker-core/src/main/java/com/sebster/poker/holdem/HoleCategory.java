@@ -2,8 +2,9 @@ package com.sebster.poker.holdem;
 
 import com.sebster.poker.Rank;
 import com.sebster.poker.holdem.odds.Constants;
+import com.sebster.util.LinearOrder;
 
-public enum HoleCategory {
+public enum HoleCategory implements LinearOrder<HoleCategory> {
 
 	p22, s32, s42, s52, s62, s72, s82, s92, sT2, sJ2, sQ2, sK2, sA2,
 	o32, p33, s43, s53, s63, s73, s83, s93, sT3, sJ3, sQ3, sK3, sA3,
@@ -53,6 +54,24 @@ public enum HoleCategory {
 			buffer.append(type);
 		}
 		return buffer.toString();
+	}
+
+	/**
+	 * Get the first hole category, which is a pair of dueces.
+	 * 
+	 * @return the first hole category
+	 */
+	public HoleCategory first() {
+		return values()[0];
+	}
+
+	/**
+	 * Get the last hole category, which is a pair of aces.
+	 * 
+	 * @return the last hole category
+	 */
+	public HoleCategory last() {
+		return values()[values().length - 1];
 	}
 
 	/**

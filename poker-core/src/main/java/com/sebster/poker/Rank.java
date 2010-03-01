@@ -3,28 +3,30 @@ package com.sebster.poker;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sebster.util.LinearOrder;
+
 /**
  * Enumeration of the ranks.
  * 
  * @author sebster
  */
-public enum Rank implements Comparable<Rank> {
+public enum Rank implements LinearOrder<Rank> {
 
 	/**
 	 * The ranks.
 	 */
-	TWO("two", "deuces", "2"), //
-	THREE("three", "treys", "3"), //
-	FOUR("four", "fours", "4"), //
-	FIVE("five", "fives", "5"), //
-	SIX("six", "sixes", "6"), //
-	SEVEN("seven", "sevens", "7"), //
-	EIGHT("eight", "eights", "8"), //
-	NINE("nine", "nines", "9"), //
-	TEN("ten", "tens", "T"), //
-	JACK("jack", "jacks", "J"), //
-	QUEEN("queen", "queens", "Q"), //
-	KING("king", "kings", "K"), //
+	TWO("two", "deuces", "2"),
+	THREE("three", "treys", "3"),
+	FOUR("four", "fours", "4"),
+	FIVE("five", "fives", "5"),
+	SIX("six", "sixes", "6"),
+	SEVEN("seven", "sevens", "7"),
+	EIGHT("eight", "eights", "8"),
+	NINE("nine", "nines", "9"),
+	TEN("ten", "tens", "T"),
+	JACK("jack", "jacks", "J"),
+	QUEEN("queen", "queens", "Q"),
+	KING("king", "kings", "K"),
 	ACE("ace", "aces", "A");
 
 	/**
@@ -108,6 +110,24 @@ public enum Rank implements Comparable<Rank> {
 	@Override
 	public String toString() {
 		return getShortName();
+	}
+	
+	/**
+	 * Get the first rank, which is two.
+	 * 
+	 * @return the first rank
+	 */
+	public Rank first() {
+		return values()[0];
+	}
+	
+	/**
+	 * Get the last rank, which is ace.
+	 * 
+	 * @return the last rank
+	 */
+	public Rank last() {
+		return values()[values().length - 1];
 	}
 
 	/**
