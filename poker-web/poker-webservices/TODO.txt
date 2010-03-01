@@ -1,4 +1,3 @@
-* make prod/dev profiles?
 * use spring to create the beans?
 * make three player odds db for 3 player hands
 * make odds calculator for hole categories
@@ -7,6 +6,8 @@
 * limit threads per client IP
 
 DONE:
+- make prod/dev profiles?
++ make path to db (and other web.xml params) configurable.
 + rename project to poker-webservices
 + export holdem services under holdem object
 + use two player odds db for 2 player hands

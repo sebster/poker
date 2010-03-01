@@ -29,29 +29,46 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 	public void init(final ServletConfig config) throws ServletException {
 		super.init(config);
 
-		final String dbPath = config.getInitParameter("handValueDbLocation");
+		String dbPath = System.getProperty("com.sebster.poker.webservices.holdem.handValueDBLocation");
+		if (dbPath == null) {
+			dbPath = config.getInitParameter("holdem.handValueDBLocation");
+			if (dbPath == null) {
+				throw new ServletException("holdem.handValueDBLocation parameter not set");
+			}
+		}
 
 		int threads = DEFAULT_THREADS;
-		final String threadsParam = config.getInitParameter("threads");
+		String threadsParam = System.getProperty("com.sebster.poker.webservices.holdem.executorThreads");
+		if (threadsParam == null) {
+			threadsParam = config.getInitParameter("holdem.executorThreads");
+		}
 		if (threadsParam != null) {
 			threads = Integer.parseInt(threadsParam);
-
 		}
+		
 		int queueSize = DEFAULT_QUEUE_SIZE;
-		final String queueSizeParam = config.getInitParameter("queueSize");
+		String queueSizeParam = System.getProperty("com.sebster.poker.webservices.holdem.executorQueueSize");
+		if (queueSizeParam == null) {
+			config.getInitParameter("holdem.executorQueueSize");
+		}
 		if (queueSizeParam != null) {
 			queueSize = Integer.parseInt(queueSizeParam);
 		}
+		
 		int cacheSize = DEFAULT_CACHE_SIZE;
-		final String cacheSizeParam = config.getInitParameter("cacheSize");
+		String cacheSizeParam = System.getProperty("com.sebster.poker.webservices.holdem.cacheSize");
+		if (cacheSizeParam == null) {
+			cacheSizeParam = config.getInitParameter("holdem.cacheSize");
+		}
 		if (cacheSizeParam != null) {
 			cacheSize = Integer.parseInt(cacheSizeParam);
 		}
 
+		executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(queueSize));
+
 		// Register our web service.
 		try {
 			JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
-			executorService = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(queueSize));
 			bridge.registerObject("holdem", new HoldemWebServices(dbPath, cacheSize, executorService));
 			bridge.registerSerializer(new HoleSerializer());
 			bridge.registerSerializer(new OddsSerializer());

@@ -12,10 +12,6 @@
 			<param-name>gzip_threshold</param-name>
 			<param-value>200</param-value>
 		</init-param>
-		<init-param>
-			<param-name>handValueDbLocation</param-name>
-			<param-value>/home/sebster/Work/poker/db/hand_value_db.lzfi.gz</param-value>
-		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 	
