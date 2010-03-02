@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Poker : Odds Calculator</title>
+    <script type="text/javascript" src="scripts/jquery-1.4.2.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery.query-2.1.7.js"></script>
+    
+    <style type="text/css">
+    * { font-family: Verdana; }
+    body { background-color: #444; }
+    #deck { position: absolute; width: 200px; top: 300px; left: 10px; }
+    .card { position: relative; width: 19px; height: 35px; background: url(images/cards-1.0.0.png) 0px 0px no-repeat; margin: 2px; float: left; text-align: center; cursor: pointer; margin: 1px; font-size: 10pt; }
+    .hidden { visibility: hidden ; }
+    .card.selected { }
+    .player { position: relative; width: 90px; } 
+    .player.card { left: 24px; }
+    .card.s { background-position: -76px 0px; color: #000; }
+    .card.d { background-position: -57px 0px; color: #f00; }
+    #p1 { top: 60px; left: 300px; }
+    
+    </style>
+    <script type="text/javascript">
+    
+    $(function () {
+        
+        $('#deck .card').click(function() {
+            
+            var dest = $('#table .card.selected');
+            var source = $(this).offset();
+            var left =  dest.offset().left - source.left;
+            var top = dest.offset().top - source.top;
+                        
+            $(this).animate({
+                left: left,
+                top: top
+                }, 400, function() {
+                    $(dest)
+                        .addClass($(this).attr('card-value').charAt(1))
+                        .text($(this).attr('card-value').charAt(0));
+                    $(this)
+                        .addClass('hidden')
+                        .css('left', 0)
+                        .css('top', 0);
+                }
+            );
+        });
+    });
+    
+    </script>
+</head>
+<body>
+
+    <div id="table">
+        <div id="players">
+            <div id="p1" class="player">
+                <div class="card selected"></div>
+            </div>
+        </div>
+    </div>
+   
+    <div id="deck">
+        <div class="card s" card-value="Ad">A</div>
+        <div class="card s" card-value="Kd">K</div>
+        <div class="card s" card-value="Jd">J</div>
+        <div class="card s" card-value="Td">T</div>
+    </deck>
+
+</body>
+</html>
