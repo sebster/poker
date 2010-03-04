@@ -23,8 +23,6 @@ OddsCalculatorController.prototype.initialize = function () {
     });
 
     $('#reset')
-        .text('RESET')
-        .css('visibility', 'visible')
         .click(function () {
             me.reset();
         });
@@ -43,6 +41,8 @@ OddsCalculatorController.prototype.reset = function () {
         .filter('#players .card').first().addClass('selected'); // select the first player card
     $('#deck .card') // for all deck cards
         .animate({ left: 0, top: 0}, 200, null); // animate the cards to the deck
+	
+	$('#reset').addClass('disabled');
 }
 
 OddsCalculatorController.prototype.setNextPosition = function (card) {
@@ -106,6 +106,14 @@ OddsCalculatorController.prototype.onDeckCardClicked = function (card) {
                 top: 0
             }, 200, null);
     }
+    if ($('#table .card[card-value!=""]').length)
+    {
+		$('#reset').removeClass('disabled');
+	}
+	else
+	{
+		$('#reset').addClass('disabled');
+	}
 }
 
 OddsCalculatorController.prototype.onTableCardClicked = function (card) {
