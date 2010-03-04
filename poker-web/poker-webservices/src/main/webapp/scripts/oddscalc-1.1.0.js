@@ -1,6 +1,12 @@
-function OddsCalculatorController(jsonrpc) {
+function OddsCalculatorController() {
     this.currentStatsKey = null;
-    this.jsonrpc = jsonrpc;
+    this.jsonrpc = null;
+    
+	this.jsonrpc = new JSONRpcClient(function (result, exception) {
+		if (exception) {
+			alert("Could not initialize JSON RPC client:\n" + exception);
+		}
+	}, "/JSON-RPC");
 }
 
 OddsCalculatorController.prototype.initialize = function () {
@@ -158,19 +164,10 @@ OddsCalculatorController.prototype.setStatistics = function (players, holes, com
     var newKey = players.toString() + '|' + holes.toString() + '|' + community.toString();
 	if (this.currentStatsKey != newKey) {
     	this.currentStatsKey = newKey;
-    	
-        // try {} catch {} finally {}
 
         $('.odds').addClass('hidden'); // hide all odds
 
         if (players.length < 2) return;
-
-        // ==================================================
-        // sebster code
-        // ==================================================
-        // The calculateOdds function takes a callback (like all JSON-RPC async calls), and two arguments:
-        // holes: an array of two-card holes of the form "As,Jh".
-        // board (optional): an array of 0, 3, 4, or 5 cards of the form "Tc".
 		
 		this.jsonrpc.holdem.calculateOdds(function (result, error) {
 			if (error) {
@@ -213,15 +210,5 @@ $(function () {
     });
     $('#table, #deck, #reset').disableTextSelect(); // disable text selection
 
-	var jsonrpc = new JSONRpcClient(function (result, exception) {
-		if (exception) {
-	  		window.alert("Could not initialize JSON RPC client:\n" + exception);
-		}
-		else {
-			new OddsCalculatorController(this).initialize(); // initialize the controller		     
-		}
-	}, "/JSON-RPC");
-
-
-
+	new OddsCalculatorController().initialize(); // initialize the controller
 });
