@@ -84,15 +84,17 @@ OddsCalculatorController.prototype.onDeckCardClicked = function (card) {
     if (!$('#table .card[card-value=' + card.attr('card-value') + ']').length) {
         var selected = $('#table .card.selected'); // get the selected card
         if (!selected.length) return; // no card selected on the deck
-        selected.removeClass('selected').addClass('hidden'); // clear the selected status and hide the card
+        selected.removeClass('selected'); // clear the selected status
         selected.attr('card-value', card.attr('card-value')); // copy the card value to the card on the table
 
         card // on the deck card
             .animate({ // animate the card to the position of the selected card on the table
                 left: selected.offset().left - card.offset().left,
                 top: selected.offset().top - card.offset().top
-            }, 200, null);
-
+            }, 200, function () {
+        		selected.addClass('hidden'); // hide the card	
+            });
+		
         this.setNextPosition(selected); // set the 'selected' indicator to the next position
     }
     else {

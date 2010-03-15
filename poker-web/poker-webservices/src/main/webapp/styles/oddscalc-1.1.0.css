@@ -1,4 +1,4 @@
-﻿* { font-family: Verdana; font-size: 8pt; }
+* { font-family: Verdana; font-size: 8pt; }
 body { background-color: #666; }
 
 #deck { position: absolute; top: 300px; width: 546px; padding: 5px; background-color: #444; visibility: hidden; }
