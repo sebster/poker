@@ -10,7 +10,7 @@
 		<servlet-class>com.sebster.poker.webservices.PokerWebServicesServlet</servlet-class>
 		<init-param>
 			<param-name>gzip_threshold</param-name>
-			<param-value>200</param-value>
+			<param-value>500</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
