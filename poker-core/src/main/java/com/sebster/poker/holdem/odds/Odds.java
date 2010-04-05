@@ -1,6 +1,6 @@
 package com.sebster.poker.holdem.odds;
 
-public abstract class Odds {
+public abstract class Odds implements Comparable<Odds> {
 
 	/**
 	 * Get the number of n way splits. A zero-way split means a loss, a 1-way
@@ -71,6 +71,11 @@ public abstract class Odds {
 		builder.append(String.valueOf(getNWaySplits(maxN)));
 		builder.append(" ]");
 		return builder.toString();
+	}
+
+	@Override
+	public int compareTo(final Odds odds) {
+		return Double.compare(getEquity(), odds.getEquity());
 	}
 
 }
