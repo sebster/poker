@@ -11,7 +11,7 @@
 	</appender>
 
 	<logger name="org.jabsorb" additivity="false">
-		<level value="DEBUG" />
+		<level value="INFO" />
 		<appender-ref ref="STDOUT" />
 	</logger>
 	<logger name="com.sebster" additivity="false">
