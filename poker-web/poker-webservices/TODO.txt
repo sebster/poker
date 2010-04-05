@@ -4,9 +4,10 @@
 * make odds calculator for hand ranges
 * add ICM calculator service?
 * limit threads per client IP
+* make prod/dev profiles.
+* make prod/dev log4j.xml files.
 
 DONE:
-- make prod/dev profiles?
 + make path to db (and other web.xml params) configurable.
 + rename project to poker-webservices
 + export holdem services under holdem object
