@@ -61,18 +61,21 @@ public class HoldemWebServices {
 	public Odds[] calculateOdds(final Hole[] holes, final Card[] board) throws InterruptedException, ExecutionException {
 		if (board == null || board.length == 0) {
 			if (holes.length == 2) {
-				logger.debug("2 player odds requested");
 				final long t1 = System.currentTimeMillis();
 				final TwoPlayerOdds odds = TwoPlayerPreFlopOddsDB.getInstance().getOdds(holes[0], holes[1]);
 				final long t2 = System.currentTimeMillis();
-				logger.debug("2 player odds calculated in {} ms", t2 - t1);
+				if (logger.isDebugEnabled()) {
+					logger.debug("2 player odds calculated in {} ms", t2 - t1);
+				}
 				return new Odds[] { odds, odds.reverse() };
 			}
 			final List<Hole> key = Arrays.asList(holes);
 			synchronized (cache) {
 				final Odds[] result = (Odds[]) cache.get(key);
 				if (result != null) {
-					logger.debug("n player odds result found in cache");
+					if (logger.isDebugEnabled()) {
+						logger.debug("{} player odds result found in cache", holes.length);
+					}
 					return result;
 				}
 			}
@@ -96,7 +99,6 @@ public class HoldemWebServices {
 
 		@Override
 		public Odds[] call() throws Exception {
-			logger.debug("n player odds requested, n={}", holes.length);
 			final long t1 = System.currentTimeMillis();
 			PreFlopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
 			if (calculator == null) {
@@ -105,7 +107,9 @@ public class HoldemWebServices {
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
 			final long t2 = System.currentTimeMillis();
-			logger.debug("n player odds calculated in {} ms, expand in {} ms, compare in {} ms", new Object[] { t2 - t1, calculator.getLastExpandTime(), calculator.getLastExpandTime() });
+			if (logger.isDebugEnabled()) {
+				logger.debug("{} player odds calculated in {} ms, expand in {} ms, compare in {} ms", new Object[] { holes.length, t2 - t1, calculator.getLastExpandTime(), calculator.getLastCompareTime() });
+			}
 			return odds;
 		}
 
