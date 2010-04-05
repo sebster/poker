@@ -26,7 +26,7 @@ public class CompressHandValueDB {
 	 * value database, the second argument is the filename of the int-aligned
 	 * LZF compressed output database. The default input filename is
 	 * "hand_values.dat.gz", the default output filename is
-	 * "hand_values.dat.lzfi".
+	 * "hand_values.dat.lzfi.gz".
 	 * 
 	 * @param args
 	 *            the input and output filenames
