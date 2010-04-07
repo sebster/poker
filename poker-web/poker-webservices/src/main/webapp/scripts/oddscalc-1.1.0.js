@@ -55,8 +55,11 @@ OddsCalculatorController.prototype.setNextPosition = function (card) {
         next.addClass('selected');
         return;
     }
-     
-    if ($('#community .card[card-value=""]').length == 5 && $('#players .card[card-value!=""]').length == 4) {
+    
+    // need the number of cards for each player.. todo: find a better way to do this.
+    var cards  = $('#table .player').first().find('.card').length;
+    
+    if ($('#community .card[card-value=""]').length == 5 && $('#players .card[card-value!=""]').length == cards*2) {
         $('#community .card[card-value=""]').first().addClass('selected');
     }
     else if ($('#players .player .card[card-value=""]').length) {
@@ -135,12 +138,17 @@ OddsCalculatorController.prototype.updateStatistics = function () {
     var holes = [];
     var community = [];
 
-    // get all players with 2 cards
+    // get all players with all cards selected
     $('#table .player').each(function (index) {
+        var total = $(this).find('.card').length;
         var cards = $(this).find('.card[card-value]');
-        if (cards.length == 2) {
+        if (cards.length == total) {
             players.push($(this).attr('id'));
-            holes.push(cards.first().attr('card-value') + ',' + cards.next().attr('card-value'));
+            
+            var hole = cards.map(function(){
+            	return $(this).attr('card-value');
+            }).get().join(',');
+            holes.push(hole);
         }
     });
 
@@ -179,29 +187,58 @@ OddsCalculatorController.prototype.setStatistics = function (players, holes, com
 
         if (players.length < 2) return;
 		
-		this.jsonrpc.holdem.calculateOdds(function (result, error) {
-			if (error) {
-				window.alert(error.msg);
-			}
-			else {
-				for (var i = 0; i < players.length; i++) {
-                    var total = 0;
-                    for (var j = 0; j < result[i].length; j++) {
-                        total += result[i][j];
-                    };
-
-                    var win = (Math.round(result[i][1] * 10000 / total) / 100) + '%';
-                    var loss = (Math.round(result[i][0] * 10000 / total) / 100) + '%';
-                    var tie = (Math.round((total - result[i][0] - result[i][1]) * 10000 / total) / 100) + '%';
-
-                    var odds = $('#' + players[i] + ' .odds');
-		            odds.find('.win').text('Win: ' + win);
-		            odds.find('.loss').text('Loss: ' + loss);
-		            odds.find('.tie').text('Tie: ' + tie);
-		            odds.removeClass('hidden');
-                }
-            }
-        }, holes, community);
+		if (holes[0].split(',').length == 2) // 2 hole cards is holdem
+		{
+			this.jsonrpc.holdem.calculateOdds(function (result, error) {
+				if (error) {
+					window.alert(error.msg);
+				}
+				else {
+					for (var i = 0; i < players.length; i++) {
+	                    var total = 0;
+	                    for (var j = 0; j < result[i].length; j++) {
+	                        total += result[i][j];
+	                    };
+	
+	                    var win = (Math.round(result[i][1] * 10000 / total) / 100) + '%';
+	                    var loss = (Math.round(result[i][0] * 10000 / total) / 100) + '%';
+	                    var tie = (Math.round((total - result[i][0] - result[i][1]) * 10000 / total) / 100) + '%';
+	
+	                    var odds = $('#' + players[i] + ' .odds');
+			            odds.find('.win').text('Win: ' + win);
+			            odds.find('.loss').text('Loss: ' + loss);
+			            odds.find('.tie').text('Tie: ' + tie);
+			            odds.removeClass('hidden');
+	                }
+	            }
+        	}, holes, community);
+		}
+		else
+		{
+			this.jsonrpc.omaha.calculateOdds(function (result, error) {
+				if (error) {
+					window.alert(error.msg);
+				}
+				else {
+					for (var i = 0; i < players.length; i++) {
+	                    var total = 0;
+	                    for (var j = 0; j < result[i].length; j++) {
+	                        total += result[i][j];
+	                    };
+	
+	                    var win = (Math.round(result[i][1] * 10000 / total) / 100) + '%';
+	                    var loss = (Math.round(result[i][0] * 10000 / total) / 100) + '%';
+	                    var tie = (Math.round((total - result[i][0] - result[i][1]) * 10000 / total) / 100) + '%';
+	
+	                    var odds = $('#' + players[i] + ' .odds');
+			            odds.find('.win').text('Win: ' + win);
+			            odds.find('.loss').text('Loss: ' + loss);
+			            odds.find('.tie').text('Tie: ' + tie);
+			            odds.removeClass('hidden');
+	                }
+	            }
+        	}, holes, community);
+		}
     }
 }
 

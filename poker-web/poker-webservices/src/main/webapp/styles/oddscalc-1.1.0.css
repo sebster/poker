@@ -3,16 +3,6 @@ body { background-color: #666; }
 
 #deck { position: absolute; top: 300px; width: 546px; padding: 5px; background-color: #444; visibility: hidden; }
 #table { position: absolute; top: 5px; left: 15px; width: 540px; height: 300px; background: url(../images/table-red.png) 0px 0px no-repeat; visibility: hidden; z-index: -10; }
-	#p1 { top: 0px; left: 170px; }
-	#p2 { top: 0px; left: 280px; }
-	#p3 { top: 10px; left: 390px; }
-	#p4 { top: 100px; left: 455px; }
-	#p5 { top: 200px; left: 390px; }
-	#p6 { top: 210px; left: 280px; }
-	#p7 { top: 210px; left: 170px; }
-	#p8 { top: 200px; left: 60px; }
-	#p9 { top: 100px; left: -5px; }
-	#p10 { top: 10px; left: 60px; }
 	#community { position: absolute; top: 100px; left: 200px; width: 150px; }
 #reset { position: absolute; top: 40px; left: 500px; width: 25px; height: 33px; background: url(../images/cards-1.1.0.png) -114px 0px no-repeat; cursor: hand; }
 #reset.disabled { background-position: -138px 0px; }
@@ -27,7 +17,6 @@ body { background-color: #666; }
 .card.turn, .card.river { margin-left: 19px; }
 
 .player { position: absolute; width: 90px; }
-.player .card { left: 24px; }
 .player .odds { position: inherit; top: 40px; width: 90px; background-color: #444; color: #fff; padding: 4px 0px  4px 0px; text-align: center; line-height: 14px; }
 
 .hidden { visibility: hidden; }
