@@ -4,7 +4,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.sebster.poker.Card;
-import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.Hole;
 import com.sebster.poker.odds.Odds;
 
 public class TwoPlayerPreflopOddsDBTest {

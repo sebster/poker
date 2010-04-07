@@ -9,7 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sebster.poker.holdem.HoleCategory;
+import com.sebster.poker.HoleCategory;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.TwoPlayerOdds;
 

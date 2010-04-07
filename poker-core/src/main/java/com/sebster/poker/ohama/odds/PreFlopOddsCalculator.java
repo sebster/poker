@@ -9,8 +9,8 @@ import java.util.Random;
 import java.util.zip.GZIPInputStream;
 
 import com.sebster.poker.Deck;
-import com.sebster.poker.holdem.Hole;
-import com.sebster.poker.holdem.Hole4;
+import com.sebster.poker.Hole;
+import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;

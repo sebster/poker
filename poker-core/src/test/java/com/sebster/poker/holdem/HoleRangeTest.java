@@ -7,8 +7,11 @@ import java.util.EnumSet;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.sebster.poker.HoleCategory;
+import com.sebster.poker.HoleRange;
 import com.sebster.poker.Rank;
-import static com.sebster.poker.holdem.HoleCategory.*;
+
+import static com.sebster.poker.HoleCategory.*;
 
 public class HoleRangeTest {
 

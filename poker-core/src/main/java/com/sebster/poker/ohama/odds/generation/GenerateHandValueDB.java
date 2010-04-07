@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
 import com.sebster.poker.Combination;
-import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.Hole;
 
 public class GenerateHandValueDB {
 

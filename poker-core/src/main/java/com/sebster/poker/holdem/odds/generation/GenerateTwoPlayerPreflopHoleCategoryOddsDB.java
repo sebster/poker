@@ -5,8 +5,8 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import com.sebster.poker.holdem.Hole;
-import com.sebster.poker.holdem.HoleCategory;
+import com.sebster.poker.Hole;
+import com.sebster.poker.HoleCategory;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
 import com.sebster.poker.odds.Constants;

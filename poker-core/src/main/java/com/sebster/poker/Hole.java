@@ -1,9 +1,5 @@
-package com.sebster.poker.holdem;
+package com.sebster.poker;
 
-import com.sebster.poker.Card;
-import com.sebster.poker.Deck;
-import com.sebster.poker.Rank;
-import com.sebster.poker.Suit;
 import com.sebster.poker.odds.Constants;
 import com.sebster.util.LinearOrder;
 

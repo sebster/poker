@@ -4,7 +4,6 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.sebster.poker.holdem.Hole;
 
 public class HoleTest {
 

@@ -1,9 +1,7 @@
-package com.sebster.poker.holdem;
+package com.sebster.poker;
 
 import java.util.Arrays;
 
-import com.sebster.poker.Card;
-import com.sebster.poker.Deck;
 import com.sebster.util.LinearOrder;
 
 public final class Hole4 implements LinearOrder<Hole4> {

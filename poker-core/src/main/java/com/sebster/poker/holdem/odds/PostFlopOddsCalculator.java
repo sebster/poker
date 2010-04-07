@@ -4,7 +4,7 @@ import java.util.EnumSet;
 
 import com.sebster.poker.Card;
 import com.sebster.poker.Combination;
-import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.Hole;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.Odds;
 

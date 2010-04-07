@@ -3,6 +3,7 @@ package com.sebster.poker.holdem;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.sebster.poker.HoleCategory;
 import com.sebster.poker.Rank;
 
 public class HoleCategoryTest {

@@ -1,10 +1,9 @@
-package com.sebster.poker.holdem;
+package com.sebster.poker;
 
 import java.util.EnumSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.sebster.poker.Rank;
 
 public class HoleRange {
 
@@ -214,7 +213,7 @@ public class HoleRange {
 		}
 
 		@Override
-		public int compareTo(com.sebster.poker.holdem.HoleRange.RangeSpec o) {
+		public int compareTo(com.sebster.poker.HoleRange.RangeSpec o) {
 			final int i = first != null ? (o.first != null ? o.first.compareTo(first) : 1) : (o.first != null ? -1 : 0);
 			if (i == 0) {
 				final int j = secondLow.compareTo(o.secondLow);
