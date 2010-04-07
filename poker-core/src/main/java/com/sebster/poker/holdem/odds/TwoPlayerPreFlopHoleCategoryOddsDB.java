@@ -67,7 +67,7 @@ public class TwoPlayerPreFlopHoleCategoryOddsDB {
 	
 	public int getHandCombinations(final HoleCategory holeCategory1, final HoleCategory holeCategory2) {
 		final int i = holeCategory1.ordinal(), j = holeCategory2.ordinal();
-		return (i >= j ? odds[i][j] : odds[j][i]).getTotal() / Constants.BOARD_COUNT_2;
+		return (i >= j ? odds[i][j] : odds[j][i]).getTotal() / Constants.BOARD_COUNT_48;
 
 	}
 

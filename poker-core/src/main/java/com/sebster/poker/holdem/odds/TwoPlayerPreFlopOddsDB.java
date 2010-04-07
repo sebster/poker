@@ -63,7 +63,7 @@ public class TwoPlayerPreFlopOddsDB {
 		for (int i = 0; i < rows; i++) {
 			hands[i] = dis.readInt();
 			final int wins = dis.readInt(), losses = dis.readInt();
-			odds[i] = new TwoPlayerOdds(wins, losses, Constants.BOARD_COUNT_2 - wins - losses);
+			odds[i] = new TwoPlayerOdds(wins, losses, Constants.BOARD_COUNT_48 - wins - losses);
 		}
 		final long t2 = System.currentTimeMillis();
 		logger.debug("db init in {} ms", t2 - t1);

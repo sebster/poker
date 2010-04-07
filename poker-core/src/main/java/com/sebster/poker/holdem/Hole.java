@@ -50,14 +50,23 @@ public final class Hole implements LinearOrder<Hole> {
 		return second;
 	}
 
+	/**
+	 * Get the card with the specified index in this hole.
+	 * 
+	 * @param index
+	 *            the index of the card (0 or 1)
+	 * @return the card with the specified index
+	 */
 	public Card getCard(int index) {
 		switch (index) {
-		case 0: return first;
-		case 1: return second;
+		case 0:
+			return first;
+		case 1:
+			return second;
 		}
 		throw new IllegalArgumentException("index must be 0 or 1");
 	}
-	
+
 	/**
 	 * Return the index of this hole in the list of all holes.
 	 * 

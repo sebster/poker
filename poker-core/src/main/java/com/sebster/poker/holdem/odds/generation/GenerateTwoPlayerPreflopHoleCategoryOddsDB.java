@@ -37,7 +37,7 @@ public class GenerateTwoPlayerPreflopHoleCategoryOddsDB {
 				dos.writeInt(wins);
 				dos.writeInt(losses);
 				dos.writeInt(splits);
-				assert(wins + losses + splits == count * Constants.BOARD_COUNT_2);
+				assert(wins + losses + splits == count * Constants.BOARD_COUNT_48);
 			}
 		}
 		dos.close();

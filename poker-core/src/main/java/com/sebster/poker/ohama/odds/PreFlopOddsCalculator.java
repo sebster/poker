@@ -10,12 +10,12 @@ import java.util.zip.GZIPInputStream;
 
 import com.sebster.poker.Deck;
 import com.sebster.poker.holdem.Hole;
-import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
-import com.sebster.poker.holdem.odds.generation.CompressHandValueDB;
+import com.sebster.poker.holdem.Hole4;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
+import com.sebster.poker.ohama.odds.generation.CompressHandValueDB;
 
 public class PreFlopOddsCalculator {
 
@@ -25,9 +25,10 @@ public class PreFlopOddsCalculator {
 	private final CompressedHandValueDB db;
 
 	/**
-	 * The uncompressed hand value arrays for up to 6 ohama hands, which is 36 two card hands.
+	 * The uncompressed hand value arrays for up to 6 ohama hands, which is 36
+	 * two card hands.
 	 */
-	private final int[][] udata = new int[36][Constants.BOARD_COUNT_0];
+	private final int[][] udata = new int[36][Constants.BOARD_COUNT_52];
 
 	private int lastExpandTime;
 
@@ -40,7 +41,7 @@ public class PreFlopOddsCalculator {
 		this.db = db;
 	}
 
-	public final Odds[] calculateOdds(final Hole[] holes) {
+	public final Odds[] calculateOdds(final Hole4[] holes) {
 
 		final int numHoles = holes.length;
 		if (numHoles < 2 || numHoles > 6) {
@@ -48,14 +49,19 @@ public class PreFlopOddsCalculator {
 		}
 
 		// Check for duplicate cards and convert holes to indexes.
-		final int[] holeIndexes = new int[numHoles];
+		final int num2Holes = numHoles * 6;
+		final int[] holeIndexes = new int[num2Holes];
+		int l = 0;
 		for (int i = 0; i < numHoles; i++) {
 			for (int j = i + 1; j < numHoles; j++) {
 				if (holes[i].intersects(holes[j])) {
 					throw new IllegalArgumentException("hole " + holes[i] + " and hole " + holes[j] + " contain common cards");
 				}
 			}
-			holeIndexes[i] = holes[i].getIndex();
+			final Hole[] twoCardHoles = holes[i].getAll2CardHoles();
+			for (int j = 0; j < 6; j++) {
+				holeIndexes[l++] = twoCardHoles[j].getIndex();
+			}
 		}
 
 		final int[][] udata = this.udata;
@@ -64,32 +70,42 @@ public class PreFlopOddsCalculator {
 		final long t1 = System.currentTimeMillis();
 
 		// Decompress the hands.
-		for (int i = 0; i < numHoles; i++) {
+		for (int i = 0; i < num2Holes; i++) {
 			db.expand(holeIndexes[i], udata[i]);
 		}
 
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
-		nb: for (int i = 0; i < Constants.BOARD_COUNT_0; i++) {
+		int[] max2 = new int[numHoles];
+		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			int max = -1, count = 0;
+			l = 0;
 			nh: for (int j = 0; j < numHoles; j++) {
-				final int v = udata[j][i];
-				if (v < 0) {
-					continue nb;
+				int maxv = -1;
+				n2h: for (int k = 0; k < 6; k++) {
+					final int v = udata[l++][i];
+					if (v < 0) {
+						continue nb;
+					}
+					if (v < maxv) {
+						continue n2h;
+					}
+					maxv = v;
 				}
-				if (v < max) {
+				max2[j] = maxv;
+				if (maxv < max) {
 					continue nh;
 				}
-				if (v == max) {
+				if (maxv == max) {
 					count++;
 				} else {
-					max = v;
+					max = maxv;
 					count = 1;
 				}
 			}
 			for (int j = 0; j < numHoles; j++) {
-				nWaySplits[j][udata[j][i] == max ? count : 0]++;
+				nWaySplits[j][max2[j] == max ? count : 0]++;
 			}
 		}
 		final long t3 = System.currentTimeMillis();
@@ -135,9 +151,9 @@ public class PreFlopOddsCalculator {
 		final Deck deck = new Deck(random);
 		for (int i = 0; i < 50; i++) {
 			System.out.println("warmup round " + i);
-			final Hole[] holes = new Hole[numHoles];
+			final Hole4[] holes = new Hole4[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = new Hole(deck.draw(), deck.draw());
+				holes[j] = Hole4.fromDeck(deck);
 			}
 			calculator.calculateOdds(holes);
 			deck.shuffle();
@@ -146,9 +162,9 @@ public class PreFlopOddsCalculator {
 		long totalTime = 0, totalExpandTime = 0, totalCompareTime = 0;
 
 		for (int i = 0; i < 100; i++) {
-			final Hole[] holes = new Hole[numHoles];
+			final Hole4[] holes = new Hole4[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = new Hole(deck.draw(), deck.draw());
+				holes[j] = Hole4.fromDeck(deck);
 			}
 			deck.shuffle();
 
@@ -166,17 +182,9 @@ public class PreFlopOddsCalculator {
 			totalExpandTime += expandTime;
 			totalCompareTime += compareTime;
 
-			if (odds.getTotal() != Constants.getBoardCount(numHoles)) {
-				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getBoardCount(numHoles) + ")");
+			if (odds.getTotal() != Constants.getHole4BoardCount(numHoles)) {
+				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getHole4BoardCount(numHoles) + ")");
 			}
-			if (numHoles == 2) {
-				final Odds odds2 = TwoPlayerPreFlopOddsDB.getInstance().getOdds(holes[0], holes[1]);
-				if (!(odds.getLosses() == odds2.getLosses() && odds.getWins() == odds2.getWins() && odds.getSplits() == odds2.getSplits())) {
-					System.out.println("***** ODDS INCORRECT *****");
-					System.out.println("should be " + odds2);
-				}
-			}
-
 		}
 
 		System.out.println("avg expand=" + (totalExpandTime / 100) + " avg compare=" + (totalCompareTime / 100) + " avg total=" + (totalTime / 100) + " ms");

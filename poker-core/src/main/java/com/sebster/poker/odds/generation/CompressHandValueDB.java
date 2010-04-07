@@ -50,16 +50,16 @@ public class CompressHandValueDB {
 		final DataInputStream in = new DataInputStream(new GZIPInputStream(new FileInputStream(input)));
 		final DataOutputStream out = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(output)));
 
-		final byte[] dataBytes = new byte[Constants.BOARD_COUNT_0 * 4];
-		final int[] data = new int[Constants.BOARD_COUNT_0];
-		final int[] dataCompressed = new int[Constants.BOARD_COUNT_0];
-		final int[] dataVerify = new int[Constants.BOARD_COUNT_0];
+		final byte[] dataBytes = new byte[Constants.BOARD_COUNT_52 * 4];
+		final int[] data = new int[Constants.BOARD_COUNT_52];
+		final int[] dataCompressed = new int[Constants.BOARD_COUNT_52];
+		final int[] dataVerify = new int[Constants.BOARD_COUNT_52];
 		for (int i = 0; i < Constants.HOLE_COUNT; i++) {
 
 			// Read data.
 			in.readFully(dataBytes);
 			int k = 0;
-			for (int j = 0; j < Constants.BOARD_COUNT_0; j++) {
+			for (int j = 0; j < Constants.BOARD_COUNT_52; j++) {
 				data[j] = dataBytes[k++] & 0xff;
 				data[j] = (data[j] << 8) | (dataBytes[k++] & 0xff);
 				data[j] = (data[j] << 8) | (dataBytes[k++] & 0xff);
@@ -78,8 +78,8 @@ public class CompressHandValueDB {
 			}
 
 			// Verify.
-			CompressLZFI.expand(dataCompressed, 0, length, dataVerify, 0, Constants.BOARD_COUNT_0);
-			for (int j = 0; j < Constants.BOARD_COUNT_0; j++) {
+			CompressLZFI.expand(dataCompressed, 0, length, dataVerify, 0, Constants.BOARD_COUNT_52);
+			for (int j = 0; j < Constants.BOARD_COUNT_52; j++) {
 				if (data[j] != dataVerify[j]) {
 					throw new IllegalStateException("error at " + j + ": " + data[j] + " != " + dataVerify[j]);
 				}

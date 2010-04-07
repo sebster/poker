@@ -49,7 +49,7 @@ public class CompressedHandValueDB {
 
 	/**
 	 * Expand the compressed data for the specified hole index to the specified
-	 * array. The array must be at least {@link Constants#BOARD_COUNT_0} long.
+	 * array. The array must be at least {@link Constants#BOARD_COUNT_52} long.
 	 * 
 	 * @param index
 	 *            the index of the hole

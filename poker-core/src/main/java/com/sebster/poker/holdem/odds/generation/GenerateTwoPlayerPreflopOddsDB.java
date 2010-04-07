@@ -160,7 +160,7 @@ public class GenerateTwoPlayerPreflopOddsDB {
 				}
 			}
 		}
-		assert (total == Constants.BOARD_COUNT_2);
+		assert (total == Constants.BOARD_COUNT_48);
 		return new int[] { win, loss };
 	}
 

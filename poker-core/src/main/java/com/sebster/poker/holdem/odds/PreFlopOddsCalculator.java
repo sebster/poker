@@ -26,7 +26,7 @@ public class PreFlopOddsCalculator {
 	/**
 	 * The uncompressed hand value arrays for up to 10 hands.
 	 */
-	private final int[][] udata = new int[10][Constants.BOARD_COUNT_0];
+	private final int[][] udata = new int[10][Constants.BOARD_COUNT_52];
 
 	private int lastExpandTime;
 
@@ -70,7 +70,7 @@ public class PreFlopOddsCalculator {
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
-		nb: for (int i = 0; i < Constants.BOARD_COUNT_0; i++) {
+		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			int max = -1, count = 0;
 			nh: for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
@@ -165,8 +165,8 @@ public class PreFlopOddsCalculator {
 			totalExpandTime += expandTime;
 			totalCompareTime += compareTime;
 
-			if (odds.getTotal() != Constants.getBoardCount(numHoles)) {
-				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getBoardCount(numHoles) + ")");
+			if (odds.getTotal() != Constants.getHole2BoardCount(numHoles)) {
+				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getHole2BoardCount(numHoles) + ")");
 			}
 			if (numHoles == 2) {
 				final Odds odds2 = TwoPlayerPreFlopOddsDB.getInstance().getOdds(holes[0], holes[1]);
