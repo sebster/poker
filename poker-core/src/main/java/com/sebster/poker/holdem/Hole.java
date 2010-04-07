@@ -4,7 +4,7 @@ import com.sebster.poker.Card;
 import com.sebster.poker.Deck;
 import com.sebster.poker.Rank;
 import com.sebster.poker.Suit;
-import com.sebster.poker.holdem.odds.Constants;
+import com.sebster.poker.odds.Constants;
 import com.sebster.util.LinearOrder;
 
 public final class Hole implements LinearOrder<Hole> {
@@ -50,6 +50,14 @@ public final class Hole implements LinearOrder<Hole> {
 		return second;
 	}
 
+	public Card getCard(int index) {
+		switch (index) {
+		case 0: return first;
+		case 1: return second;
+		}
+		throw new IllegalArgumentException("index must be 0 or 1");
+	}
+	
 	/**
 	 * Return the index of this hole in the list of all holes.
 	 * 

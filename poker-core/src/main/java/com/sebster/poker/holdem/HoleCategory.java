@@ -1,7 +1,7 @@
 package com.sebster.poker.holdem;
 
 import com.sebster.poker.Rank;
-import com.sebster.poker.holdem.odds.Constants;
+import com.sebster.poker.odds.Constants;
 import com.sebster.util.LinearOrder;
 
 public enum HoleCategory implements LinearOrder<HoleCategory> {

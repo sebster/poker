@@ -7,8 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.holdem.HoleCategory;
-import com.sebster.poker.holdem.odds.Odds;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
+import com.sebster.poker.odds.Odds;
 
 public class EvolveNE {
 

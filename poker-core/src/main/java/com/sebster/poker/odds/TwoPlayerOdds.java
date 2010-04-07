@@ -1,4 +1,5 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.odds;
+
 
 public class TwoPlayerOdds extends Odds {
 

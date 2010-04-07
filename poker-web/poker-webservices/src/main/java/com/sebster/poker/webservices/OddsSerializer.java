@@ -9,7 +9,7 @@ import org.jabsorb.serializer.UnmarshallException;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import com.sebster.poker.holdem.odds.Odds;
+import com.sebster.poker.odds.Odds;
 
 @SuppressWarnings("unchecked")
 public class OddsSerializer implements Serializer {

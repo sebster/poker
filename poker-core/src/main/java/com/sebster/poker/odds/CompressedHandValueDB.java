@@ -1,4 +1,4 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.odds;
 
 import java.io.DataInputStream;
 import java.io.IOException;

@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import com.sebster.poker.Card;
 import com.sebster.poker.Suit;
 import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.odds.Constants;
+import com.sebster.poker.odds.TwoPlayerOdds;
 import com.sebster.poker.util.Utils;
 import com.sebster.util.ArrayUtils;
 

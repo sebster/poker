@@ -17,12 +17,12 @@ import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
 import com.sebster.poker.holdem.Hole;
-import com.sebster.poker.holdem.odds.CompressedHandValueDB;
-import com.sebster.poker.holdem.odds.Odds;
 import com.sebster.poker.holdem.odds.PostFlopOddsCalculator;
 import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
-import com.sebster.poker.holdem.odds.TwoPlayerOdds;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
+import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.odds.Odds;
+import com.sebster.poker.odds.TwoPlayerOdds;
 
 public class HoldemWebServices {
 

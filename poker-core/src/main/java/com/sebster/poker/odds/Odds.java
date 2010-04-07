@@ -1,4 +1,4 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.odds;
 
 public abstract class Odds implements Comparable<Odds> {
 

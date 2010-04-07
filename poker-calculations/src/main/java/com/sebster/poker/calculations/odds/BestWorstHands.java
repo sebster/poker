@@ -5,8 +5,8 @@ import java.util.Map;
 
 import com.sebster.poker.Rank;
 import com.sebster.poker.holdem.HoleCategory;
-import com.sebster.poker.holdem.odds.Odds;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
+import com.sebster.poker.odds.Odds;
 
 public class BestWorstHands {
 

@@ -7,10 +7,10 @@ import java.io.IOException;
 
 import com.sebster.poker.holdem.Hole;
 import com.sebster.poker.holdem.HoleCategory;
-import com.sebster.poker.holdem.odds.Constants;
-import com.sebster.poker.holdem.odds.Odds;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
+import com.sebster.poker.odds.Constants;
+import com.sebster.poker.odds.Odds;
 
 public class GenerateTwoPlayerPreflopHoleCategoryOddsDB {
 

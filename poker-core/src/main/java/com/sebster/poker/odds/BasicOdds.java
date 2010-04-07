@@ -1,6 +1,7 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.odds;
 
 import java.util.Arrays;
+
 
 public class BasicOdds extends Odds {
 

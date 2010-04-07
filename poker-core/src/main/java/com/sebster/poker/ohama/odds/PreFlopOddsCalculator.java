@@ -1,4 +1,4 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.ohama.odds;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -10,6 +10,7 @@ import java.util.zip.GZIPInputStream;
 
 import com.sebster.poker.Deck;
 import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
 import com.sebster.poker.holdem.odds.generation.CompressHandValueDB;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
@@ -24,9 +25,9 @@ public class PreFlopOddsCalculator {
 	private final CompressedHandValueDB db;
 
 	/**
-	 * The uncompressed hand value arrays for up to 10 hands.
+	 * The uncompressed hand value arrays for up to 6 ohama hands, which is 36 two card hands.
 	 */
-	private final int[][] udata = new int[10][Constants.BOARD_COUNT_0];
+	private final int[][] udata = new int[36][Constants.BOARD_COUNT_0];
 
 	private int lastExpandTime;
 
@@ -42,8 +43,8 @@ public class PreFlopOddsCalculator {
 	public final Odds[] calculateOdds(final Hole[] holes) {
 
 		final int numHoles = holes.length;
-		if (numHoles < 2 || numHoles > 10) {
-			throw new IllegalArgumentException("number of holes must be between 2 and 10");
+		if (numHoles < 2 || numHoles > 6) {
+			throw new IllegalArgumentException("number of holes must be between 2 and 6");
 		}
 
 		// Check for duplicate cards and convert holes to indexes.
