@@ -4,15 +4,15 @@ import java.io.IOException;
 
 public class CompressHandValueDB {
 
-	public static final String FILENAME = "hand_value_db.lzfi.gz";
+	public static final String FILENAME = "holdem_hand_value_db.lzfi.gz";
 
 	/**
 	 * Compress the hand value database using a custom int-aligned LZF
 	 * algorithm. The first argument is the input filename of the gzipped hand
 	 * value database, the second argument is the filename of the int-aligned
 	 * LZF compressed output database. The default input filename is
-	 * "hand_values.dat.gz", the default output filename is
-	 * "hand_values.dat.lzfi.gz".
+	 * "holdem_hand_values.dat.gz", the default output filename is
+	 * "holdem_hand_values.dat.lzfi.gz".
 	 * 
 	 * @param args
 	 *            the input and output filenames
