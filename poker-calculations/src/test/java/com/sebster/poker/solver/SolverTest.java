@@ -5,8 +5,8 @@ import java.util.EnumSet;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.sebster.poker.holdem.HoleCategory;
-import com.sebster.poker.holdem.HoleRange;
+import com.sebster.poker.HoleCategory;
+import com.sebster.poker.HoleRange;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 
 public class SolverTest {

@@ -7,7 +7,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.sebster.poker.holdem.HoleCategory;
+import com.sebster.poker.HoleCategory;
 
 public class NESolver {
 

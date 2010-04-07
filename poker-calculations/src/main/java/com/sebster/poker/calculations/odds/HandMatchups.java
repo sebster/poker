@@ -3,7 +3,7 @@ package com.sebster.poker.calculations.odds;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
-import com.sebster.poker.holdem.HoleCategory;
+import com.sebster.poker.HoleCategory;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.odds.Odds;
 

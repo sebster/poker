@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
-import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.Hole;
 import com.sebster.poker.holdem.odds.PostFlopOddsCalculator;
 import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;

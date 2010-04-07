@@ -3,8 +3,8 @@ package com.sebster.poker.calculations.odds;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sebster.poker.HoleCategory;
 import com.sebster.poker.Rank;
-import com.sebster.poker.holdem.HoleCategory;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.odds.Odds;
 

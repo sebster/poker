@@ -7,7 +7,7 @@ import org.jabsorb.serializer.Serializer;
 import org.jabsorb.serializer.SerializerState;
 import org.jabsorb.serializer.UnmarshallException;
 
-import com.sebster.poker.holdem.Hole;
+import com.sebster.poker.Hole;
 
 @SuppressWarnings("unchecked")
 public class HoleSerializer implements Serializer {
