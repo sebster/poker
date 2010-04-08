@@ -28,19 +28,35 @@ public class PreFlopOddsCalculator {
 	 * The uncompressed hand value arrays for up to 6 ohama hands, which is 36
 	 * two card hands.
 	 */
-	private final int[][] udata = new int[36][Constants.BOARD_COUNT_52];
+	private final int[][] udata;
 
 	private int lastExpandTime;
 
 	private int lastCompareTime;
 
 	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
+		this(db, new int[36][Constants.BOARD_COUNT_52]);
+	}
+	
+	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
+		if (udata == null) {
+			throw new NullPointerException("udata");
+		}
+		if (udata.length < 36) {
+			throw new IllegalArgumentException("udata must have at least length 36");
+		}
+		for (int i = 0; i < 36; i++) {
+			if (udata[i].length < Constants.BOARD_COUNT_52){
+				throw new IllegalArgumentException("udata[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
+			}
+		}
 		this.db = db;
+		this.udata = udata;
 	}
-
+	
 	public final Odds[] calculateOdds(final Hole4[] holes) {
 
 		final int numHoles = holes.length;

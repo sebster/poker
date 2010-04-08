@@ -6,10 +6,10 @@
 * limit threads per client IP
 * make prod/dev profiles.
 * make prod/dev log4j.xml files.
-* share memory for odds calculations between ohama/holdem.
 * optimize ohama odds calculator.
 
 DONE:
++ share memory for odds calculations between ohama/holdem.
 + make path to db (and other web.xml params) configurable.
 + rename project to poker-webservices
 + export holdem services under holdem object

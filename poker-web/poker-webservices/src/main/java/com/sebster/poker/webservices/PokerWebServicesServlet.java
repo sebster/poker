@@ -11,8 +11,6 @@ import javax.servlet.ServletException;
 import org.jabsorb.JSONRPCBridge;
 import org.jabsorb.JSONRPCServlet;
 
-import com.sebster.poker.webservices.holdem.HoldemWebServices;
-import com.sebster.poker.webservices.holdem.OhamaWebServices;
 
 public class PokerWebServicesServlet extends JSONRPCServlet {
 
@@ -77,9 +75,10 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 
 		// Register our web service.
 		try {
-			JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
-			bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService));
-			bridge.registerObject("ohama", new OhamaWebServices(ohamaDbPath, cacheSize, executorService));
+			final DecompressBufferHolder decompressBufferHolder = new DecompressBufferHolder();
+			final JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
+			bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
+			bridge.registerObject("ohama", new OhamaWebServices(ohamaDbPath, cacheSize, executorService, decompressBufferHolder));
 			bridge.registerSerializer(new HoleSerializer());
 			bridge.registerSerializer(new OddsSerializer());
 			bridge.registerSerializer(new CardSerializer());
