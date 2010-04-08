@@ -19,11 +19,11 @@ import com.sebster.poker.Card;
 import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
-import com.sebster.poker.ohama.odds.PreFlopOddsCalculator;
+import com.sebster.poker.omaha.odds.PreFlopOddsCalculator;
 
-public class OhamaWebServices {
+public class OmahaWebServices {
 
-	private static final Logger logger = LoggerFactory.getLogger(OhamaWebServices.class);
+	private static final Logger logger = LoggerFactory.getLogger(OmahaWebServices.class);
 
 	private final CompressedHandValueDB db;
 
@@ -35,7 +35,7 @@ public class OhamaWebServices {
 
 	private final LRUMap cache;
 
-	public OhamaWebServices(final String dbPath, final int cacheSize, final ExecutorService exector, final DecompressBufferHolder decompressBufferHolder) throws IOException {
+	public OmahaWebServices(final String dbPath, final int cacheSize, final ExecutorService exector, final DecompressBufferHolder decompressBufferHolder) throws IOException {
 
 		// Initialize compressed hand value db.
 		InputStream in = null;
@@ -94,10 +94,10 @@ public class OhamaWebServices {
 		@Override
 		public Odds[] call() throws Exception {
 			final long t1 = System.currentTimeMillis();
-			PreFlopOddsCalculator calculator = OhamaWebServices.this.calculator.get();
+			PreFlopOddsCalculator calculator = OmahaWebServices.this.calculator.get();
 			if (calculator == null) {
 				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer());
-				OhamaWebServices.this.calculator.set(calculator);
+				OmahaWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
 			final long t2 = System.currentTimeMillis();

@@ -1,4 +1,4 @@
-package com.sebster.poker.ohama.odds;
+package com.sebster.poker.omaha.odds;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -15,7 +15,7 @@ import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
-import com.sebster.poker.ohama.odds.generation.CompressHandValueDB;
+import com.sebster.poker.omaha.odds.generation.CompressHandValueDB;
 
 public class PreFlopOddsCalculator {
 
@@ -25,7 +25,7 @@ public class PreFlopOddsCalculator {
 	private final CompressedHandValueDB db;
 
 	/**
-	 * The uncompressed hand value arrays for up to 6 ohama hands, which is 36
+	 * The uncompressed hand value arrays for up to 6 omaha hands, which is 36
 	 * two card hands.
 	 */
 	private final int[][] udata;

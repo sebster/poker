@@ -11,7 +11,6 @@ import javax.servlet.ServletException;
 import org.jabsorb.JSONRPCBridge;
 import org.jabsorb.JSONRPCServlet;
 
-
 public class PokerWebServicesServlet extends JSONRPCServlet {
 
 	public static final int DEFAULT_THREADS = 2;
@@ -36,11 +35,11 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 			}
 		}
 
-		String ohamaDbPath = System.getProperty("com.sebster.poker.webservices.ohama.handValueDBLocation");
-		if (ohamaDbPath == null) {
-			ohamaDbPath = config.getInitParameter("ohama.handValueDBLocation");
-			if (ohamaDbPath == null) {
-				throw new ServletException("ohama.handValueDBLocation parameter not set");
+		String omahaDbPath = System.getProperty("com.sebster.poker.webservices.omaha.handValueDBLocation");
+		if (omahaDbPath == null) {
+			omahaDbPath = config.getInitParameter("omaha.handValueDBLocation");
+			if (omahaDbPath == null) {
+				throw new ServletException("omaha.handValueDBLocation parameter not set");
 			}
 		}
 
@@ -78,8 +77,9 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 			final DecompressBufferHolder decompressBufferHolder = new DecompressBufferHolder();
 			final JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
 			bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
-			bridge.registerObject("ohama", new OhamaWebServices(ohamaDbPath, cacheSize, executorService, decompressBufferHolder));
+			bridge.registerObject("omaha", new OmahaWebServices(omahaDbPath, cacheSize, executorService, decompressBufferHolder));
 			bridge.registerSerializer(new HoleSerializer());
+			bridge.registerSerializer(new Hole4Serializer());
 			bridge.registerSerializer(new OddsSerializer());
 			bridge.registerSerializer(new CardSerializer());
 			bridge.setExceptionTransformer(new NoStackTraceErrorTransformer());

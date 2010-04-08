@@ -1,3 +1,3 @@
 * Bundle all odds calculations into one (static) utility class?
 * Check preflop odds calculators for bounds checks (make sure they don't happen).
-* Make postflop odds calculator for ohama.
+* Make postflop odds calculator for omaha.

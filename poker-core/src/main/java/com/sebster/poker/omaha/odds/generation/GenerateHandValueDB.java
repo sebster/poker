@@ -1,4 +1,4 @@
-package com.sebster.poker.ohama.odds.generation;
+package com.sebster.poker.omaha.odds.generation;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
@@ -20,7 +20,7 @@ public class GenerateHandValueDB {
 	/**
 	 * The default hand value database filename.
 	 */
-	public static final String FILENAME = "ohama_hand_value_db.bin.gz";
+	public static final String FILENAME = "omaha_hand_value_db.bin.gz";
 
 	private static final int[][] combinations = {
 			{ 0, 1, 2 }, { 0, 1, 3 }, { 0, 1, 4 }, { 0, 2, 3 }, { 0, 2, 4 }, { 0, 3, 4 },
@@ -33,7 +33,7 @@ public class GenerateHandValueDB {
 	 * cards in the hole. For these invalid boards the hand value is set to -1.
 	 * This will generate a DB of 1326 times 2598960 integer hand values, for a
 	 * total of 12.8 GB of data. By default the DB will be saved to
-	 * "ohama_hand_values.dat.gz", but if an argument is given, that will be
+	 * "omaha_hand_values.dat.gz", but if an argument is given, that will be
 	 * used as the filename instead.
 	 * 
 	 * @param args

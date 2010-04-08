@@ -1,18 +1,18 @@
-package com.sebster.poker.ohama.odds.generation;
+package com.sebster.poker.omaha.odds.generation;
 
 import java.io.IOException;
 
 public class CompressHandValueDB {
 
-	public static final String FILENAME = "ohama_hand_value_db.lzfi.gz";
+	public static final String FILENAME = "omaha_hand_value_db.lzfi.gz";
 
 	/**
 	 * Compress the hand value database using a custom int-aligned LZF
 	 * algorithm. The first argument is the input filename of the gzipped hand
 	 * value database, the second argument is the filename of the int-aligned
 	 * LZF compressed output database. The default input filename is
-	 * "ohama_hand_values.dat.gz", the default output filename is
-	 * "ohama_hand_values.dat.lzfi.gz".
+	 * "omaha_hand_values.dat.gz", the default output filename is
+	 * "omaha_hand_values.dat.lzfi.gz".
 	 * 
 	 * @param args
 	 *            the input and output filenames
