@@ -13,13 +13,32 @@ import org.jabsorb.JSONRPCServlet;
 
 public class PokerWebServicesServlet extends JSONRPCServlet {
 
-	public static final int DEFAULT_THREADS = 2;
-
-	public static final int DEFAULT_QUEUE_SIZE = 50;
-
-	public static final int DEFAULT_CACHE_SIZE = 2048;
-
 	private static final long serialVersionUID = 1L;
+
+	/** Service keys used for exporting */
+	private static final String SERVICE_KEY_HOLDEM = "holdem";
+	private static final String SERVICE_KEY_OMAHA = "omaha";
+
+	/** Init parameter names */
+	private static final String PARAM_HOLDEM_DB_LOCATION = "holdem.handValueDBLocation";
+	private static final String PARAM_OMAHA_DB_LOCATION = "omaha.handValueDBLocation";
+	private static final String PARAM_EXECUTOR_THREADS = "executorThreads";
+	private static final String PARAM_EXECUTOR_QUEUE_SIZE = "executorQueueSize";
+	private static final String PARAM_CACHE_SIZE = "cacheSize";
+
+	/** System property names */
+	private static final String PROPERTY_HOLDEM_ENABLE = "com.sebster.poker.webservices.holdem.disable";
+	private static final String PROPERTY_HOLDEM_DB_LOCATION = "com.sebster.poker.webservices.holdem.handValueDBLocation";
+	private static final String PROPERTY_OMAHA_ENABLE = "com.sebster.poker.webservices.omaha.disable";
+	private static final String PROPERTY_OMAHA_DB_LOCATION = "com.sebster.poker.webservices.omaha.handValueDBLocation";
+	private static final String PROPERTY_EXECUTOR_THREADS = "com.sebster.poker.webservices.executorThreads";
+	private static final String PROPERTY_EXECUTOR_QUEUE_SIZE = "com.sebster.poker.webservices.executorQueueSize";
+	private static final String PROPERTY_CACHE_SIZE = "com.sebster.poker.webservices.cacheSize";
+
+	/** Default values */
+	public static final int DEFAULT_THREADS = 2;
+	public static final int DEFAULT_QUEUE_SIZE = 50;
+	public static final int DEFAULT_CACHE_SIZE = 2048;
 
 	private ExecutorService executorService;
 
@@ -29,52 +48,52 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 
 		int buffers = 0;
 
-		boolean holdemEnable = !Boolean.valueOf(System.getProperty("com.sebster.poker.webservices.holdem.disable"));
-		String holdemDbPath = System.getProperty("com.sebster.poker.webservices.holdem.handValueDBLocation");
+		boolean holdemEnable = !Boolean.valueOf(System.getProperty(PROPERTY_HOLDEM_ENABLE));
+		String holdemDbPath = System.getProperty(PROPERTY_HOLDEM_DB_LOCATION);
 		if (holdemEnable) {
 			if (holdemDbPath == null) {
-				holdemDbPath = config.getInitParameter("holdem.handValueDBLocation");
+				holdemDbPath = config.getInitParameter(PARAM_HOLDEM_DB_LOCATION);
 				if (holdemDbPath == null) {
-					throw new ServletException("holdem.handValueDBLocation parameter not set");
+					throw new ServletException(PARAM_HOLDEM_DB_LOCATION + " parameter not set");
 				}
 			}
 			buffers = 10;
 		}
 
-		boolean omahaEnable = !Boolean.valueOf(System.getProperty("com.sebster.poker.webservices.omaha.disable"));
-		String omahaDbPath = System.getProperty("com.sebster.poker.webservices.omaha.handValueDBLocation");
+		boolean omahaEnable = !Boolean.valueOf(System.getProperty(PROPERTY_OMAHA_ENABLE));
+		String omahaDbPath = System.getProperty(PROPERTY_OMAHA_DB_LOCATION);
 		if (omahaEnable) {
 			if (omahaDbPath == null) {
-				omahaDbPath = config.getInitParameter("omaha.handValueDBLocation");
+				omahaDbPath = config.getInitParameter(PARAM_OMAHA_DB_LOCATION);
 				if (omahaDbPath == null) {
-					throw new ServletException("omaha.handValueDBLocation parameter not set");
+					throw new ServletException(PARAM_OMAHA_DB_LOCATION + " parameter not set");
 				}
 			}
 			buffers = 36;
 		}
 
 		int threads = DEFAULT_THREADS;
-		String threadsParam = System.getProperty("com.sebster.poker.webservices.executorThreads");
+		String threadsParam = System.getProperty(PROPERTY_EXECUTOR_THREADS);
 		if (threadsParam == null) {
-			threadsParam = config.getInitParameter("executorThreads");
+			threadsParam = config.getInitParameter(PARAM_EXECUTOR_THREADS);
 		}
 		if (threadsParam != null) {
 			threads = Integer.parseInt(threadsParam);
 		}
 
 		int queueSize = DEFAULT_QUEUE_SIZE;
-		String queueSizeParam = System.getProperty("com.sebster.poker.webservices.executorQueueSize");
+		String queueSizeParam = System.getProperty(PROPERTY_EXECUTOR_QUEUE_SIZE);
 		if (queueSizeParam == null) {
-			config.getInitParameter("executorQueueSize");
+			config.getInitParameter(PARAM_EXECUTOR_QUEUE_SIZE);
 		}
 		if (queueSizeParam != null) {
 			queueSize = Integer.parseInt(queueSizeParam);
 		}
 
 		int cacheSize = DEFAULT_CACHE_SIZE;
-		String cacheSizeParam = System.getProperty("com.sebster.poker.webservices.cacheSize");
+		String cacheSizeParam = System.getProperty(PROPERTY_CACHE_SIZE);
 		if (cacheSizeParam == null) {
-			cacheSizeParam = config.getInitParameter("cacheSize");
+			cacheSizeParam = config.getInitParameter(PARAM_CACHE_SIZE);
 		}
 		if (cacheSizeParam != null) {
 			cacheSize = Integer.parseInt(cacheSizeParam);
@@ -87,10 +106,10 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 			final DecompressBufferHolder decompressBufferHolder = new DecompressBufferHolder(buffers);
 			final JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
 			if (holdemEnable) {
-				bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
+				bridge.registerObject(SERVICE_KEY_HOLDEM, new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
 			}
 			if (omahaEnable) {
-				bridge.registerObject("omaha", new OmahaWebServices(omahaDbPath, cacheSize, executorService, decompressBufferHolder));
+				bridge.registerObject(SERVICE_KEY_OMAHA, new OmahaWebServices(omahaDbPath, cacheSize, executorService, decompressBufferHolder));
 			}
 			bridge.registerSerializer(new HoleSerializer());
 			bridge.registerSerializer(new Hole4Serializer());
