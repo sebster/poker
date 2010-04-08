@@ -27,20 +27,30 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 	public void init(final ServletConfig config) throws ServletException {
 		super.init(config);
 
+		int buffers = 0;
+
+		boolean holdemEnable = !Boolean.valueOf(System.getProperty("com.sebster.poker.webservices.holdem.disable"));
 		String holdemDbPath = System.getProperty("com.sebster.poker.webservices.holdem.handValueDBLocation");
-		if (holdemDbPath == null) {
-			holdemDbPath = config.getInitParameter("holdem.handValueDBLocation");
+		if (holdemEnable) {
 			if (holdemDbPath == null) {
-				throw new ServletException("holdem.handValueDBLocation parameter not set");
+				holdemDbPath = config.getInitParameter("holdem.handValueDBLocation");
+				if (holdemDbPath == null) {
+					throw new ServletException("holdem.handValueDBLocation parameter not set");
+				}
 			}
+			buffers = 10;
 		}
 
+		boolean omahaEnable = !Boolean.valueOf(System.getProperty("com.sebster.poker.webservices.omaha.disable"));
 		String omahaDbPath = System.getProperty("com.sebster.poker.webservices.omaha.handValueDBLocation");
-		if (omahaDbPath == null) {
-			omahaDbPath = config.getInitParameter("omaha.handValueDBLocation");
+		if (omahaEnable) {
 			if (omahaDbPath == null) {
-				throw new ServletException("omaha.handValueDBLocation parameter not set");
+				omahaDbPath = config.getInitParameter("omaha.handValueDBLocation");
+				if (omahaDbPath == null) {
+					throw new ServletException("omaha.handValueDBLocation parameter not set");
+				}
 			}
+			buffers = 36;
 		}
 
 		int threads = DEFAULT_THREADS;
@@ -74,10 +84,14 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 
 		// Register our web service.
 		try {
-			final DecompressBufferHolder decompressBufferHolder = new DecompressBufferHolder();
+			final DecompressBufferHolder decompressBufferHolder = new DecompressBufferHolder(buffers);
 			final JSONRPCBridge bridge = JSONRPCBridge.getGlobalBridge();
-			bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
-			bridge.registerObject("omaha", new OmahaWebServices(omahaDbPath, cacheSize, executorService, decompressBufferHolder));
+			if (holdemEnable) {
+				bridge.registerObject("holdem", new HoldemWebServices(holdemDbPath, cacheSize, executorService, decompressBufferHolder));
+			}
+			if (omahaEnable) {
+				bridge.registerObject("omaha", new OmahaWebServices(omahaDbPath, cacheSize, executorService, decompressBufferHolder));
+			}
 			bridge.registerSerializer(new HoleSerializer());
 			bridge.registerSerializer(new Hole4Serializer());
 			bridge.registerSerializer(new OddsSerializer());

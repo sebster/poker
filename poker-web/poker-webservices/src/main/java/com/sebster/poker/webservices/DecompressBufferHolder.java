@@ -12,6 +12,19 @@ public class DecompressBufferHolder {
 
 	private final ThreadLocal<int[][]> buffer = new ThreadLocal<int[][]>();
 
+	private final int buffers;
+
+	public DecompressBufferHolder() {
+		this(36);
+	}
+
+	public DecompressBufferHolder(final int buffers) {
+		if (buffers < 0) {
+			throw new IllegalArgumentException("buffers");
+		}
+		this.buffers = buffers;
+	}
+
 	/**
 	 * Get the decompress buffers for the current thread.
 	 * 
@@ -20,7 +33,7 @@ public class DecompressBufferHolder {
 	public int[][] getBuffer() {
 		int[][] buffer = this.buffer.get();
 		if (buffer == null) {
-			buffer = new int[36][Constants.BOARD_COUNT_52];
+			buffer = new int[buffers][Constants.BOARD_COUNT_52];
 			this.buffer.set(buffer);
 		}
 		return buffer;
