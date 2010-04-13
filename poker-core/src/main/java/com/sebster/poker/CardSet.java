@@ -70,6 +70,53 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	}
 
 	/**
+	 * Return a card set from one of its string representations. The string
+	 * representation must consist of the names of the cards, separated by a
+	 * comma, e.g. "Ac,Td".
+	 * 
+	 * @param string
+	 *            a string representation of the card set
+	 * @return the corresponding hole
+	 */
+	public static CardSet fromString(String string) {
+		if (string == null) {
+			throw new NullPointerException("string");
+		}
+		string = string.trim();
+		if (string.isEmpty()) {
+			throw new IllegalArgumentException("string is empty");
+		}
+		final String[] cardNames = string.split(",");
+		final Card[] cards = new Card[cardNames.length];
+		for (int i = 0; i < cardNames.length; i++) {
+			final String cardName = cardNames[i].trim();
+			if (cardName.isEmpty()) {
+				throw new IllegalArgumentException("string contains empty string at index " + i);
+			}
+			cards[i] = Card.byName(cardName);
+		}
+		return CardSet.fromCards(cards);
+	}
+
+	/**
+	 * Return the string representation of the card set. This consists of the
+	 * short names of the cards separated by a comma, e.g., "Ac,Td". This
+	 * representation can be used as input to the
+	 * {@link CardSet#fromString(String)} method.
+	 * 
+	 * @return the string representation of the card set
+	 */
+	@Override
+	public String toString() {
+		final StringBuilder buffer = new StringBuilder(cards[0].getShortName());
+		for (int i = 1; i < cards.length; i++) {
+			buffer.append(',');
+			buffer.append(cards[i].getShortName());
+		}
+		return buffer.toString();
+	}
+
+	/**
 	 * Return the first card set with the specified number of cards.
 	 * 
 	 * @param numCards
@@ -137,13 +184,6 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		return cards[index];
 	}
 
-	/**
-	 * Compare this card set to another card set. A linear order is defined
-	 * among card sets of the same size.
-	 * 
-	 * @param other
-	 * @return
-	 */
 	@Override
 	public int compareTo(final CardSet other) {
 		if (cards.length == other.cards.length) {
@@ -162,17 +202,14 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	public CardSet next() {
 		final Card[] cards = this.cards.clone();
 		for (int i = cards.length - 1; i >= 0; i--) {
-			final Card next = cards[i].next();
-			if (next != null) {
-				cards[i] = next;
+			if (cards[i].ordinal() < 51 - (cards.length - i)) {
+				cards[i] = cards[i].next();
+				for (int j = i + 1; j < cards.length; j++) {
+					cards[j] = cards[j - 1].next();
+				}
 				return new CardSet(cards);
 			}
-
 		}
-		// a b c d e
-		// e.next != null ?
-		// d.next == null ?
-		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -203,43 +240,6 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		// TODO Auto-generated method stub
 		return cards[cards.length - 1];
 	}
-	
-	/**
-	 * Return the string representation of the card set. This consists of the short
-	 * names of the cards separated by a comma, e.g., "Ac,Td".
-	 * 
-	 * @return the string representation of the card set
-	 */
-	@Override
-	public String toString() {
-		final StringBuilder buffer = new StringBuilder(cards[0].getShortName());
-		for (int i = 1; i < cards.length; i++) {
-			buffer.append(',');
-			buffer.append(cards[i].getShortName());
-		}
-		return buffer.toString();
-	}
-
-	/**
-	 * Return a hole from its string representation. The string representation
-	 * must consist of the short names of the two cards, separated by a comma,
-	 * e.g. "Ac,Td".
-	 * 
-	 * @param string
-	 *            the string representation of the hole
-	 * @return the corresponding hole
-	 */
-	public static Hole fromString(final String string) {
-		// FIXME fix
-		if (string == null) {
-			throw new NullPointerException("string");
-		}
-		if (string.length() != 5 || string.charAt(2) != ',') {
-			throw new IllegalArgumentException("invalid hole: " + string);
-		}
-		return new Hole(Card.byName(string.substring(0, 2)), Card.byName(string.substring(3, 5)));
-	}
-
 
 	@Override
 	public SortedSet<Card> headSet(final Card toElement) {
@@ -301,6 +301,20 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	public Comparator<? super Card> comparator() {
 		// Natural order of the cards.
 		return null;
+	}
+
+	@Override
+	public boolean equals(final Object object) {
+		if (object instanceof CardSet) {
+			final CardSet other = (CardSet) object;
+			return Arrays.equals(cards, other.cards);
+		}
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		return 37 * super.hashCode() + Arrays.hashCode(cards);
 	}
 
 	@Override
