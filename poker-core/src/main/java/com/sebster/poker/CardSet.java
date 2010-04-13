@@ -3,14 +3,17 @@ package com.sebster.poker;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
+import java.util.TreeSet;
 
 import net.jcip.annotations.Immutable;
 
 import com.sebster.util.LinearOrder;
 
+// TODO implement NavigableSet?
 @Immutable
 public final class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, SortedSet<Card> {
 
@@ -67,6 +70,43 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 			throw new IllegalArgumentException("cards is empty");
 		}
 		return fromCards(cards.toArray(new Card[cards.size()]));
+	}
+
+	/**
+	 * Create a new card set from the specified deck.
+	 * 
+	 * @param deck
+	 *            the deck to draw from
+	 * @param numCards
+	 *            the number of cards in the card set
+	 * @return the card set drawn from the deck
+	 * @throws {@link IllegalArgumentException} if the deck does not have enough
+	 *         cards remaining
+	 */
+	public static CardSet fromDeck(final Deck deck, final int numCards) {
+		if (numCards <= 0) {
+			throw new IllegalArgumentException("numCards <= 0");
+		}
+		if (numCards > 52) {
+			throw new IllegalArgumentException("numCards > 52");
+		}
+		final Card[] cards = new Card[numCards];
+		for (int i = 0; i < numCards; i++) {
+			cards[i] = deck.draw();
+		}
+		Arrays.sort(cards);
+		return new CardSet(cards);
+	}
+
+	public static CardSet fromIndex(final int index, final int numCards) {
+		if (numCards <= 0) {
+			throw new IllegalArgumentException("numCards <= 0");
+		}
+		if (numCards > 8) {
+			throw new UnsupportedOperationException("card set too big to be indexed");
+		}
+		// FIXME implement
+		return null;
 	}
 
 	/**
@@ -162,6 +202,14 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		return new CardSet(cards);
 	}
 
+	public int getIndex() {
+		if (cards.length > 8) {
+			throw new UnsupportedOperationException("card set too big to be indexed");
+		}
+		// FIXME implement
+		return -1;
+	}
+
 	/**
 	 * Create a new card set for the specified card array. This constructor is
 	 * only called internally with a valid array, so no validation is done.
@@ -180,7 +228,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	 *            the index of the card
 	 * @return the card at the specified index
 	 */
-	public Card getCard(final int index) {
+	public Card get(final int index) {
 		return cards[index];
 	}
 
@@ -215,8 +263,45 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 
 	@Override
 	public CardSet prev() {
-		// TODO Auto-generated method stub
+		final Card[] cards = this.cards.clone();
+		for (int i = cards.length - 1; i >= 0; i--) {
+			if (cards[i].ordinal() > (i > 0 ? cards[i - 1].ordinal() + 1 : 0)) {
+				cards[i] = cards[i].prev();
+				if (i < cards.length - 1) {
+					cards[cards.length - 1] = Card.last();
+					for (int j = cards.length - 2; j > i; j--) {
+						cards[j] = cards[j + 1].prev();
+					}
+				}
+				return new CardSet(cards);
+			}
+		}
 		return null;
+	}
+
+	/**
+	 * Test if the card set contains common cards with the specified card set.
+	 * 
+	 * @param cardSet
+	 *            the card set to test
+	 * 
+	 * @return <code>true</code> if this card set contains common cards with the
+	 *         specified card set, <code>false</code> otherwise
+	 */
+	public boolean intersects(final CardSet cardSet) {
+		int i = 0, j = 0;
+		while (i < cards.length && j < cardSet.cards.length) {
+			int k = cards[i].compareTo(cardSet.cards[j]);
+			if (k == 0) {
+				return true;
+			}
+			if (k < 0) {
+				i++;
+			} else {
+				j++;
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -237,31 +322,42 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 
 	@Override
 	public Card last() {
-		// TODO Auto-generated method stub
 		return cards[cards.length - 1];
 	}
 
 	@Override
 	public SortedSet<Card> headSet(final Card toElement) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO better implementation?
+		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).headSet(toElement));
 	}
 
 	@Override
-	public SortedSet<Card> subSet(Card fromElement, Card toElement) {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedSet<Card> subSet(final Card fromElement, final Card toElement) {
+		// TODO better implementation?
+		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).subSet(fromElement, toElement));
 	}
 
 	@Override
-	public SortedSet<Card> tailSet(Card fromElement) {
-		// TODO Auto-generated method stub
-		return null;
+	public SortedSet<Card> tailSet(final Card fromElement) {
+		// TODO better implementation?
+		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).tailSet(fromElement));
 	}
 
 	@Override
 	public boolean contains(final Object object) {
-		// TODO Auto-generated method stub
+		if (object instanceof Card) {
+			final Card card = (Card) object;
+			/*
+			 * Since a card set never has more than 52 cards a scan and equality
+			 * test is probably faster than anything fancy like binary search or
+			 * adding a comparison.
+			 */
+			for (int i = 0; i < cards.length; i++) {
+				if (card == cards[i]) {
+					return true;
+				}
+			}
+		}
 		return false;
 	}
 
@@ -314,7 +410,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 
 	@Override
 	public int hashCode() {
-		return 37 * super.hashCode() + Arrays.hashCode(cards);
+		return 31 * super.hashCode() + Arrays.hashCode(cards);
 	}
 
 	@Override
@@ -336,13 +432,13 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	}
 
 	@Override
-	public boolean removeAll(final Collection<?> c) {
+	public boolean removeAll(final Collection<?> collection) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean retainAll(final Collection<?> c) {
+	public boolean retainAll(final Collection<?> collection) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}

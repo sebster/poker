@@ -2,7 +2,8 @@ package com.sebster.poker;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,9 +112,9 @@ public class CardSetTest {
 		} catch (final IllegalArgumentException e) {
 			// Expected.
 		}
-		
+
 		CardSet cardSet;
-		
+
 		// Test short names.
 		cardSet = CardSet.fromString("Ad,8c,Qh");
 		assertArrayEquals(new Card[] { Card.EIGHT_CLUBS, Card.QUEEN_HEARTS, Card.ACE_DIAMONDS }, cardSet.toArray());
@@ -121,7 +122,7 @@ public class CardSetTest {
 		// Test short names with white space.
 		cardSet = CardSet.fromString("  Ad ,8c		 , Qh	 ");
 		assertArrayEquals(new Card[] { Card.EIGHT_CLUBS, Card.QUEEN_HEARTS, Card.ACE_DIAMONDS }, cardSet.toArray());
-		
+
 		// Test some long names with mixed case and extra white space.
 		cardSet = CardSet.fromString("  Ace of diamonds, Eight Of Clubs,  	QUEEN of hearts ");
 		assertArrayEquals(new Card[] { Card.EIGHT_CLUBS, Card.QUEEN_HEARTS, Card.ACE_DIAMONDS }, cardSet.toArray());
@@ -130,42 +131,42 @@ public class CardSetTest {
 		cardSet = CardSet.fromString("Ad	,	eight OF clubs , Qh");
 		assertArrayEquals(new Card[] { Card.EIGHT_CLUBS, Card.QUEEN_HEARTS, Card.ACE_DIAMONDS }, cardSet.toArray());
 	}
-	
+
 	@Test
 	public void testToString() {
-		final CardSet cardSet = CardSet.fromCards(Card.TWO_HEARTS,Card.QUEEN_SPADES, Card.ACE_CLUBS);
+		final CardSet cardSet = CardSet.fromCards(Card.TWO_HEARTS, Card.QUEEN_SPADES, Card.ACE_CLUBS);
 		assertEquals("2h,Qs,Ac", cardSet.toString());
 	}
 
 	@Test
-	public void testFirst() {
+	public void testFirstCardSet() {
 		CardSet cardSet = CardSet.first(3);
 		assertArrayEquals(new Card[] { Card.first(), Card.first().next(), Card.first().next().next() }, cardSet.toArray());
 	}
 
 	@Test
-	public void testLast() {
+	public void testLastCardSet() {
 		CardSet cardSet = CardSet.last(3);
 		assertArrayEquals(new Card[] { Card.last().prev().prev(), Card.last().prev(), Card.last() }, cardSet.toArray());
 	}
 
 	@Test
-	public void testGetCard() {
+	public void testGet() {
 		final CardSet cardSet = CardSet.fromCards(Card.ACE_DIAMONDS, Card.EIGHT_CLUBS, Card.QUEEN_HEARTS);
 
-		assertEquals(Card.EIGHT_CLUBS, cardSet.getCard(0));
-		assertEquals(Card.QUEEN_HEARTS, cardSet.getCard(1));
-		assertEquals(Card.ACE_DIAMONDS, cardSet.getCard(2));
+		assertEquals(Card.EIGHT_CLUBS, cardSet.get(0));
+		assertEquals(Card.QUEEN_HEARTS, cardSet.get(1));
+		assertEquals(Card.ACE_DIAMONDS, cardSet.get(2));
 
 		try {
-			cardSet.getCard(-1);
+			cardSet.get(-1);
 			fail("expected array index out of bounds");
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			// Expected.
 		}
 
 		try {
-			cardSet.getCard(3);
+			cardSet.get(3);
 			fail("expected array index out of bounds");
 		} catch (final ArrayIndexOutOfBoundsException e) {
 			// Expected.
@@ -176,14 +177,53 @@ public class CardSetTest {
 	public void testCompareTo() {
 		// FIXME implement
 	}
-	
+
 	@Test
 	public void testNext() {
 		// 2c,5h -> 2c,5s
 		assertEquals(CardSet.fromString("2c,5s"), CardSet.fromString("2c,5h").next());
-		
+
 		// 2c,As -> 2d,2h
 		assertEquals(CardSet.fromString("2d,2h"), CardSet.fromString("2c,As").next());
+
+		// Ah,As -> null
+		assertNull(CardSet.fromString("Ah,As").next());
+
+		// 2c,Ah,As -> 2d,2h,2s
+		assertEquals(CardSet.fromString("2d,2h,2s"), CardSet.fromString("2c,Ah,As").next());
 	}
-	
+
+	@Test
+	public void testPrev() {
+		// 2c,5h -> 2c,5d
+		assertEquals(CardSet.fromString("2c,5d"), CardSet.fromString("2c,5h").prev());
+
+		// 5d,5h -> 5c,As
+		assertEquals(CardSet.fromString("5c,As"), CardSet.fromString("5d,5h").prev());
+
+		// 2c,2d -> null
+		assertNull(CardSet.fromString("2c,2d").prev());
+
+		// 8h,8s,9c -> 8d,Ah,As
+		assertEquals(CardSet.fromString("8d,Ah,As"), CardSet.fromString("8h,8s,9c").prev());
+	}
+
+	@Test
+	public void testFirst() {
+		assertEquals(Card.byName("8h"), CardSet.fromString("8h,Qs,Kh,As").first());
+	}
+
+	@Test
+	public void testLast() {
+		assertEquals(Card.byName("As"), CardSet.fromString("8h,Qs,Kh,As").last());
+	}
+
+	public void testIntersects() {
+		assertTrue(CardSet.fromString("8h,Ts,Jc,Jd").intersects(CardSet.fromString("2h,Ts,Ah")));
+		assertFalse(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("3h,5c")));
+		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2h,3d,9h")));
+		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2c,4d,6h")));
+		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2h")));
+	}
+
 }
