@@ -2,8 +2,10 @@ package com.sebster.poker;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -180,6 +182,10 @@ public class CardSetTest {
 
 	@Test
 	public void testNext() {
+
+		// 2c,Ah -> 2c,As
+		assertEquals(CardSet.fromString("2c,As"), CardSet.fromString("2c,Ah").next());
+
 		// 2c,5h -> 2c,5s
 		assertEquals(CardSet.fromString("2c,5s"), CardSet.fromString("2c,5h").next());
 
@@ -218,12 +224,27 @@ public class CardSetTest {
 		assertEquals(Card.byName("As"), CardSet.fromString("8h,Qs,Kh,As").last());
 	}
 
+	@Test
 	public void testIntersects() {
 		assertTrue(CardSet.fromString("8h,Ts,Jc,Jd").intersects(CardSet.fromString("2h,Ts,Ah")));
 		assertFalse(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("3h,5c")));
 		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2h,3d,9h")));
 		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2c,4d,6h")));
 		assertTrue(CardSet.fromString("2h,4c,6h").intersects(CardSet.fromString("2h")));
+	}
+
+	@Test
+	public void testGetIndex() {
+		for (int size = 1; size <= 3; size++) {
+			int i = 0;
+			for (CardSet cardSet = CardSet.first(size); cardSet != null; cardSet = cardSet.next(), i++) {
+//				System.out.println(i + " " + cardSet);
+				assertEquals(i, cardSet.getIndex());
+			}
+		}
+//		Deck deck = new Deck(new Random(0));
+//		CardSet cardSet = CardSet.fromDeck(deck, 8);
+//		assertEquals(0, cardSet.getIndex());
 	}
 
 }
