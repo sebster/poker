@@ -19,6 +19,7 @@
 	</contributors>
 	<modules>
 		<module>poker-core</module>
+		<module>poker-dev-support</module>
 		<module>poker-calculations</module>
 		<module>poker-web</module>
 	</modules>

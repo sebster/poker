@@ -10,13 +10,17 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sebster.poker</groupId>
-	<artifactId>poker-core</artifactId>
+	<artifactId>poker-dev-support</artifactId>
 	<packaging>jar</packaging>
 	<version>1.0</version>
-	<name>Poker Core</name>
+	<name>Poker Development Support</name>
 	<url>http://poker.sebster.com/</url>
 
 	<dependencies>
+		<dependency>
+			<groupId>com.sebster.poker</groupId>
+			<artifactId>poker-core</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-io</artifactId>
