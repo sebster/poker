@@ -263,7 +263,7 @@ public class CardSetTest {
 			final int num = Combinatorics.combinations(52, size);
 			CardSet cardSet = CardSet.first(size);
 			for (int i = 0; i < num; i++, cardSet = cardSet.next()) {
-				System.out.println(i + " " + cardSet);
+//				System.out.println(i + " " + cardSet);
 				assertEquals(cardSet, CardSet.fromIndex(i, size));
 			}
 		}
