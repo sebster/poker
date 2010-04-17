@@ -14,6 +14,8 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.sebster.poker.util.Combinatorics;
+
 public class CardSetTest {
 
 	@Test
@@ -242,6 +244,37 @@ public class CardSetTest {
 				assertEquals(i, cardSet.getIndex());
 			}
 		}
+		for (int size = 1; size <= 3; size++) {
+			int i = Combinatorics.combinations(52, size) - 1;
+			for (CardSet cardSet = CardSet.last(size); cardSet != null; cardSet = cardSet.prev(), i--) {
+//				System.out.println(i + " " + cardSet);
+				assertEquals(i, cardSet.getIndex());
+			}
+		}
+		
+//		Deck deck = new Deck(new Random(0));
+//		CardSet cardSet = CardSet.fromDeck(deck, 8);
+//		assertEquals(0, cardSet.getIndex());
+	}
+
+	@Test
+	public void testFromIndex() {
+		for (int size = 1; size <= 3; size++) {
+			final int num = Combinatorics.combinations(52, size);
+			CardSet cardSet = CardSet.first(size);
+			for (int i = 0; i < num; i++, cardSet = cardSet.next()) {
+				System.out.println(i + " " + cardSet);
+				assertEquals(cardSet, CardSet.fromIndex(i, size));
+			}
+		}
+		for (int size = 1; size <= 3; size++) {
+			CardSet cardSet = CardSet.last(size);
+			for (int i = Combinatorics.combinations(52, size) - 1; i >= 0; i--, cardSet = cardSet.prev()) {
+//				System.out.println(i + " " + cardSet);
+				assertEquals(cardSet, CardSet.fromIndex(i, size));
+			}
+		}
+		
 //		Deck deck = new Deck(new Random(0));
 //		CardSet cardSet = CardSet.fromDeck(deck, 8);
 //		assertEquals(0, cardSet.getIndex());
