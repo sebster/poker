@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
+import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Suit;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
@@ -145,10 +146,10 @@ public class GenerateTwoPlayerPreflopOddsDB {
 							cards[6] = deck[m];
 							cards[0] = card0;
 							cards[1] = card1;
-							final int handValue1 = Combination.getHandValue(cards);
+							final int handValue1 = Combination.getHandValue(CardSet.fromCards(cards));
 							cards[0] = card2;
 							cards[1] = card3;
-							final int handValue2 = Combination.getHandValue(cards);
+							final int handValue2 = Combination.getHandValue(CardSet.fromCards(cards));
 							if (handValue1 > handValue2) {
 								win++;
 							} else if (handValue2 > handValue1) {

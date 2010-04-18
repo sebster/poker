@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
+import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 
@@ -70,7 +71,7 @@ public class GenerateHandValueDB {
 										cards[0] = board[c[0]];
 										cards[1] = board[c[1]];
 										cards[2] = board[c[2]];
-										final int value = Combination.getHandValue(cards);
+										final int value = Combination.getHandValue(CardSet.fromCards(cards));
 										if (value == -1) {
 											// Invalid hand/board combination.
 											maxValue = -1;

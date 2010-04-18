@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Card;
+import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 
@@ -58,7 +59,7 @@ public class GenerateHandValueDB {
 								cards[5] = Card.values()[n];
 								for (int o = n + 1; o < 52; o++) { // board 5
 									cards[6] = Card.values()[o];
-									dos.writeInt(Combination.getHandValue(cards));
+									dos.writeInt(Combination.getHandValue(CardSet.fromCards(cards)));
 								}
 							}
 						}

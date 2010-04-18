@@ -2,9 +2,9 @@ package com.sebster.poker.omaha.odds.generation;
 
 import java.io.IOException;
 
-public class CompressHandValueDB {
+import com.sebster.poker.omaha.odds.PreFlopOddsCalculator;
 
-	public static final String FILENAME = "omaha_hand_value_db.lzfi.gz";
+public class CompressHandValueDB {
 
 	/**
 	 * Compress the hand value database using a custom int-aligned LZF
@@ -26,7 +26,7 @@ public class CompressHandValueDB {
 			input = args[0];
 		}
 
-		String output = FILENAME;
+		String output = PreFlopOddsCalculator.DB_FILENAME;
 		if (args.length > 1) {
 			output = args[1];
 		}
