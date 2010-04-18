@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -237,47 +238,65 @@ public class CardSetTest {
 
 	@Test
 	public void testGetIndex() {
-		for (int size = 1; size <= 3; size++) {
+		for (int size = 1; size <= 4; size++) {
 			int i = 0;
 			for (CardSet cardSet = CardSet.first(size); cardSet != null; cardSet = cardSet.next(), i++) {
-//				System.out.println(i + " " + cardSet);
 				assertEquals(i, cardSet.getIndex());
 			}
 		}
-		for (int size = 1; size <= 3; size++) {
+		for (int size = 1; size <= 4; size++) {
 			int i = Combinatorics.combinations(52, size) - 1;
 			for (CardSet cardSet = CardSet.last(size); cardSet != null; cardSet = cardSet.prev(), i--) {
-//				System.out.println(i + " " + cardSet);
 				assertEquals(i, cardSet.getIndex());
 			}
 		}
-		
-//		Deck deck = new Deck(new Random(0));
-//		CardSet cardSet = CardSet.fromDeck(deck, 8);
-//		assertEquals(0, cardSet.getIndex());
 	}
 
 	@Test
 	public void testFromIndex() {
-		for (int size = 1; size <= 3; size++) {
+		for (int size = 1; size <= 4; size++) {
 			final int num = Combinatorics.combinations(52, size);
 			CardSet cardSet = CardSet.first(size);
 			for (int i = 0; i < num; i++, cardSet = cardSet.next()) {
-//				System.out.println(i + " " + cardSet);
 				assertEquals(cardSet, CardSet.fromIndex(i, size));
 			}
 		}
-		for (int size = 1; size <= 3; size++) {
+		for (int size = 1; size <= 4; size++) {
 			CardSet cardSet = CardSet.last(size);
 			for (int i = Combinatorics.combinations(52, size) - 1; i >= 0; i--, cardSet = cardSet.prev()) {
-//				System.out.println(i + " " + cardSet);
 				assertEquals(cardSet, CardSet.fromIndex(i, size));
 			}
 		}
-		
-//		Deck deck = new Deck(new Random(0));
-//		CardSet cardSet = CardSet.fromDeck(deck, 8);
-//		assertEquals(0, cardSet.getIndex());
 	}
 
+	@Test
+	public void testGetAndFromIndex() {
+		final Random random = new Random(0);
+		Deck deck = new Deck(random);
+		for (int i = 0; i < 10000; i++) {
+			final int size = random.nextInt(8) + 1;
+			final CardSet cardSet = CardSet.fromDeck(deck, size);
+			assertEquals(cardSet, CardSet.fromIndex(cardSet.getIndex(), size));
+			deck.shuffle();
+		}
+		for (int i = 0; i < 10000; i++) {
+			final int size = random.nextInt(8) + 1;
+			final int maxIndex = CardSet.getCount(size);
+			final int index = random.nextInt(maxIndex);
+			assertEquals(index, CardSet.fromIndex(index, size).getIndex());
+		}
+	}
+	
+	@Test
+	public void testContains() {
+		CardSet cardSet = CardSet.fromString("2h,3d,8s,Th");
+		assertTrue(cardSet.contains(Card.byName("2h")));
+		assertTrue(cardSet.contains(Card.byName("3d")));
+		assertTrue(cardSet.contains(Card.byName("8s")));
+		assertTrue(cardSet.contains(Card.byName("Th")));
+		assertFalse(cardSet.contains(Card.byName("2c")));
+		assertFalse(cardSet.contains(Card.byName("5h")));
+		assertFalse(cardSet.contains(Card.byName("Ad")));
+	}
+		
 }

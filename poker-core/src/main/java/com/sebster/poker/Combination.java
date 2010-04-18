@@ -1,6 +1,5 @@
 package com.sebster.poker;
 
-import java.util.Arrays;
 
 public class Combination {
 
@@ -37,11 +36,11 @@ public class Combination {
 	 * notation refers to the lowest 5 nibbles. Each nibble contains the rank of
 	 * the respective card, or the value 0 if is empty.
 	 * 
-	 * @param cards
-	 *            the cards to scan
+	 * @param cardSet
+	 *            the card set to scan
 	 * @return the hand value of the best 5-card hand found
 	 */
-	public static int getHandValue(final Card[] cards) {
+	public static int getHandValue(final CardSet cardSet) {
 
 		// nOfAKind[i] contains how many (i+1) of a kinds were found.
 		final int[] nOfAKind = new int[4];
@@ -68,14 +67,10 @@ public class Combination {
 		// Whether or not a straigt was found.
 		boolean straight = false;
 
-		// Sort the cards.
-		final Card[] sortedCards = cards.clone();
-		Arrays.sort(sortedCards);
-
 		// Scan the cards for quads, trips, pairs, flushes and straights.
-		for (int i = sortedCards.length - 1; i >= 0; i--) {
-			final int rank = sortedCards[i].getRank().getValue();
-			final int suit = sortedCards[i].getSuit().getValue();
+		for (final Card card : cardSet.descendingIterable()) {
+			final int rank = card.getRank().getValue();
+			final int suit = card.getSuit().getValue();
 			if (rank == previousRank) {
 				if (suit == previousSuit) {
 					// Found the same card twice.
@@ -124,7 +119,7 @@ public class Combination {
 		nOfAKind[repeatCount]++;
 
 		// Check for an ace-high straight.
-		if (!straight && straightHighRank == Rank.FIVE.getValue() && straightLength == 4 && sortedCards[sortedCards.length - 1].getRank() == Rank.ACE) {
+		if (!straight && straightHighRank == Rank.FIVE.getValue() && straightLength == 4 && cardSet.last().getRank() == Rank.ACE) {
 			straight = true;
 		}
 
@@ -132,7 +127,7 @@ public class Combination {
 
 		if (straight && flush) {
 			// Check for a straight flush if a straight and a flush are found.
-			final int value = getStraightFlushValue(sortedCards);
+			final int value = getStraightFlushValue(cardSet);
 			if (value > 0) {
 				// A straight flush was found.
 				return value;
@@ -141,40 +136,40 @@ public class Combination {
 
 		if (nOfAKind[3] > 0) {
 			// Four of a kind was found.
-			return getQuadsValue(sortedCards);
+			return getQuadsValue(cardSet);
 		}
 
 		if (nOfAKind[2] > 0 && (nOfAKind[1] > 0 || nOfAKind[2] > 1)) {
 			// A three of a kind and a 2 or another 3 of kind was found, so we
 			// have a full house.
-			return getFullHouseValue(sortedCards);
+			return getFullHouseValue(cardSet);
 		}
 
 		if (flush) {
 			// A flush was found.
-			return getFlushValue(sortedCards);
+			return getFlushValue(cardSet);
 		}
 
 		if (straight) {
 			// A straight was found.
-			return getStraightValue(sortedCards);
+			return getStraightValue(cardSet);
 		}
 
 		if (nOfAKind[2] > 0) {
 			// Three of a kind was found.
-			return getTripsValue(sortedCards);
+			return getTripsValue(cardSet);
 		}
 		if (nOfAKind[1] > 1) {
 			// Two pair was found.
-			return getTwoPairValue(sortedCards);
+			return getTwoPairValue(cardSet);
 		}
 		if (nOfAKind[1] > 0) {
 			// A pair was found.
-			return getPairValue(sortedCards);
+			return getPairValue(cardSet);
 		}
 
 		// Nothing was found, return high card value.
-		return getHighCardValue(sortedCards);
+		return getHighCardValue(cardSet);
 	}
 
 	public static int getHandType(final int handValue) {
@@ -217,23 +212,28 @@ public class Combination {
 		return getHandType(handValue) == STRAIGHT_FLUSH;
 	}
 
-	public static final String toString(int handValue) {
+	public static final String toString(final int handValue) {
 		// FIXME implement
 		return null;
+	}
+	
+	public static final int fromString(final String handValueString) {
+		// FIXME implement
+		return -1;
 	}
 
 	/**
 	 * Get the hand value of a high card hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @return the high card hand value of the cards
 	 */
-	protected static int getHighCardValue(final Card[] cards) {
+	protected static int getHighCardValue(final CardSet cardSet) {
 		int value = 0;
 		// Get the value of the best 5 cards.
 		for (int i = 1; i <= 5; i++) {
-			value = (value << 4) + cards[cards.length - i].getRank().getValue();
+			value = (value << 4) + cardSet.get(cardSet.size() - i).getRank().getValue();
 		}
 		return HIGH_CARD + value;
 	}
@@ -241,26 +241,26 @@ public class Combination {
 	/**
 	 * Get the hand value of a pair hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @return the pair hand value of the cards
 	 */
-	protected static int getPairValue(final Card[] cards) {
-		return getNOfAKindValue(cards, 2, PAIR);
+	protected static int getPairValue(final CardSet cardSet) {
+		return getNOfAKindValue(cardSet, 2, PAIR);
 	}
 
 	/**
 	 * Get the hand value of a two pair hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @return the pair hand value of the cards
 	 */
-	protected static int getTwoPairValue(final Card[] cards) {
+	protected static int getTwoPairValue(final CardSet cardSet) {
 		final int[] pairs = new int[2];
 		int pair = 0, repeatCount = 0;
-		for (int i = cards.length - 1; i >= 0 && pair < 2; i--) {
-			final int rank = cards[i].getRank().getValue();
+		for (int i = cardSet.size() - 1; i >= 0 && pair < 2; i--) {
+			final int rank = cardSet.get(i).getRank().getValue();
 			if (pairs[pair] != rank) {
 				pairs[pair] = rank;
 				repeatCount = 1;
@@ -270,8 +270,8 @@ public class Combination {
 			}
 		}
 		if (pair == 2) {
-			for (int i = cards.length - 1; i >= 0; i--) {
-				int rank = cards[i].getRank().getValue();
+			for (int i = cardSet.size() - 1; i >= 0; i--) {
+				int rank = cardSet.get(i).getRank().getValue();
 				if (rank != pairs[0] && rank != pairs[1]) {
 					return TWO_PAIR + (((pairs[0] << 4) + pairs[1]) << 4) + rank;
 				}
@@ -283,19 +283,19 @@ public class Combination {
 	/**
 	 * Get the hand value of a three of a kind hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @return the three of a kind hand value of the cards
 	 */
-	protected static int getTripsValue(final Card[] cards) {
-		return getNOfAKindValue(cards, 3, TRIPS);
+	protected static int getTripsValue(final CardSet cardSet) {
+		return getNOfAKindValue(cardSet, 3, TRIPS);
 	}
 
-	protected static int getStraightValue(final Card[] cards) {
+	protected static int getStraightValue(final CardSet cardSet) {
 		int high = Integer.MAX_VALUE;
 		int length = 0;
-		for (int i = cards.length - 1; i >= 0; i--) {
-			final int rank = cards[i].getRank().getValue();
+		for (int i = cardSet.size() - 1; i >= 0; i--) {
+			final int rank = cardSet.get(i).getRank().getValue();
 			if (high > rank + length) {
 				high = rank;
 				length = 1;
@@ -303,17 +303,17 @@ public class Combination {
 				return STRAIGHT + high;
 			}
 		}
-		if (high == Rank.FIVE.getValue() && length == 4 && cards[cards.length - 1].getRank() == Rank.ACE) {
+		if (high == Rank.FIVE.getValue() && length == 4 && cardSet.last().getRank() == Rank.ACE) {
 			return STRAIGHT + high;
 		}
 		return 0;
 	}
 
-	protected static int getFlushValue(final Card[] cards) {
+	protected static int getFlushValue(final CardSet cardSet) {
 		final int[] value = new int[4], count = new int[4];
-		for (int i = cards.length - 1; i >= 0; i--) {
-			final int suit = cards[i].getSuit().getValue();
-			value[suit] = (value[suit] << 4) + cards[i].getRank().getValue();
+		for (int i = cardSet.size() - 1; i >= 0; i--) {
+			final int suit = cardSet.get(i).getSuit().getValue();
+			value[suit] = (value[suit] << 4) + cardSet.get(i).getRank().getValue();
 			if (++count[suit] == 5) {
 				return FLUSH + value[suit];
 			}
@@ -321,10 +321,10 @@ public class Combination {
 		return 0;
 	}
 
-	protected static int getFullHouseValue(final Card[] cards) {
+	protected static int getFullHouseValue(final CardSet cardSet) {
 		int trips = -1, pair = -1, current = -1, count = 0;
-		for (int i = cards.length - 1; i >= 0; i--) {
-			int rank = cards[i].getRank().getValue();
+		for (int i = cardSet.size() - 1; i >= 0; i--) {
+			int rank = cardSet.get(i).getRank().getValue();
 			if (current != rank) {
 				current = rank;
 				count = 1;
@@ -349,19 +349,19 @@ public class Combination {
 	/**
 	 * Get the hand value of a four of a kind hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @return the four of a kind hand value of the cards
 	 */
-	protected static int getQuadsValue(final Card[] cards) {
-		return getNOfAKindValue(cards, 4, QUADS);
+	protected static int getQuadsValue(final CardSet cardSet) {
+		return getNOfAKindValue(cardSet, 4, QUADS);
 	}
 
-	protected static int getStraightFlushValue(final Card[] cards) {
+	protected static int getStraightFlushValue(final CardSet cardSet) {
 		final int[] high = new int[4], length = new int[4];
-		for (int i = cards.length - 1; i >= 0; i--) {
-			final int rank = cards[i].getRank().getValue();
-			final int suit = cards[i].getSuit().getValue();
+		for (int i = cardSet.size() - 1; i >= 0; i--) {
+			final int rank = cardSet.get(i).getRank().getValue();
+			final int suit = cardSet.get(i).getSuit().getValue();
 			if (high[suit] != rank + length[suit]) {
 				high[suit] = rank;
 				length[suit] = 1;
@@ -370,8 +370,8 @@ public class Combination {
 			}
 		}
 		final boolean[] hasAce = new boolean[4];
-		for (int i = cards.length - 1; i >= 0 && cards[i].getRank() == Rank.ACE; i--) {
-			hasAce[cards[i].getSuit().getValue()] = true;
+		for (int i = cardSet.size() - 1; i >= 0 && cardSet.get(i).getRank() == Rank.ACE; i--) {
+			hasAce[cardSet.get(i).getSuit().getValue()] = true;
 		}
 		for (int suit = 0; suit < 4; suit++) {
 			if (high[suit] == Rank.FIVE.getValue() && length[suit] == 4 && hasAce[suit]) {
@@ -384,7 +384,7 @@ public class Combination {
 	/**
 	 * Get the hand value of a n-of-a-kind hand.
 	 * 
-	 * @param cards
+	 * @param cardSet
 	 *            the sorted cards
 	 * @param n
 	 *            the number of a kind
@@ -393,10 +393,10 @@ public class Combination {
 	 * 
 	 * @return the n-of-a-kind hand value of the cards
 	 */
-	private static int getNOfAKindValue(final Card[] cards, final int n, final int handRank) {
+	private static int getNOfAKindValue(final CardSet cardSet, final int n, final int handRank) {
 		int nOfAKindRank = -1, repeatCount = 1;
-		for (int i = cards.length - 1; i >= 0 && repeatCount < n; i--) {
-			final int rank = cards[i].getRank().getValue();
+		for (int i = cardSet.size() - 1; i >= 0 && repeatCount < n; i--) {
+			final int rank = cardSet.get(i).getRank().getValue();
 			if (nOfAKindRank != rank) {
 				nOfAKindRank = rank;
 				repeatCount = 1;
@@ -408,8 +408,8 @@ public class Combination {
 			// Found an n-of-a-kind.
 			int value = nOfAKindRank;
 			// Add the value of the remaining cards from high to low.
-			for (int i = cards.length - 1, j = 5 - n; i >= 0 && j > 0; i--) {
-				int rank = cards[i].getRank().getValue();
+			for (int i = cardSet.size() - 1, j = 5 - n; i >= 0 && j > 0; i--) {
+				int rank = cardSet.get(i).getRank().getValue();
 				if (rank != nOfAKindRank) {
 					value = (value << 4) + rank;
 					j--;

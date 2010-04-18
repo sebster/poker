@@ -9,6 +9,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.sebster.poker.Card;
+import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 
@@ -36,7 +37,7 @@ public class Nuts {
 			cards[0] = available[i];
 			for (int j = i + 1; j < available.length; j++) {
 				cards[1] = available[j];
-				int value1 = Combination.getHandValue(cards);
+				int value1 = Combination.getHandValue(CardSet.fromCards(cards));
 //				int count = value1;
 //				int count = 0;
 //				for (int k = 0; k < available.length; k++) {

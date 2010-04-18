@@ -10,13 +10,14 @@ import java.util.zip.GZIPInputStream;
 
 import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
-import com.sebster.poker.holdem.odds.generation.CompressHandValueDB;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 
 public class PreFlopOddsCalculator {
+
+	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
 
 	/**
 	 * The compressed hand value database.
@@ -27,7 +28,7 @@ public class PreFlopOddsCalculator {
 	 * The uncompressed hand value arrays for up to 10 hands.
 	 */
 	private final int[][] udata;
-	
+
 	private int lastExpandTime;
 
 	private int lastCompareTime;
@@ -35,7 +36,7 @@ public class PreFlopOddsCalculator {
 	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
 		this(db, new int[36][Constants.BOARD_COUNT_52]);
 	}
-	
+
 	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
 		if (db == null) {
 			throw new NullPointerException("db");
@@ -47,7 +48,7 @@ public class PreFlopOddsCalculator {
 			throw new IllegalArgumentException("udata must have at least length 36");
 		}
 		for (int i = 0; i < 10; i++) {
-			if (udata[i].length < Constants.BOARD_COUNT_52){
+			if (udata[i].length < Constants.BOARD_COUNT_52) {
 				throw new IllegalArgumentException("udata[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
 			}
 		}
@@ -135,7 +136,7 @@ public class PreFlopOddsCalculator {
 			numHoles = Integer.parseInt(args[0]);
 		}
 
-		String dbFilename = CompressHandValueDB.FILENAME;
+		String dbFilename = DB_FILENAME;
 		if (args.length > 1) {
 			dbFilename = args[1];
 		}

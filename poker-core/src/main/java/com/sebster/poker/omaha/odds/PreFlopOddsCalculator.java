@@ -15,9 +15,10 @@ import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
-import com.sebster.poker.omaha.odds.generation.CompressHandValueDB;
 
 public class PreFlopOddsCalculator {
+
+	public static final String DB_FILENAME = "omaha_hand_value_db.lzfi.gz";
 
 	/**
 	 * The compressed hand value database.
@@ -37,7 +38,7 @@ public class PreFlopOddsCalculator {
 	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
 		this(db, new int[36][Constants.BOARD_COUNT_52]);
 	}
-	
+
 	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
 		if (db == null) {
 			throw new NullPointerException("db");
@@ -49,14 +50,14 @@ public class PreFlopOddsCalculator {
 			throw new IllegalArgumentException("udata must have at least length 36");
 		}
 		for (int i = 0; i < 36; i++) {
-			if (udata[i].length < Constants.BOARD_COUNT_52){
+			if (udata[i].length < Constants.BOARD_COUNT_52) {
 				throw new IllegalArgumentException("udata[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
 			}
 		}
 		this.db = db;
 		this.udata = udata;
 	}
-	
+
 	public final Odds[] calculateOdds(final Hole4[] holes) {
 
 		final int numHoles = holes.length;
@@ -152,7 +153,7 @@ public class PreFlopOddsCalculator {
 			numHoles = Integer.parseInt(args[0]);
 		}
 
-		String dbFilename = CompressHandValueDB.FILENAME;
+		String dbFilename = DB_FILENAME;
 		if (args.length > 1) {
 			dbFilename = args[1];
 		}

@@ -15,9 +15,10 @@ import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
-import com.sebster.poker.omaha.odds.generation.CompressHandValueDB;
 
 public class PreFlopOddsCalculator2 {
+
+	public static final String DB_FILENAME = "omaha_hand_value_db.lzfi.gz";
 
 	/**
 	 * The compressed hand value database.
@@ -28,7 +29,7 @@ public class PreFlopOddsCalculator2 {
 	 * The uncompressed hand value arrays for up to 6 omaha hands.
 	 */
 	private final int[][] udata;
-	
+
 	/**
 	 * The combined hand value arrays for 1 omaha hand.
 	 */
@@ -41,19 +42,19 @@ public class PreFlopOddsCalculator2 {
 	public PreFlopOddsCalculator2(final CompressedHandValueDB db) {
 		this(db, new int[6][Constants.BOARD_COUNT_52], new int[6][Constants.BOARD_COUNT_52]);
 	}
-	
+
 	public PreFlopOddsCalculator2(final CompressedHandValueDB db, int[][] udata, int[][] hdata) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
 		checkArray(udata, "udata");
 		checkArray(hdata, "hdata");
-		
+
 		this.db = db;
 		this.udata = udata;
 		this.hdata = hdata;
 	}
-	
+
 	private void checkArray(final int[][] data, final String name) {
 		if (data == null) {
 			throw new NullPointerException(name);
@@ -62,12 +63,12 @@ public class PreFlopOddsCalculator2 {
 			throw new IllegalArgumentException(name + " must have at least length 6");
 		}
 		for (int i = 0; i < 6; i++) {
-			if (data[i].length < Constants.BOARD_COUNT_52){
+			if (data[i].length < Constants.BOARD_COUNT_52) {
 				throw new IllegalArgumentException(name + "[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
 			}
 		}
 	}
-	
+
 	public final Odds[] calculateOdds(final Hole4[] holes) {
 
 		final int numHoles = holes.length;
@@ -172,7 +173,7 @@ public class PreFlopOddsCalculator2 {
 			numHoles = Integer.parseInt(args[0]);
 		}
 
-		String dbFilename = CompressHandValueDB.FILENAME;
+		String dbFilename = DB_FILENAME;
 		if (args.length > 1) {
 			dbFilename = args[1];
 		}

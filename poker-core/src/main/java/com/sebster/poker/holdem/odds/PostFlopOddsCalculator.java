@@ -3,6 +3,7 @@ package com.sebster.poker.holdem.odds;
 import java.util.EnumSet;
 
 import com.sebster.poker.Card;
+import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 import com.sebster.poker.odds.BasicOdds;
@@ -65,7 +66,7 @@ public class PostFlopOddsCalculator {
 			for (int i = 0; i < numHoles; i++) {
 				cards[5] = holes[i].getFirst();
 				cards[6] = holes[i].getSecond();
-				handValues[i] = Combination.getHandValue(cards);
+				handValues[i] = Combination.getHandValue(CardSet.fromCards(cards));
 				if (handValues[i] > max) {
 					max = handValues[i];
 					count = 1;
