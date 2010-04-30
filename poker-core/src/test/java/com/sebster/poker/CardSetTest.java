@@ -15,6 +15,7 @@ import java.util.Random;
 
 import org.junit.Test;
 
+import com.sebster.poker.odds.Constants;
 import com.sebster.poker.util.Combinatorics;
 
 public class CardSetTest {
@@ -298,5 +299,53 @@ public class CardSetTest {
 		assertFalse(cardSet.contains(Card.byName("5h")));
 		assertFalse(cardSet.contains(Card.byName("Ad")));
 	}
+	
+	@Test
+	public void testOrder() {
+		CardSet cardSet = CardSet.first(2);
+		Hole hole = Hole.first();
+		for (int i = 0; i < Constants.HOLE_COUNT; i++) {
+			assertEquals(hole.getIndex(), cardSet.getIndex());
+			hole = hole.next();
+			cardSet = cardSet.next();
+		}
+	}
+	
+	@Test
+	public void testLowerFloorHigherCeiling() {
+		final CardSet cardSet = CardSet.fromString("2h,5d,9c,Ah");
 		
+		// Lower.
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.lower(Card.SEVEN_SPADES));
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.lower(Card.FIVE_HEARTS));
+		assertEquals(Card.TWO_HEARTS, cardSet.lower(Card.FIVE_DIAMONDS));
+		assertNull(cardSet.lower(Card.TWO_HEARTS));
+		assertNull(cardSet.lower(Card.TWO_CLUBS));
+		assertEquals(Card.ACE_HEARTS, cardSet.lower(Card.ACE_SPADES));
+		
+		// Floor.
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.floor(Card.SEVEN_SPADES));
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.floor(Card.FIVE_HEARTS));
+		assertEquals(Card.TWO_HEARTS, cardSet.floor(Card.FIVE_CLUBS));
+		assertEquals(Card.TWO_HEARTS, cardSet.floor(Card.TWO_HEARTS));
+		assertNull(cardSet.floor(Card.TWO_CLUBS));
+		assertEquals(Card.ACE_HEARTS, cardSet.floor(Card.ACE_SPADES));
+
+		// Higher.
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.higher(Card.THREE_SPADES));
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.higher(Card.FIVE_CLUBS));
+		assertEquals(Card.NINE_CLUBS, cardSet.higher(Card.FIVE_DIAMONDS));
+		assertNull(cardSet.higher(Card.ACE_HEARTS));
+		assertNull(cardSet.higher(Card.ACE_SPADES));
+		assertEquals(Card.TWO_HEARTS, cardSet.higher(Card.TWO_CLUBS));
+
+		// Ceiling.
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.ceiling(Card.THREE_SPADES));
+		assertEquals(Card.FIVE_DIAMONDS, cardSet.ceiling(Card.FIVE_CLUBS));
+		assertEquals(Card.TWO_HEARTS, cardSet.ceiling(Card.TWO_CLUBS));
+		assertEquals(Card.TWO_HEARTS, cardSet.ceiling(Card.TWO_HEARTS));
+		assertNull(cardSet.ceiling(Card.ACE_SPADES));
+		assertEquals(Card.ACE_HEARTS, cardSet.ceiling(Card.TEN_CLUBS));
+	}
+	
 }

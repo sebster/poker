@@ -3,20 +3,17 @@ package com.sebster.poker;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.NavigableSet;
 
 import net.jcip.annotations.Immutable;
 
 import com.sebster.poker.util.Combinatorics;
 import com.sebster.util.LinearOrder;
 
-// TODO implement NavigableSet?
 @Immutable
-public final class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, SortedSet<Card> {
+public final class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, NavigableSet<Card> {
 
 	private final Card[] cards;
 
@@ -110,7 +107,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		final Card[] cards = new Card[size];
 		int offset = 0;
 		for (int i = 0; i < cards.length; i++) {
-			final int[] a = indexes[offset][cards.length - 1 - i];
+			final int[] a = INDEXES[offset][cards.length - 1 - i];
 			// Binary search.
 			int low = 0, high = a.length;
 			while (low + 1 != high) {
@@ -235,7 +232,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		if (size > 8) {
 			throw new UnsupportedOperationException("size > 8");
 		}
-		return counts[size - 1];
+		return COUNTS[size - 1];
 	}
 
 	/**
@@ -251,7 +248,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		int index = 0, offset = 0;
 		for (int i = 0; i < cards.length; i++) {
 			int first = cards[i].ordinal() - offset;
-			index += indexes[offset][cards.length - 1 - i][first];
+			index += INDEXES[offset][cards.length - 1 - i][first];
 			offset += first + 1;
 		}
 		return index;
@@ -373,21 +370,75 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	}
 
 	@Override
-	public SortedSet<Card> headSet(final Card toElement) {
-		// TODO better implementation?
-		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).headSet(toElement));
+	public NavigableSet<Card> headSet(final Card toElement) {
+		return headSet(toElement, false);
 	}
 
 	@Override
-	public SortedSet<Card> subSet(final Card fromElement, final Card toElement) {
-		// TODO better implementation?
-		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).subSet(fromElement, toElement));
+	public NavigableSet<Card> headSet(final Card toElement, final boolean inclusive) {
+		// FIXME implement
+		throw new AssertionError("not implemented yet");
 	}
 
 	@Override
-	public SortedSet<Card> tailSet(final Card fromElement) {
-		// TODO better implementation?
-		return Collections.unmodifiableSortedSet(new TreeSet<Card>(this).tailSet(fromElement));
+	public NavigableSet<Card> subSet(final Card fromElement, final Card toElement) {
+		return subSet(toElement, true, fromElement, false);
+	}
+
+	@Override
+	public NavigableSet<Card> subSet(final Card fromElement, final boolean fromInclusive, final Card toElement, final boolean toInclusive) {
+		// FIXME implement
+		throw new AssertionError("not implemented yet");
+	}
+
+	@Override
+	public NavigableSet<Card> tailSet(final Card fromElement) {
+		return tailSet(fromElement, true);
+	}
+
+	@Override
+	public NavigableSet<Card> tailSet(final Card fromElement, final boolean inclusive) {
+		// FIXME implement
+		throw new AssertionError("not implemented yet");
+	}
+
+	@Override
+	public NavigableSet<Card> descendingSet() {
+		// FIXME implement
+		throw new AssertionError("not implemented yet");
+	}
+
+	@Override
+	public Card lower(Card e) {
+		int i = Arrays.binarySearch(cards, e);
+		i = i < 0 ? -(i + 2) : i - 1;
+		return i < 0 ? null : cards[i];
+	}
+
+	@Override
+	public Card floor(final Card e) {
+		int i = Arrays.binarySearch(cards, e);
+		if (i < 0) {
+			i = -(i + 2);
+			return i < 0 ? null : cards[i];
+		}
+		return cards[i];
+	}
+
+	@Override
+	public Card higher(final Card e) {
+		int i = Arrays.binarySearch(cards, e);
+		i = i < 0 ? i = -(i + 1) : i + 1;
+		return i < cards.length ? cards[i] : null;
+	}
+
+	@Override
+	public Card ceiling(final Card e) {
+		int i = Arrays.binarySearch(cards, e);
+		if (i < 0) {
+			i = -(i + 1);
+		}
+		return i < cards.length ? cards[i] : null;
 	}
 
 	@Override
@@ -412,7 +463,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 	public Iterator<Card> descendingIterator() {
 		return new ReverseCardsIterator();
 	}
-	
+
 	public Iterable<Card> descendingIterable() {
 		return new Iterable<Card>() {
 			@Override
@@ -421,7 +472,7 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 			}
 		};
 	}
-	
+
 	private final class CardsIterator implements Iterator<Card> {
 
 		private int i = 0;
@@ -443,7 +494,6 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 
 	}
 
-	
 	private final class ReverseCardsIterator implements Iterator<Card> {
 
 		private int i = cards.length;
@@ -521,27 +571,39 @@ public final class CardSet extends AbstractSet<Card> implements LinearOrder<Card
 		throw new UnsupportedOperationException();
 	}
 
-	private static final int[][][] indexes;
+	@Override
+	public Card pollFirst() {
+		// Immutable.
+		throw new UnsupportedOperationException();
+	}
 
-	private static final int[] counts;
+	@Override
+	public Card pollLast() {
+		// Immutable.
+		throw new UnsupportedOperationException();
+	}
+
+	private static final int[][][] INDEXES;
+
+	private static final int[] COUNTS;
 
 	static {
-		indexes = new int[52][][];
+		INDEXES = new int[52][][];
 		for (int deckSize = 51; deckSize >= 0; deckSize--) {
 			final int count = Math.min(8, deckSize + 2);
-			indexes[51 - deckSize] = new int[count][];
+			INDEXES[51 - deckSize] = new int[count][];
 			for (int length = 1; length <= count; length++) {
-				indexes[51 - deckSize][length - 1] = new int[deckSize - length + 3];
+				INDEXES[51 - deckSize][length - 1] = new int[deckSize - length + 3];
 				int i = 0;
 				for (int first = 0; first <= deckSize - length + 1; first++) {
 					i += Combinatorics.combinations(deckSize - first, length - 1);
-					indexes[51 - deckSize][length - 1][first + 1] = i;
+					INDEXES[51 - deckSize][length - 1][first + 1] = i;
 				}
 			}
 		}
-		counts = new int[8];
-		for (int i = 0; i < counts.length; i++) {
-			counts[i] = Combinatorics.combinations(52, i + 1);
+		COUNTS = new int[8];
+		for (int i = 0; i < COUNTS.length; i++) {
+			COUNTS[i] = Combinatorics.combinations(52, i + 1);
 		}
 	}
 
