@@ -52,7 +52,7 @@ public class GenerateHandValueDB {
 			cards[3] = Card.values()[i];
 			for (int j = i + 1; j < 52; j++) { // hand 2
 				cards[4] = Card.values()[j];
-				final Hole hole = new Hole(cards[3], cards[4]);
+				final Hole hole = Hole.fromCards(cards[3], cards[4]);
 				final long t1 = System.currentTimeMillis();
 				logger.info("Hole: {}", hole);
 				for (int k = 0; k < 52; k++) { // board 1

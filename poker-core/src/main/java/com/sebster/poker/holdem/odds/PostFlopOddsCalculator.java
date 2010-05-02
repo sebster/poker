@@ -33,11 +33,11 @@ public class PostFlopOddsCalculator {
 
 		final EnumSet<Card> deck = EnumSet.allOf(Card.class);
 		for (int i = 0; i < numHoles; i++) {
-			if (!deck.remove(holes[i].getFirst())) {
-				throw new IllegalArgumentException("duplicate card " + holes[i].getFirst() + " in hole " + holes[i]);
+			if (!deck.remove(holes[i].first())) {
+				throw new IllegalArgumentException("duplicate card " + holes[i].first() + " in hole " + holes[i]);
 			}
-			if (!deck.remove(holes[i].getSecond())) {
-				throw new IllegalArgumentException("duplicate card " + holes[i].getSecond() + " in hole " + holes[i]);
+			if (!deck.remove(holes[i].last())) {
+				throw new IllegalArgumentException("duplicate card " + holes[i].last() + " in hole " + holes[i]);
 			}
 		}
 		for (int i = 0; i < board.length; i++) {
@@ -64,8 +64,8 @@ public class PostFlopOddsCalculator {
 			int max = -1;
 			int count = 0;
 			for (int i = 0; i < numHoles; i++) {
-				cards[5] = holes[i].getFirst();
-				cards[6] = holes[i].getSecond();
+				cards[5] = holes[i].first();
+				cards[6] = holes[i].last();
 				handValues[i] = Combination.getHandValue(CardSet.fromCards(cards));
 				if (handValues[i] > max) {
 					max = handValues[i];

@@ -43,6 +43,7 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 		return ((double) getSize()) / Constants.HOLE_COUNT;
 	}
 
+	@Override
 	public String toString() {
 		final StringBuilder buffer = new StringBuilder();
 		final String name = name();

@@ -146,13 +146,13 @@ public class CardSetTest {
 
 	@Test
 	public void testFirstCardSet() {
-		CardSet cardSet = CardSet.first(3);
+		CardSet cardSet = CardSet.firstSet(3);
 		assertArrayEquals(new Card[] { Card.first(), Card.first().next(), Card.first().next().next() }, cardSet.toArray());
 	}
 
 	@Test
 	public void testLastCardSet() {
-		CardSet cardSet = CardSet.last(3);
+		CardSet cardSet = CardSet.lastSet(3);
 		assertArrayEquals(new Card[] { Card.last().prev().prev(), Card.last().prev(), Card.last() }, cardSet.toArray());
 	}
 
@@ -166,15 +166,15 @@ public class CardSetTest {
 
 		try {
 			cardSet.get(-1);
-			fail("expected array index out of bounds");
-		} catch (final ArrayIndexOutOfBoundsException e) {
+			fail("expected illegal argument exception");
+		} catch (final IllegalArgumentException e) {
 			// Expected.
 		}
 
 		try {
 			cardSet.get(3);
-			fail("expected array index out of bounds");
-		} catch (final ArrayIndexOutOfBoundsException e) {
+			fail("expected illegal argument exception");
+		} catch (final IllegalArgumentException e) {
 			// Expected.
 		}
 	}
@@ -241,13 +241,13 @@ public class CardSetTest {
 	public void testGetIndex() {
 		for (int size = 1; size <= 4; size++) {
 			int i = 0;
-			for (CardSet cardSet = CardSet.first(size); cardSet != null; cardSet = cardSet.next(), i++) {
+			for (CardSet cardSet = CardSet.firstSet(size); cardSet != null; cardSet = cardSet.next(), i++) {
 				assertEquals(i, cardSet.getIndex());
 			}
 		}
 		for (int size = 1; size <= 4; size++) {
 			int i = Combinatorics.combinations(52, size) - 1;
-			for (CardSet cardSet = CardSet.last(size); cardSet != null; cardSet = cardSet.prev(), i--) {
+			for (CardSet cardSet = CardSet.lastSet(size); cardSet != null; cardSet = cardSet.prev(), i--) {
 				assertEquals(i, cardSet.getIndex());
 			}
 		}
@@ -257,13 +257,13 @@ public class CardSetTest {
 	public void testFromIndex() {
 		for (int size = 1; size <= 4; size++) {
 			final int num = Combinatorics.combinations(52, size);
-			CardSet cardSet = CardSet.first(size);
+			CardSet cardSet = CardSet.firstSet(size);
 			for (int i = 0; i < num; i++, cardSet = cardSet.next()) {
 				assertEquals(cardSet, CardSet.fromIndex(i, size));
 			}
 		}
 		for (int size = 1; size <= 4; size++) {
-			CardSet cardSet = CardSet.last(size);
+			CardSet cardSet = CardSet.lastSet(size);
 			for (int i = Combinatorics.combinations(52, size) - 1; i >= 0; i--, cardSet = cardSet.prev()) {
 				assertEquals(cardSet, CardSet.fromIndex(i, size));
 			}
@@ -282,7 +282,7 @@ public class CardSetTest {
 		}
 		for (int i = 0; i < 10000; i++) {
 			final int size = random.nextInt(8) + 1;
-			final int maxIndex = CardSet.getCount(size);
+			final int maxIndex = CardSet.numberOfSets(size);
 			final int index = random.nextInt(maxIndex);
 			assertEquals(index, CardSet.fromIndex(index, size).getIndex());
 		}
@@ -302,8 +302,8 @@ public class CardSetTest {
 	
 	@Test
 	public void testOrder() {
-		CardSet cardSet = CardSet.first(2);
-		Hole hole = Hole.first();
+		CardSet cardSet = CardSet.firstSet(2);
+		Hole hole = Hole.firstHole();
 		for (int i = 0; i < Constants.HOLE_COUNT; i++) {
 			assertEquals(hole.getIndex(), cardSet.getIndex());
 			hole = hole.next();

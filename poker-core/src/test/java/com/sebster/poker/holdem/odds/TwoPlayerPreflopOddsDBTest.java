@@ -21,9 +21,9 @@ public class TwoPlayerPreflopOddsDBTest {
 					for (int l = 0; l < 52; l++) {
 						if (i == l || j == l || k == l)
 							continue;
-						final Hole hole1 = new Hole(Card.values()[i], Card.values()[j]);
-						final Hole hole2 = new Hole(Card.values()[k], Card.values()[l]);
-						Odds odds = TwoPlayerPreFlopOddsDB.getInstance().getOdds(hole1, hole2);
+						final Hole hole1 = Hole.fromCards(Card.values()[i], Card.values()[j]);
+						final Hole hole2 = Hole.fromCards(Card.values()[k], Card.values()[l]);
+						final Odds odds = TwoPlayerPreFlopOddsDB.getInstance().getOdds(hole1, hole2);
 						Assert.assertNotNull(odds);
 					}
 				}

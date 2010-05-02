@@ -11,7 +11,7 @@ public class HoleTest {
 	public void testDeck() {
 		for (int i = 0; i < 52; i++) {
 			for (int j = i + 1; j < 52; j++) {
-				final Hole hole = new Hole(Card.values()[i], Card.values()[j]);
+				final Hole hole = Hole.fromCards(Card.values()[i], Card.values()[j]);
 				Assert.assertEquals(hole, Hole.fromIndex(hole.getIndex()));
 			}
 		}

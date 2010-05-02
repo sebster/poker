@@ -61,7 +61,7 @@ public class Nuts {
 					holes = new TreeSet<Hole>();
 					result.put(value1, holes);
 				}
-				holes.add(new Hole(available[i], available[j]));
+				holes.add(Hole.fromCards(available[i], available[j]));
 			}
 		}
 		long l2 = System.currentTimeMillis();
@@ -84,7 +84,7 @@ public class Nuts {
 		for (int i = 0; i < 5; i++) {
 			cards.remove(board[i]);
 		}
-		Card[] available = (Card[]) cards.toArray(new Card[0]);
+		Card[] available = cards.toArray(new Card[0]);
 		// Card[] available = new Card[deck.getRemaining()];
 		// int i = 0;
 		// while (deck.hasRemaining()) {

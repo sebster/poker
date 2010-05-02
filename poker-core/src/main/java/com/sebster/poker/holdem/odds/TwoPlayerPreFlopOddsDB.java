@@ -77,7 +77,7 @@ public class TwoPlayerPreFlopOddsDB {
 		}
 		
 		// Normalize hand.
-		final Card[] cards = { hole1.getFirst(), hole1.getSecond(), hole2.getFirst(), hole2.getSecond() };
+		final Card[] cards = { hole1.first(), hole1.last(), hole2.first(), hole2.last() };
 
 		// Make sure the cards are lexicographically ordered.
 		final int v1 = (cards[0].getRank().getValue() << 4) + cards[1].getRank().getValue();

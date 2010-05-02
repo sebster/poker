@@ -153,7 +153,7 @@ public class PreFlopOddsCalculator {
 			System.out.println("warmup round " + i);
 			final Hole[] holes = new Hole[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = new Hole(deck.draw(), deck.draw());
+				holes[j] = Hole.fromDeck(deck);
 			}
 			calculator.calculateOdds(holes);
 			deck.shuffle();
@@ -164,7 +164,7 @@ public class PreFlopOddsCalculator {
 		for (int i = 0; i < 100; i++) {
 			final Hole[] holes = new Hole[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = new Hole(deck.draw(), deck.draw());
+				holes[j] = Hole.fromDeck(deck);
 			}
 			deck.shuffle();
 
