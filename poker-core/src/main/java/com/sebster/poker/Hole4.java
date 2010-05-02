@@ -1,11 +1,18 @@
 package com.sebster.poker;
 
+import java.util.Collection;
+
 public final class Hole4 extends CardSet {
 
 	private static final int[][] twoCardHoleCombinations = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
 
-	public Hole4(final Card cards[]) {
+	private Hole4(final Card cards[]) {
 		super(cards);
+	}
+
+	@Override
+	public int size() {
+		return 4;
 	}
 
 	@Override
@@ -18,6 +25,14 @@ public final class Hole4 extends CardSet {
 		return (Hole4) super.prev();
 	}
 
+	public Hole[] getAll2CardHoles() {
+		final Hole[] holes = new Hole[6];
+		for (int i = 0; i < 6; i++) {
+			holes[i] = Hole.fromCards(cards[twoCardHoleCombinations[i][0]], cards[twoCardHoleCombinations[i][1]]);
+		}
+		return holes;
+	}
+
 	public static Hole4 firstHole4() {
 		return (Hole4) CardSet.firstSet(4);
 	}
@@ -26,12 +41,16 @@ public final class Hole4 extends CardSet {
 		return (Hole4) CardSet.lastSet(4);
 	}
 
-	public Hole[] getAll2CardHoles() {
-		final Hole[] holes = new Hole[6];
-		for (int i = 0; i < 6; i++) {
-			holes[i] = Hole.fromCards(cards[twoCardHoleCombinations[i][0]], cards[twoCardHoleCombinations[i][1]]);
+	public static Hole4 fromCards(final Card first, final Card second, final Card third, final Card fourth) {
+		return (Hole4) CardSet.fromCards(first, second, third, fourth);
+	}
+
+	public static Hole fromCards(final Collection<Card> cards) {
+		final CardSet cardSet = CardSet.fromCards(cards);
+		if (cardSet.size() == 2) {
+			return (Hole) cardSet;
 		}
-		return holes;
+		throw new IllegalArgumentException("invalid number of cards: " + cards.size());
 	}
 
 	/**

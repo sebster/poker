@@ -98,25 +98,31 @@ public class PreFlopOddsCalculator2 {
 
 		// Decompress and merge the hands.
 		for (int i = 0; i < numHoles; i++) {
-			final int[] udata1 = this.udata[i];
-			final int[] holeIndexes1 = holeIndexes[i];
+			final int[] holeIndexesI = holeIndexes[i];
 			for (int j = 0; j < 6; j++) {
-				db.expand(holeIndexes1[j], hdata[j]);
+				db.expand(holeIndexesI[j], hdata[j]);
+			}
+			final int[] udataI = udata[i];
+			if (udataI.length < Constants.BOARD_COUNT_52) {
+				// HotSpot hint.
+				throw new ArrayIndexOutOfBoundsException();
 			}
 			nb: for (int k = 0; k < Constants.BOARD_COUNT_52; k++) {
-				int max = -1;
-				nh: for (int j = 0; j < 6; j++) {
+				int max = 0;
+				for (int j = 0; j < 6; j++) {
 					final int v = hdata[j][k];
 					if (v < 0) {
-						udata1[k] = -1;
+						// Invalid board.
+						udataI[k] = -1;
 						continue nb;
 					}
-					if (v <= max) {
-						continue nh;
+					if (v > max) {
+						// New winning hand.
+						max = v;
 					}
-					max = v;
 				}
-				udata1[k] = max;
+				// Best Omaha hand value.
+				udataI[k] = max;
 			}
 		}
 
@@ -125,17 +131,19 @@ public class PreFlopOddsCalculator2 {
 		// Compare.
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			int max = -1, count = 0;
-			nh: for (int j = 0; j < numHoles; j++) {
+			for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
 				if (v < 0) {
+					// Invalid board.
 					continue nb;
 				}
 				if (v < max) {
-					continue nh;
-				}
-				if (v == max) {
+					// Losing hand.
+				} else if (v == max) {
+					// Split.
 					count++;
 				} else {
+					// New winning hand.
 					max = v;
 					count = 1;
 				}

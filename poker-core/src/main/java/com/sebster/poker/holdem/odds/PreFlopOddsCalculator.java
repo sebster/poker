@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 
+import net.jcip.annotations.NotThreadSafe;
+
 import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
 import com.sebster.poker.odds.BasicOdds;
@@ -15,6 +17,7 @@ import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 
+@NotThreadSafe
 public class PreFlopOddsCalculator {
 
 	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
@@ -34,7 +37,7 @@ public class PreFlopOddsCalculator {
 	private int lastCompareTime;
 
 	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
-		this(db, new int[36][Constants.BOARD_COUNT_52]);
+		this(db, new int[10][Constants.BOARD_COUNT_52]);
 	}
 
 	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
@@ -88,18 +91,21 @@ public class PreFlopOddsCalculator {
 
 		// Compare.
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
-			int max = -1, count = 0;
-			nh: for (int j = 0; j < numHoles; j++) {
+			int max = 0, count = 0;
+
+			for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
 				if (v < 0) {
+					// Invalid board.
 					continue nb;
 				}
 				if (v < max) {
-					continue nh;
-				}
-				if (v == max) {
+					// Losing hand.
+				} else if (v == max) {
+					// Split.
 					count++;
 				} else {
+					// New winning hand.
 					max = v;
 					count = 1;
 				}
@@ -108,6 +114,7 @@ public class PreFlopOddsCalculator {
 				nWaySplits[j][udata[j][i] == max ? count : 0]++;
 			}
 		}
+		
 		final long t3 = System.currentTimeMillis();
 
 		lastExpandTime = (int) (t2 - t1);

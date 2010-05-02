@@ -98,25 +98,25 @@ public class PreFlopOddsCalculator {
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			int max = -1, count = 0;
 			l = 0;
-			nh: for (int j = 0; j < numHoles; j++) {
+			for (int j = 0; j < numHoles; j++) {
 				int maxv = -1;
-				n2h: for (int k = 0; k < 6; k++) {
+				for (int k = 0; k < 6; k++) {
 					final int v = udata[l++][i];
 					if (v < 0) {
 						continue nb;
 					}
-					if (v < maxv) {
-						continue n2h;
+					if (v > maxv) {
+						maxv = v;
 					}
-					maxv = v;
 				}
 				max2[j] = maxv;
 				if (maxv < max) {
-					continue nh;
-				}
-				if (maxv == max) {
+					// Losing hand.
+				} else if (maxv == max) {
+					// Split.
 					count++;
 				} else {
+					// New winning hand.
 					max = maxv;
 					count = 1;
 				}

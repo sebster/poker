@@ -15,7 +15,7 @@ import com.sebster.util.LinearOrder;
 @Immutable
 public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, NavigableSet<Card> {
 
-	protected Card[] cards;
+	protected final Card[] cards;
 
 	/**
 	 * Create a new card set from the specified cards. A defensive copy is made
@@ -181,11 +181,11 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 */
 	@Override
 	public String toString() {
-		final int size = size();
 		final StringBuilder buffer = new StringBuilder(first().getShortName());
+		final int size = cards.length;
 		for (int i = 1; i < size; i++) {
 			buffer.append(',');
-			buffer.append(get(i).getShortName());
+			buffer.append(cards[i].getShortName());
 		}
 		return buffer.toString();
 	}
@@ -265,10 +265,10 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		if (size() > 8) {
 			throw new UnsupportedOperationException("card set too big to be indexed");
 		}
-		final int size = size();
+		final int size = cards.length;
 		int index = 0, offset = 0;
 		for (int i = 0; i < size; i++) {
-			int first = get(i).ordinal() - offset;
+			int first = cards[i].ordinal() - offset;
 			index += INDEXES[offset][size - 1 - i][first];
 			offset += first + 1;
 		}
@@ -336,11 +336,11 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 	@Override
 	public int compareTo(final CardSet other) {
-		final int size = size();
-		final int otherSize = other.size();
+		final int size = cards.length;
+		final int otherSize = other.cards.length;
 		if (size == otherSize) {
 			for (int i = 0; i < size; i++) {
-				final int c = get(i).compareTo(other.get(i));
+				final int c = cards[i].compareTo(other.cards[i]);
 				if (c != 0) {
 					return c;
 				}
@@ -399,10 +399,10 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 *         specified card set, <code>false</code> otherwise
 	 */
 	public boolean intersects(final CardSet cardSet) {
-		final int size = size(), otherSize = cardSet.size();
+		final int size = cards.length, otherSize = cardSet.cards.length;
 		int i = 0, j = 0;
 		while (i < size && j < otherSize) {
-			int k = get(i).compareTo(cardSet.get(j));
+			int k = cards[i].compareTo(cardSet.cards[j]);
 			if (k == 0) {
 				return true;
 			}
@@ -417,12 +417,12 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 	@Override
 	public Card first() {
-		return get(0);
+		return cards[0];
 	}
 
 	@Override
 	public Card last() {
-		return get(size() - 1);
+		return cards[cards.length - 1];
 	}
 
 	@Override
@@ -535,12 +535,12 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 		@Override
 		public boolean hasNext() {
-			return i < size();
+			return i < cards.length;
 		}
 
 		@Override
 		public Card next() {
-			return get(i++);
+			return cards[i++];
 		}
 
 		@Override
@@ -552,7 +552,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 	class ReverseCardsIterator implements Iterator<Card> {
 
-		private int i = size();
+		private int i = cards.length;
 
 		@Override
 		public boolean hasNext() {
@@ -561,7 +561,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 		@Override
 		public Card next() {
-			return get(--i);
+			return cards[--i];
 		}
 
 		@Override
@@ -586,12 +586,12 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 			return false;
 		}
 		final CardSet other = (CardSet) object;
-		final int size = size();
-		if (size != other.size()) {
+		final int size = cards.length;
+		if (size != other.cards.length) {
 			return false;
 		}
 		for (int i = 0; i < size; i++) {
-			if (get(i) != other.get(i)) {
+			if (cards[i] != other.cards[i]) {
 				return false;
 			}
 		}
@@ -600,10 +600,10 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 	@Override
 	public int hashCode() {
-		final int size = size();
+		final int size = cards.length;
 		int result = 1;
 		for (int i = 0; i < size; i++) {
-			result = result * 31 + get(i).getRank().ordinal();
+			result = result * 31 + cards[i].getRank().ordinal();
 		}
 		return result;
 	}
