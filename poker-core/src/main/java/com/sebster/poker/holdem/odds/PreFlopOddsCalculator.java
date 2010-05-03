@@ -78,7 +78,8 @@ public class PreFlopOddsCalculator {
 		}
 
 		final int[][] udata = this.udata;
-		final int[][] nWaySplits = new int[numHoles][numHoles + 1];
+		final int[][] nWaySplits = new int[numHoles + 1][numHoles];
+		final int[] nWaySplits0 = nWaySplits[0];
 
 		final long t1 = System.currentTimeMillis();
 
@@ -90,31 +91,75 @@ public class PreFlopOddsCalculator {
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
+		final int[] udataI = new int[numHoles];
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			int max = 0, count = 0;
 
-			for (int j = 0; j < numHoles; j++) {
+			nh: for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
+				/*
+				 * Sign bit should be set after the previous assignment,
+				 * reducing the entire following block to a single conditional
+				 * jump (JS).
+				 */
 				if (v < 0) {
 					// Invalid board.
 					continue nb;
 				}
+
+				/*
+				 * Save hand value locally because we may need it again for the
+				 * accounting part after having determined the maximum hand
+				 * value. Saves array indirection and repeated random memory
+				 * accesses.
+				 */
+				udataI[j] = v;
+
+				/*
+				 * Sign and zero bits should be set after the following
+				 * comparison, making only one compare instruction necessary for
+				 * both comparisons below. Furthermore, since the block only
+				 * contains a jump, it should be reducible to a compare followed
+				 * by a single JS instruction. Since the most frequent result of
+				 * the comparison should be that v < max, put that one first.
+				 */
 				if (v < max) {
 					// Losing hand.
-				} else if (v == max) {
-					// Split.
-					count++;
-				} else {
+					continue nh;
+				}
+				/*
+				 * Zero bit should still be set from the previous comparison, so
+				 * no extra compare instruction is necessary and a JNZ will do.
+				 * Presumably, the next most frequent result of the comparison
+				 * is that v > max.
+				 */
+				if (v != max) {
 					// New winning hand.
 					max = v;
 					count = 1;
+					continue nh;
+				}
+				// Split.
+				count++;
+			}
+			/*
+			 * We only increment in the loss (0) and the split (count) rows of
+			 * the nWaySplits array. We already have a reference to the loss row
+			 * (0), get a reference to the count row. We also use the saved
+			 * udata elements from above.
+			 */
+			final int[] nWaySplitsCount = nWaySplits[count];
+			for (int j = 0; j < numHoles; j++) {
+				if (udataI[j] < max) {
+					// Loss.
+					nWaySplits0[j]++;
+				} else {
+					// Split (possibly only 1-way, i.e. a win).
+					nWaySplitsCount[j]++;
 				}
 			}
-			for (int j = 0; j < numHoles; j++) {
-				nWaySplits[j][udata[j][i] == max ? count : 0]++;
-			}
 		}
-		
+
 		final long t3 = System.currentTimeMillis();
 
 		lastExpandTime = (int) (t2 - t1);
@@ -123,7 +168,11 @@ public class PreFlopOddsCalculator {
 		// Create return value.
 		final Odds[] odds = new Odds[numHoles];
 		for (int i = 0; i < numHoles; i++) {
-			odds[i] = new BasicOdds(nWaySplits[i]);
+			final int[] nWaySplitsColI = new int[numHoles + 1];
+			for (int j = 0; j <= numHoles; j++) {
+				nWaySplitsColI[j] = nWaySplits[j][i];
+			}
+			odds[i] = new BasicOdds(nWaySplitsColI);
 		}
 		return odds;
 	}
