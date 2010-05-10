@@ -78,7 +78,7 @@ public class CompressHandValueDB {
 			}
 
 			// Verify.
-			CompressLZFI.expand(dataCompressed, 0, length, dataVerify, 0, Constants.BOARD_COUNT_52);
+			CompressLZFI.expand(dataCompressed, 0, length, dataVerify, 0);
 			for (int j = 0; j < Constants.BOARD_COUNT_52; j++) {
 				if (data[j] != dataVerify[j]) {
 					throw new IllegalStateException("error at " + j + ": " + data[j] + " != " + dataVerify[j]);

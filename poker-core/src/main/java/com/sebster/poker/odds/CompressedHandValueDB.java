@@ -16,7 +16,7 @@ import com.sebster.io.compress.CompressLZFI;
  * @author sebster
  * 
  */
-public class CompressedHandValueDB {
+public final class CompressedHandValueDB {
 
 	private static final Logger logger = LoggerFactory.getLogger(CompressedHandValueDB.class);
 
@@ -58,8 +58,8 @@ public class CompressedHandValueDB {
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the hole index is invalid, or the udata array is too short
 	 */
-	public void expand(final int index, final int[] udata) {
-		CompressLZFI.expand(data[index], 0, data.length, udata, 0, udata.length);
+	public final void expand(final int index, final int[] udata) {
+		CompressLZFI.expand(data[index], 0, data[index].length, udata, 0);
 	}
 
 }

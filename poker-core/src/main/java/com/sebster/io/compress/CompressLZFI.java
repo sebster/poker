@@ -211,8 +211,10 @@ public final class CompressLZFI {
 	 * 
 	 * @param in
 	 *            the input array to decompress
+	 * @param inPos
+	 *            the input position to start compressing from
 	 * @param inLen
-	 *            the number of integers in the compressed data
+	 *            the number of integers to decompress
 	 * @param out
 	 *            the output array
 	 * @param outPos
@@ -220,11 +222,12 @@ public final class CompressLZFI {
 	 * @throws ArrayIndexOutOfBoundsException
 	 *             if the compressed input is invalid
 	 */
-	public static void expand(final int[] in, int inPos, final int inLen, final int[] out, int outPos, final int outLen) {
-		if (inPos < 0 || outPos < 0 || outLen < 0) {
+	public static void expand(final int[] in, int inPos, final int inLen, final int[] out, int outPos) {
+		final int inEnd = inPos + inLen;
+		if (inPos < 0 || inLen < 0 || outPos < 0 || inEnd > in.length) {
 			throw new IllegalArgumentException();
 		}
-		do {
+		while (inPos < inEnd) {
 			final int ctrl = in[inPos++];
 			if (ctrl >= 0) {
 				// Literal run of length = ctrl + 1.
@@ -255,7 +258,7 @@ public final class CompressLZFI {
 					out[outPos++] = out[ref++];
 				}
 			}
-		} while (outPos < outLen);
+		}
 	}
 
 }

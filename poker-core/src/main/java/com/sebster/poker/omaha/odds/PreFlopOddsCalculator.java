@@ -18,6 +18,8 @@ import com.sebster.poker.odds.Odds;
 
 public class PreFlopOddsCalculator {
 
+	private static final boolean COUNT_LOSSES = true;
+
 	public static final String DB_FILENAME = "omaha_hand_value_db.lzfi.gz";
 
 	/**
@@ -96,15 +98,17 @@ public class PreFlopOddsCalculator {
 		// Compare.
 		int[] max2 = new int[numHoles];
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
-			int max = -1, count = 0;
+			for (int j = 0; j < num2Holes; j++) {
+				if (udata[j][i] < 0) {
+					continue nb;
+				}
+			}
+			int max = 0, count = 0;
 			l = 0;
 			for (int j = 0; j < numHoles; j++) {
-				int maxv = -1;
+				int maxv = 0;
 				for (int k = 0; k < 6; k++) {
 					final int v = udata[l++][i];
-					if (v < 0) {
-						continue nb;
-					}
 					if (v > maxv) {
 						maxv = v;
 					}
@@ -122,7 +126,13 @@ public class PreFlopOddsCalculator {
 				}
 			}
 			for (int j = 0; j < numHoles; j++) {
-				nWaySplits[j][max2[j] == max ? count : 0]++;
+				if (max2[j] == max) {
+					nWaySplits[j][count]++;
+				} else {
+					if (COUNT_LOSSES) {
+						nWaySplits[j][0]++;
+					}
+				}
 			}
 		}
 		final long t3 = System.currentTimeMillis();
@@ -133,7 +143,15 @@ public class PreFlopOddsCalculator {
 		// Create return value.
 		final Odds[] odds = new Odds[numHoles];
 		for (int i = 0; i < numHoles; i++) {
-			odds[i] = new BasicOdds(nWaySplits[i]);
+			final int[] nWaySplitsI = nWaySplits[i];
+			if (!COUNT_LOSSES) {
+				int k = Constants.getHole4BoardCount(numHoles);
+				for (int j = 1; j <= numHoles; j++) {
+					k -= nWaySplitsI[j];
+				}
+				nWaySplitsI[0] = k;
+			}
+			odds[i] = new BasicOdds(nWaySplitsI);
 		}
 		return odds;
 	}
@@ -164,7 +182,7 @@ public class PreFlopOddsCalculator {
 
 		final PreFlopOddsCalculator calculator = new PreFlopOddsCalculator(db);
 
-		final Random random = new Random();
+		final Random random = new Random(0);
 		final Deck deck = new Deck(random);
 		for (int i = 0; i < 50; i++) {
 			System.out.println("warmup round " + i);

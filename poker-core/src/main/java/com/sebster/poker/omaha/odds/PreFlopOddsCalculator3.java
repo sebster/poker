@@ -1,4 +1,4 @@
-package com.sebster.poker.holdem.odds;
+package com.sebster.poker.omaha.odds;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
@@ -8,21 +8,19 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.zip.GZIPInputStream;
 
-import net.jcip.annotations.NotThreadSafe;
-
 import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
+import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 
-@NotThreadSafe
-public class PreFlopOddsCalculator {
+public class PreFlopOddsCalculator3 {
+	
+	private static final boolean DEBUG = false;
 
-	private static final boolean COUNT_LOSSES = false;
-
-	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
+	public static final String DB_FILENAME = "omaha_hand_value_db.lzfi.gz";
 
 	/**
 	 * The compressed hand value database.
@@ -30,94 +28,139 @@ public class PreFlopOddsCalculator {
 	private final CompressedHandValueDB db;
 
 	/**
-	 * The uncompressed hand value arrays for up to 10 hands.
+	 * The uncompressed hand value arrays for up to 6 omaha hands.
 	 */
 	private final int[][] udata;
+
+	/**
+	 * The combined hand value arrays for 1 omaha hand.
+	 */
+	private final int[][] hdata;
 
 	private int lastExpandTime;
 
 	private int lastCompareTime;
 
-	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
-		this(db, new int[10][Constants.BOARD_COUNT_52]);
+	public PreFlopOddsCalculator3(final CompressedHandValueDB db) {
+		this(db, new int[6][Constants.BOARD_COUNT_52], new int[6][Constants.BOARD_COUNT_52]);
 	}
 
-	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
+	public PreFlopOddsCalculator3(final CompressedHandValueDB db, int[][] udata, int[][] hdata) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
-		if (udata == null) {
-			throw new NullPointerException("udata");
-		}
-		if (udata.length < 10) {
-			throw new IllegalArgumentException("udata must have at least length 36");
-		}
-		for (int i = 0; i < 10; i++) {
-			if (udata[i].length < Constants.BOARD_COUNT_52) {
-				throw new IllegalArgumentException("udata[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
-			}
-		}
+		checkArray(udata, "udata");
+		checkArray(hdata, "hdata");
+
 		this.db = db;
 		this.udata = udata;
+		this.hdata = hdata;
 	}
 
-	public final Odds[] calculateOdds(final Hole[] holes) {
+	private void checkArray(final int[][] data, final String name) {
+		if (data == null) {
+			throw new NullPointerException(name);
+		}
+		if (data.length < 6) {
+			throw new IllegalArgumentException(name + " must have at least length 6");
+		}
+		for (int i = 0; i < 6; i++) {
+			if (data[i].length < Constants.BOARD_COUNT_52) {
+				throw new IllegalArgumentException(name + "[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
+			}
+		}
+	}
+
+	public final Odds[] calculateOdds(final Hole4[] holes) {
 
 		final int numHoles = holes.length;
-		if (numHoles < 2 || numHoles > 10) {
-			throw new IllegalArgumentException("number of holes must be between 2 and 10");
+		if (numHoles < 2 || numHoles > 6) {
+			throw new IllegalArgumentException("number of holes must be between 2 and 6");
 		}
 
 		// Check for duplicate cards and convert holes to indexes.
-		final int[] holeIndexes = new int[numHoles];
+		final int[][] holeIndexes = new int[numHoles][6];
 		for (int i = 0; i < numHoles; i++) {
 			for (int j = i + 1; j < numHoles; j++) {
 				if (holes[i].intersects(holes[j])) {
 					throw new IllegalArgumentException("hole " + holes[i] + " and hole " + holes[j] + " contain common cards");
 				}
 			}
-			holeIndexes[i] = holes[i].getIndex();
+			final Hole[] twoCardHoles = holes[i].getAll2CardHoles();
+			for (int j = 0; j < 6; j++) {
+				holeIndexes[i][j] = twoCardHoles[j].getIndex();
+			}
 		}
 
 		final int[][] udata = this.udata;
+		final int[][] hdata = this.hdata;
 		final int[][] nWaySplits = new int[numHoles][numHoles + 1];
 
 		final long t1 = System.currentTimeMillis();
 
-		// Decompress the hands.
+		// Decompress and merge the hands.
 		for (int i = 0; i < numHoles; i++) {
-			db.expand(holeIndexes[i], udata[i]);
+			final int[] holeIndexesI = holeIndexes[i];
+			for (int j = 0; j < 6; j++) {
+				db.expand(holeIndexesI[j], hdata[j]);
+			}
+			final int[] udataI = udata[i];
+			if (udataI.length < Constants.BOARD_COUNT_52) {
+				// HotSpot hint.
+				throw new ArrayIndexOutOfBoundsException();
+			}
+			nb: for (int k = 0; k < Constants.BOARD_COUNT_52; k++) {
+				int max = 0;
+				for (int j = 0; j < 6; j++) {
+					final int v = hdata[j][k];
+					if (v < 0) {
+						// Invalid board.
+						udataI[k] = -1;
+						continue nb;
+					}
+				}
+				for (int j = 0; j < 6; j++) {
+					final int v = hdata[j][k];
+					if (v > max) {
+						// New winning hand.
+						max = v;
+					}
+				}
+				// Best Omaha hand value.
+				udataI[k] = max;
+			}
 		}
 
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
+			int max = -1, count = 0;
 			for (int j = 0; j < numHoles; j++) {
-				if (udata[j][i] < 0) {
+				final int v = udata[j][i];
+				if (v < 0) {
 					// Invalid board.
 					continue nb;
 				}
 			}
-			int max = 0, count = 0;
 			for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
 				if (v < max) {
-					// Do nothing.
-				} else if (v > max) {
-					// New winning hand.
-					max = v;
-					count = 1;
+					// Losing hand.
 				} else if (v == max) {
 					// Split.
 					count++;
+				} else {
+					// New winning hand.
+					max = v;
+					count = 1;
 				}
 			}
 			for (int j = 0; j < numHoles; j++) {
 				if (udata[j][i] == max) {
 					nWaySplits[j][count]++;
 				} else {
-					if (COUNT_LOSSES) {
+					if (DEBUG) {
 						nWaySplits[j][0]++;
 					}
 				}
@@ -133,8 +176,8 @@ public class PreFlopOddsCalculator {
 		final Odds[] odds = new Odds[numHoles];
 		for (int i = 0; i < numHoles; i++) {
 			final int[] nWaySplitsI = nWaySplits[i];
-			if (!COUNT_LOSSES) {
-				int k = Constants.getHole2BoardCount(numHoles);
+			if (!DEBUG) {
+				int k = Constants.getHole4BoardCount(numHoles);
 				for (int j = 1; j <= numHoles; j++) {
 					k -= nWaySplitsI[j];
 				}
@@ -169,15 +212,15 @@ public class PreFlopOddsCalculator {
 		final CompressedHandValueDB db = new CompressedHandValueDB(in);
 		in.close();
 
-		final PreFlopOddsCalculator calculator = new PreFlopOddsCalculator(db);
+		final PreFlopOddsCalculator3 calculator = new PreFlopOddsCalculator3(db);
 
-		final Random random = new Random();
+		final Random random = new Random(0);
 		final Deck deck = new Deck(random);
 		for (int i = 0; i < 50; i++) {
 			System.out.println("warmup round " + i);
-			final Hole[] holes = new Hole[numHoles];
+			final Hole4[] holes = new Hole4[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = Hole.fromDeck(deck);
+				holes[j] = Hole4.fromDeck(deck);
 			}
 			calculator.calculateOdds(holes);
 			deck.shuffle();
@@ -186,9 +229,9 @@ public class PreFlopOddsCalculator {
 		long totalTime = 0, totalExpandTime = 0, totalCompareTime = 0;
 
 		for (int i = 0; i < 100; i++) {
-			final Hole[] holes = new Hole[numHoles];
+			final Hole4[] holes = new Hole4[numHoles];
 			for (int j = 0; j < numHoles; j++) {
-				holes[j] = Hole.fromDeck(deck);
+				holes[j] = Hole4.fromDeck(deck);
 			}
 			deck.shuffle();
 
@@ -206,17 +249,9 @@ public class PreFlopOddsCalculator {
 			totalExpandTime += expandTime;
 			totalCompareTime += compareTime;
 
-			if (odds.getTotal() != Constants.getHole2BoardCount(numHoles)) {
-				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getHole2BoardCount(numHoles) + ")");
+			if (odds.getTotal() != Constants.getHole4BoardCount(numHoles)) {
+				System.out.println("***** BOARD COUNT INCORRECT ***** (" + odds.getTotal() + " != " + Constants.getHole4BoardCount(numHoles) + ")");
 			}
-			if (numHoles == 2) {
-				final Odds odds2 = TwoPlayerPreFlopOddsDB.getInstance().getOdds(holes[0], holes[1]);
-				if (!(odds.getLosses() == odds2.getLosses() && odds.getWins() == odds2.getWins() && odds.getSplits() == odds2.getSplits())) {
-					System.out.println("***** ODDS INCORRECT *****");
-					System.out.println("should be " + odds2);
-				}
-			}
-
 		}
 
 		System.out.println("avg expand=" + (totalExpandTime / 100) + " avg compare=" + (totalCompareTime / 100) + " avg total=" + (totalTime / 100) + " ms");
