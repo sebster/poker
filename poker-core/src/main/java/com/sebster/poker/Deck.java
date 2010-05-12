@@ -1,5 +1,6 @@
 package com.sebster.poker;
 
+import java.util.EnumSet;
 import java.util.Random;
 
 /**
@@ -22,7 +23,7 @@ public class Deck {
 	/**
 	 * The number of cards remaining in the deck.
 	 */
-	private int remaining;
+	private int numberRemaining;
 
 	/**
 	 * Create a shuffled deck of cards.
@@ -49,8 +50,8 @@ public class Deck {
 	 * 
 	 * @return the number of cards remaining in the deck
 	 */
-	public int getRemaining() {
-		return remaining;
+	public int getNumberRemaining() {
+		return numberRemaining;
 	}
 
 	/**
@@ -59,7 +60,21 @@ public class Deck {
 	 * @return whether or not there are still cards remaining in the deck
 	 */
 	public boolean hasRemaining() {
-		return remaining > 0;
+		return numberRemaining > 0;
+	}
+
+	/**
+	 * Get a set with all the remaining cards in the deck. The deck remains
+	 * unchanged.
+	 * 
+	 * @return a set with all the cards remaining in the deck
+	 */
+	public EnumSet<Card> getRemaining() {
+		final EnumSet<Card> result = EnumSet.noneOf(Card.class);
+		for (int i = 0; i < numberRemaining; i++) {
+			result.add(cards[i]);
+		}
+		return result;
 	}
 
 	/**
@@ -72,10 +87,10 @@ public class Deck {
 	 */
 	public Card draw() {
 		if (hasRemaining()) {
-			int i = random.nextInt(remaining);
+			int i = random.nextInt(numberRemaining);
 			Card card = cards[i];
-			cards[i] = cards[--remaining];
-			cards[remaining] = card;
+			cards[i] = cards[--numberRemaining];
+			cards[numberRemaining] = card;
 			return card;
 		}
 		throw new IllegalStateException("no cards remaining");
@@ -85,7 +100,7 @@ public class Deck {
 	 * Shuffle the deck (after which the number of remaining cards is again 52).
 	 */
 	public void shuffle() {
-		remaining = 52;
+		numberRemaining = 52;
 	}
 
 }

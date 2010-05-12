@@ -656,9 +656,9 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		throw new UnsupportedOperationException();
 	}
 
-	private static final int[][][] INDEXES;
+	protected static final int[][][] INDEXES;
 
-	private static final int[] NUMBER_OF_SETS;
+	protected static final int[] NUMBER_OF_SETS;
 
 	static {
 		INDEXES = new int[52][][];

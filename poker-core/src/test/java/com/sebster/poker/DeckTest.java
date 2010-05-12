@@ -17,7 +17,7 @@ public class DeckTest {
 			while (deck.hasRemaining()) {
 				Assert.assertTrue(j < 52);
 				cards[j++] = deck.draw();
-				Assert.assertEquals(52 - j, deck.getRemaining());
+				Assert.assertEquals(52 - j, deck.getNumberRemaining());
 			}
 			Assert.assertEquals(52, j);
 			Arrays.sort(cards);
