@@ -110,9 +110,10 @@ public class PostFlopOddsCalculator2 {
 		Arrays.sort(hand.clone());
 		for (int i = 0; i < 21; i++) {
 			for (int j = 0; j < 5; j++) {
-				
+				// FIXME
 			}
 		}
+		return 0;
 	}
 	
 }
