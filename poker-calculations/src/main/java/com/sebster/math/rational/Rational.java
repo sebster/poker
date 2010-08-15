@@ -3,9 +3,11 @@ package com.sebster.math.rational;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
+import com.sebster.math.field.Field;
+import com.sebster.math.field.FieldValue;
 import com.sebster.util.Validate;
 
-public final class Rational extends Number implements Comparable<Rational> {
+public final class Rational extends Number implements Comparable<Rational>, FieldValue<Rational> {
 
 	private static final long serialVersionUID = -5235703991206087636L;
 
@@ -210,5 +212,10 @@ public final class Rational extends Number implements Comparable<Rational> {
 	public static final Rational ZERO = new Rational(0);
 	
 	public static final Rational ONE = new Rational(1);
+
+	@Override
+	public Field<Rational> getField() {
+		return RationalField.getInstance();
+	}
 
 }
