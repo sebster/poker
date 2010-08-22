@@ -5,7 +5,6 @@ import java.math.BigInteger;
 
 import com.sebster.math.field.Field;
 import com.sebster.math.field.FieldValue;
-import com.sebster.util.Validate;
 
 public final class Rational extends Number implements Comparable<Rational>, FieldValue<Rational> {
 
@@ -16,8 +15,8 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	private final BigInteger denominator;
 
 	public Rational(BigInteger numerator, BigInteger denominator) {
-		Validate.notNull(numerator, "numerator is null");
-		Validate.notNull(denominator, "denominator is null");
+//		Validate.notNull(numerator, "numerator is null");
+//		Validate.notNull(denominator, "denominator is null");
 
 		if (denominator.signum() == 0) {
 			throw new ArithmeticException("division by zero");

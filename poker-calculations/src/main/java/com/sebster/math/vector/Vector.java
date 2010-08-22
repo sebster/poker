@@ -1,4 +1,7 @@
-package com.sebster.math.field;
+package com.sebster.math.vector;
+
+import com.sebster.math.field.Field;
+import com.sebster.math.field.FieldValue;
 
 public interface Vector<T extends FieldValue<T>, V extends Vector<T, V>> {
 
@@ -16,6 +19,6 @@ public interface Vector<T extends FieldValue<T>, V extends Vector<T, V>> {
 	
 	Field<T> getScalarField();
 	
-	VectorField<T, V> getVectorField();
+	VectorSpace<T, V> getVectorField();
 	
 }
