@@ -21,13 +21,6 @@
 			<groupId>com.sebster.poker</groupId>
 			<artifactId>poker-core</artifactId>
 		</dependency>
-		<!-- 
-		<dependency>
-			<groupId>lpsolve</groupId>
-			<artifactId>lpsolve</artifactId>
-			<version>5.5.0.15</version>
-		</dependency>
-		 -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>

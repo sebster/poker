@@ -1,11 +1,12 @@
 package com.sebster.poker.solver;
 
-import java.util.EnumSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sebster.math.rational.Rational;
 import com.sebster.poker.HoleCategory;
+import com.sebster.poker.holdem.AllinOrFoldStrategy;
+import com.sebster.poker.holdem.PureAllinOrFoldStrategy;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.odds.Odds;
 
@@ -13,29 +14,48 @@ public class Solver {
 
 	private static final Logger logger = LoggerFactory.getLogger(Solver.class);
 
-	/**
-	 * minimize:
-	 * 
-	 * sum_h2 { sum_h1 p(h1 & h2) * ([ p_w(h1,h2) - p_l(h1,h2) ] * ES) - BB) *
-	 * f(h1) } g(h2)
-	 */
-	public static EnumSet<HoleCategory> optimalBBStrategy(EnumSet<HoleCategory> sbStrategy, int effectiveStacks, int bigBlind) {
+	public static Rational computeSBEV(final AllinOrFoldStrategy sbStrategy, final AllinOrFoldStrategy bbStrategy, final int effectiveStacks, final int bigBlind) {
 		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
-		final long t1 = System.currentTimeMillis();
-		EnumSet<HoleCategory> bbStrategy = EnumSet.noneOf(HoleCategory.class);
+		Rational result = Rational.ZERO;
 		for (int i = 0; i < 169; i++) {
-			double coefficient = 0;
+			final HoleCategory bbHoleCategory = HoleCategory.values()[i];
+			for (int j = 0; j < 169; j++) {
+				final HoleCategory sbHoleCategory = HoleCategory.values()[j];
+				final Rational sbPushFreq = sbStrategy.getAllinFrequency(sbHoleCategory);
+				final Rational bbCallFreq = bbStrategy.getAllinFrequency(bbHoleCategory);
+				final Odds odds = db.getOdds(sbHoleCategory, bbHoleCategory);
+
+				// sb fold EV: (1 - sbPushFreq) * -sb
+				Rational equity = Rational.ONE.subtract(sbPushFreq).multiply(-bigBlind / 2);
+				// sb push, bb fold EV: sbPushFreq * (1 - bbCallFreq) * +bb
+				equity = equity.add(sbPushFreq.multiply(Rational.ONE.subtract(bbCallFreq)).multiply(bigBlind));
+				// sb push, bb call EV: sbPushFreq * bbCallFreq * (p_win - p_loss) * effectiveStacks
+				equity = equity.add(sbPushFreq.multiply(bbCallFreq).multiply(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(effectiveStacks)));
+
+				// Scale to probability of being dealt.
+				final Rational gameProb = db.getProbability(sbHoleCategory, bbHoleCategory);
+				result = result.add(gameProb.multiply(equity)).simplify();
+			}
+		}
+		return result;
+	}
+
+	// TODO also return EV
+	public static PureAllinOrFoldStrategy optimalBBStrategy(final AllinOrFoldStrategy sbStrategy, final int effectiveStacks, final int bigBlind) {
+		final long t1 = System.currentTimeMillis();
+		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
+		final PureAllinOrFoldStrategy bbStrategy = new PureAllinOrFoldStrategy();
+		for (int i = 0; i < 169; i++) {
+			Rational coefficient = Rational.ZERO;
 			final HoleCategory hc2 = HoleCategory.values()[i];
 			for (int j = 0; j < 169; j++) {
 				final HoleCategory hc1 = HoleCategory.values()[j];
-				if (sbStrategy.contains(hc1)) {
-					final Odds odds = db.getOdds(hc1, hc2);
-					final double prob = db.getProbability(hc1, hc2);
-					coefficient += prob * ((odds.getWinProbability() - odds.getLossProbability()) * effectiveStacks - bigBlind);
-				}
+				final Odds odds = db.getOdds(hc1, hc2);
+				final Rational gameProb = db.getProbability(hc1, hc2);
+				coefficient = coefficient.add(gameProb.multiply(sbStrategy.getAllinFrequency(hc1)).multiply((new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(effectiveStacks).subtract(bigBlind)))).simplify();
 			}
-			if (coefficient < 0) {
-				bbStrategy.add(hc2);
+			if (coefficient.signum() < 0) {
+				bbStrategy.addHoleCategory(hc2);
 			}
 		}
 		final long t2 = System.currentTimeMillis();
@@ -43,25 +63,22 @@ public class Solver {
 		return bbStrategy;
 	}
 
-	public static EnumSet<HoleCategory> optimalSBStrategy(EnumSet<HoleCategory> bbStrategy, int effectiveStacks, int bigBlind) {
-		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
+	// TODO also return EV
+	public static PureAllinOrFoldStrategy optimalSBStrategy(final AllinOrFoldStrategy bbStrategy, final int effectiveStacks, final int bigBlind) {
 		final long t1 = System.currentTimeMillis();
-		EnumSet<HoleCategory> sbStrategy = EnumSet.noneOf(HoleCategory.class);
+		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
+		final PureAllinOrFoldStrategy sbStrategy = new PureAllinOrFoldStrategy();
 		for (int i = 0; i < 169; i++) {
 			final HoleCategory hc1 = HoleCategory.values()[i];
-			double coefficient = -hc1.getProbability() * bigBlind / 2;
+			Rational coefficient = hc1.getProbability().multiply(bigBlind / 2 + bigBlind);
 			for (int j = 0; j < 169; j++) {
 				final HoleCategory hc2 = HoleCategory.values()[j];
-				final double prob = db.getProbability(hc1, hc2);
-				if (bbStrategy.contains(hc2)) {
-					final Odds odds = db.getOdds(hc1, hc2);
-					coefficient += prob * ((odds.getLossProbability() - odds.getWinProbability()) * effectiveStacks);
-				} else {
-					coefficient += prob * -bigBlind;
-				}
+				final Rational gameProb = db.getProbability(hc1, hc2);
+				final Odds odds = db.getOdds(hc1, hc2);
+				coefficient = coefficient.add(gameProb.multiply(bbStrategy.getAllinFrequency(hc2).multiply(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(effectiveStacks).subtract(bigBlind)))).simplify();
 			}
-			if (coefficient < 0) {
-				sbStrategy.add(hc1);
+			if (coefficient.signum() > 0) {
+				sbStrategy.addHoleCategory(hc1);
 			}
 		}
 		final long t2 = System.currentTimeMillis();
