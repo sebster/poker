@@ -1,5 +1,6 @@
 package com.sebster.poker;
 
+import com.sebster.math.rational.Rational;
 import com.sebster.poker.odds.Constants;
 import com.sebster.util.LinearOrder;
 
@@ -39,8 +40,8 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 		return isSuited() ? 4 : (isPair() ? 6 : 12);
 	}
 
-	public double getProbability() {
-		return ((double) getSize()) / Constants.HOLE_COUNT;
+	public Rational getProbability() {
+		return new Rational(getSize(), Constants.HOLE_COUNT);
 	}
 
 	@Override

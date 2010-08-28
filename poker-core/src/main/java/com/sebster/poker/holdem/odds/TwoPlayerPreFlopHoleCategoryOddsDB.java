@@ -9,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.sebster.math.rational.Rational;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.TwoPlayerOdds;
@@ -71,8 +72,8 @@ public class TwoPlayerPreFlopHoleCategoryOddsDB {
 
 	}
 
-	public double getProbability(final HoleCategory holeCategory1, final HoleCategory holeCategory2) {
-		return ((double) getHandCombinations(holeCategory1, holeCategory2)) / (52 * 51 / 2) / (50 * 49 / 2);
+	public Rational getProbability(final HoleCategory holeCategory1, final HoleCategory holeCategory2) {
+		return new Rational(getHandCombinations(holeCategory1, holeCategory2), (52 * 51 / 2) * (50 * 49 / 2));
 	}
 
 }

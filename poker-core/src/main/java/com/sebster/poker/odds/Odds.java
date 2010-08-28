@@ -1,5 +1,7 @@
 package com.sebster.poker.odds;
 
+import com.sebster.math.rational.Rational;
+
 public abstract class Odds implements Comparable<Odds> {
 
 	/**
@@ -15,32 +17,32 @@ public abstract class Odds implements Comparable<Odds> {
 
 	public abstract int getMaxN();
 
-	public double getNWaySplitProbability(final int n) {
-		return ((double) getNWaySplits(n)) / getTotal();
+	public Rational getNWaySplitProbability(final int n) {
+		return new Rational(getNWaySplits(n), getTotal());
 	}
 
 	public int getLosses() {
 		return getNWaySplits(0);
 	}
 
-	public double getLossProbability() {
-		return ((double) getLosses()) / getTotal();
+	public Rational getLossProbability() {
+		return new Rational(getLosses(), getTotal());
 	}
 
 	public int getWins() {
 		return getNWaySplits(1);
 	}
 
-	public double getWinProbability() {
-		return ((double) getWins()) / getTotal();
+	public Rational getWinProbability() {
+		return new Rational(getWins(), getTotal());
 	}
 
 	public int getSplits() {
 		return getTotal() - getWins() - getLosses();
 	}
 
-	public double getSplitProbability() {
-		return ((double) getSplits()) / getTotal();
+	public Rational getSplitProbability() {
+		return new Rational(getSplits(), getTotal());
 	}
 
 	public int getTotal() {
@@ -51,10 +53,10 @@ public abstract class Odds implements Comparable<Odds> {
 		return total;
 	}
 
-	public double getEquity() {
-		double equity = 0;
+	public Rational getEquity() {
+		Rational equity = Rational.ZERO;
 		for (int n = getMaxN(); n > 0; n--) {
-			equity += getNWaySplitProbability(n) / n;
+			equity.add(getNWaySplitProbability(n).divide(n));
 		}
 		return equity;
 	}
@@ -75,7 +77,7 @@ public abstract class Odds implements Comparable<Odds> {
 
 	@Override
 	public int compareTo(final Odds odds) {
-		return Double.compare(getEquity(), odds.getEquity());
+		return getEquity().compareTo(odds.getEquity());
 	}
 
 }
