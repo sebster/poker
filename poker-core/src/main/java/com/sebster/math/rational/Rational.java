@@ -29,14 +29,16 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 			this.denominator = BigInteger.ONE;
 		} else {
 			// Non-zero.
-			if (denominator.signum() > 0) {
+			BigInteger tmpNumerator = numerator;
+			BigInteger tmpDenominator = denominator;
+			if (denominator.signum() < 0) {
 				// Denominator is always positive in the internal representation.
-				this.numerator = numerator;
-				this.denominator = denominator;
-			} else {
-				this.numerator = numerator.negate();
-				this.denominator = denominator.negate();
+				tmpNumerator = tmpNumerator.negate();
+				tmpDenominator = tmpDenominator.negate();
 			}
+			final BigInteger gcd = tmpNumerator.gcd(tmpDenominator);
+			this.numerator = tmpNumerator.divide(gcd);
+			this.denominator = tmpDenominator.divide(gcd);
 		}
 	}
 
@@ -117,8 +119,9 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	}
 
 	public Rational simplify() {
-		final BigInteger gcd = numerator.gcd(denominator);
-		return new Rational(numerator.divide(gcd), denominator.divide(gcd));
+		return this;
+//		final BigInteger gcd = numerator.gcd(denominator);
+//		return new Rational(numerator.divide(gcd), denominator.divide(gcd));
 	}
 
 	public int signum() {
