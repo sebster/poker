@@ -3,11 +3,14 @@ package com.sebster.poker.solver;
 import java.util.EnumSet;
 
 import com.sebster.math.rational.Rational;
+import com.sebster.math.rational.matrix.Matrix;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.HoleRange;
 import com.sebster.poker.holdem.AllinOrFoldStrategy;
 import com.sebster.poker.holdem.MixedAllinOrFoldStrategy;
 import com.sebster.poker.holdem.PureAllinOrFoldStrategy;
+import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
+import com.sebster.poker.odds.Odds;
 
 public class CheckNashEquilibrium {
 
@@ -18,9 +21,44 @@ public class CheckNashEquilibrium {
 		MixedAllinOrFoldStrategy bbStrategy = MixedAllinOrFoldStrategy.fromString(bb);
 		AllinOrFoldStrategy optBBStrategy = Solver.optimalBBStrategy(sbStrategy, 1000, 100);
 		AllinOrFoldStrategy optSBStrategy = Solver.optimalSBStrategy(bbStrategy, 1000, 100);
-		System.out.println(Solver.computeSBEV(sbStrategy, bbStrategy, 1000, 100).decimalValue());
-		System.out.println(Solver.computeSBEV(sbStrategy, optBBStrategy, 1000, 100).decimalValue());
-		System.out.println(Solver.computeSBEV(optSBStrategy, bbStrategy, 1000, 100).decimalValue());
+		System.out.println("Computed strategy EV = " + Solver.computeSBEV(sbStrategy, bbStrategy, 1000, 100).decimalValue());
+		System.out.println("Against opt bb EV    = " + Solver.computeSBEV(sbStrategy, optBBStrategy, 1000, 100).decimalValue());
+		System.out.println("Against opt sb EV    = " + Solver.computeSBEV(optSBStrategy, bbStrategy, 1000, 100).decimalValue());
+		
+		final int effectiveStack = 1000;
+		final int bigBlind = 100;
+		final int smallBlind = bigBlind / 2;
+		final Matrix<Rational> A = new Matrix<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
+		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
+		for (final HoleCategory hc1 : HoleCategory.values()) {
+			for (final HoleCategory hc2 : HoleCategory.values()) {
+				final int p1PushRow = 1 + 2 * hc1.ordinal();
+				final int p1FoldRow = p1PushRow + 1;
+				final int p2CallCol = 1 + 2 * hc2.ordinal();
+				final int p2FoldCol = p2CallCol + 1;
+				final Odds odds = db.getOdds(hc1, hc2);
+				final Rational hc1Prob = hc1.getProbability();
+				final Rational hc1hc2Prob = db.getProbability(hc1, hc2);
+				
+				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack).simplify()));
+				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(bigBlind));
+				A.set(p1FoldRow, 0, hc1Prob.multiply(-smallBlind));
+			}
+		}
+		
+		final Matrix<Rational> x = new Matrix<Rational>(1 + 169 * 2, 1, Rational.ZERO);
+		final Matrix<Rational> y = new Matrix<Rational>(1 + 169 * 2, 1, Rational.ZERO);
+		x.set(0, 0, Rational.ONE);
+		y.set(0, 0, Rational.ONE);
+		for (final HoleCategory hc : HoleCategory.values()) {
+			x.set(1 + hc.ordinal() * 2, 0, sbStrategy.getAllinFrequency(hc));
+			x.set(1 + hc.ordinal() * 2 + 1, 0, Rational.ONE.subtract(sbStrategy.getAllinFrequency(hc)));
+			y.set(1 + hc.ordinal() * 2, 0, bbStrategy.getAllinFrequency(hc));
+			y.set(1 + hc.ordinal() * 2 + 1, 0, Rational.ONE.subtract(bbStrategy.getAllinFrequency(hc)));
+		}
+		
+		final Rational sbEv = x.transpose().times(A).times(y).get(0, 0);
+		System.out.println("Matrix EV            = " + sbEv.decimalValue());
 
 		EnumSet<HoleCategory> sbR = HoleRange.fromString("22-AA,A2s+,K2s+,Q2s+,J3s+,T4s+,95s+,84s+,74s+,64s+,53s+,43s,A2o+,K2o+,Q7o+,J8o+,T8o+,97o+,87o,76o");
 		EnumSet<HoleCategory> bbR = HoleRange.fromString("22-AA,A2s+,K2s+,Q6s+,J8s+,T9s,A2o+,K5o+,Q9o+,JTo");
@@ -30,9 +68,10 @@ public class CheckNashEquilibrium {
 		bbStrategy.putHoleCategory(HoleCategory.sQ6, new Rational(40, 100));
 		optBBStrategy = Solver.optimalBBStrategy(sbStrategy, 1000, 100);
 		optSBStrategy = Solver.optimalSBStrategy(bbStrategy, 1000, 100);
-		System.out.println(Solver.computeSBEV(sbStrategy, bbStrategy, 1000, 100).decimalValue());
-		System.out.println(Solver.computeSBEV(sbStrategy, optBBStrategy, 1000, 100).decimalValue());
-		System.out.println(Solver.computeSBEV(optSBStrategy, bbStrategy, 1000, 100).decimalValue());
+		
+		System.out.println("SNG wizard opt EV    = " + Solver.computeSBEV(sbStrategy, bbStrategy, 1000, 100).decimalValue());
+		System.out.println("Against opt BB EV    = " + Solver.computeSBEV(sbStrategy, optBBStrategy, 1000, 100).decimalValue());
+		System.out.println("Against opt SB EV    = " + Solver.computeSBEV(optSBStrategy, bbStrategy, 1000, 100).decimalValue());
 	}
 
 }

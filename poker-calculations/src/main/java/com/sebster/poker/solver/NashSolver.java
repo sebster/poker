@@ -12,6 +12,8 @@ import com.sebster.util.collections.Pair;
 
 public class NashSolver {
 
+	private final static int VERSION = 3;
+	
 	public static NashResult calculateNashEquilibrium(final int effectiveStack, final int smallBlind, final int bigBlind) {
 		final Matrix<Rational> E = new Matrix<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
 		E.set(0, 0, Rational.ONE);
@@ -30,10 +32,12 @@ public class NashSolver {
 				final int p2CallCol = 1 + 2 * hc2.ordinal();
 				final int p2FoldCol = p2CallCol + 1;
 				final Odds odds = db.getOdds(hc1, hc2);
+				final Rational hc1Prob = hc1.getProbability();
+				final Rational hc1hc2Prob = db.getProbability(hc1, hc2);
 				
-				A.set(p1PushRow, p2CallCol, odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack).simplify());
-				A.set(p1PushRow, p2FoldCol, new Rational(bigBlind));
-				A.set(p1FoldRow, 0, new Rational(-smallBlind));
+				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack).simplify()));
+				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(bigBlind));
+				A.set(p1FoldRow, 0, hc1Prob.multiply(-smallBlind));
 			}
 		}
 		
@@ -53,6 +57,7 @@ public class NashSolver {
 	public static void main(final String[] args) {
 		final int stack = Integer.parseInt(args[0]);
 		final int bb = Integer.parseInt(args[1]);
+		System.out.println("running nash solver version " + VERSION);
 		System.out.println("effective stacks = " + stack + " big blind = " + bb);
 		final NashResult result = calculateNashEquilibrium(stack, bb / 2, bb);
 		System.out.println("sb = " + result.getSbStrategy());
