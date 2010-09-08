@@ -54,6 +54,14 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		this(numerator, 1);
 	}
 
+	public Rational(final String numerator, final String denominator) {
+		this(new BigInteger(numerator), new BigInteger(denominator));
+	}
+
+	public Rational(final String numerator) {
+		this(new BigInteger(numerator));
+	}
+	
 	public BigInteger getNumerator() {
 		return numerator;
 	}
