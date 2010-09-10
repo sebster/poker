@@ -194,6 +194,11 @@ public class NashEquilibria {
 		bb = "{44=1, 55=1, A5s=38315/72262, 66=1, A6s=1, 77=1, A7s=1, 88=1, A8s=1, 99=1, A9s=1, TT=1, KTs=1, ATs=1, JJ=1, KJs=1, AJs=1, QQ=1, KQs=1, AQs=1, KQo=1, KK=1, AKs=1, A8o=1, A9o=1, ATo=1, AJo=1, AQo=1, AKo=1, AA=1}";
 		register(new Rational(30), sb, bb, new Rational(-2248631916057643L, 8374506416476200L));
 
+		// 40 bb
+		sb = "{22=1, A2s=1, 33=1, A3s=1, 44=1, A4s=1, 55=1, A5s=1, 66=1, A6s=1, 77=1, 87s=1, K7s=1, A7s=1, 88=1, 98s=1, T8s=1, J8s=1, Q8s=1, K8s=1, A8s=1, 99=1, T9s=1, J9s=1, Q9s=1, K9s=1, A9s=1, TT=1, JTs=1, QTs=1, KTs=1, ATs=1, JTo=1, JJ=1, QJs=1, KJs=1, AJs=1, QTo=1, QJo=1, QQ=1, KQs=1, AQs=1, KTo=97244474878142/478387429469901, KJo=1, KQo=1, KK=1, AKs=1, A7o=69722067935605/478387429469901, A8o=1, A9o=1, ATo=1, AJo=1, AQo=1, AKo=1, AA=1}";
+		bb = "{55=1, 66=1, 77=1, 88=1, A8s=41147220590178/53154158829989, 99=1, A9s=1, TT=1, ATs=1, JJ=1, KJs=1, AJs=1, QQ=1, KQs=1, AQs=1, KQo=48942151688659/68341061352843, KK=1, AKs=1, ATo=1, AJo=1, AQo=1, AKo=1, AA=1}";
+		register(new Rational(40), sb, bb, new Rational("-17970724056431083776040724", "55440737838106356000365100"));
+
 		// 50 bb
 		sb = "{22=1, 33=1, A3s=1, 44=1, A4s=1, 55=1, A5s=1, 66=1, A6s=1, 77=1, A7s=1, 88=1, 98s=1, T8s=1, Q8s=1, K8s=1, A8s=1, 99=1, T9s=1, J9s=1, Q9s=1, K9s=1, A9s=1, TT=1, JTs=1, QTs=1, KTs=1, ATs=1, JJ=1, QJs=1, KJs=1, AJs=1, QJo=1, QQ=1, KQs=1, AQs=1, KTo=79677800/193976393, KJo=1, KQo=1, KK=1, AKs=1, ATo=1, AJo=1, AQo=1, AKo=1, AA=1}";
 		bb = "{66=1, 77=1, 88=1, 99=1, TT=1, ATs=1, JJ=1, AJs=1, QQ=1, KQs=1, AQs=1, KK=1, AKs=1, ATo=111413979/193976393, AJo=1, AQo=1, AKo=1, AA=1}";
@@ -208,6 +213,16 @@ public class NashEquilibria {
 		sb = "{A3s=1, A4s=1, A5s=1, 66=1, 77=74609885871155/915816488020737, 88=1, 99=1, TT=1, QTs=1, KTs=1, ATs=1, JJ=1, QJs=1, KJs=1, AJs=1, QQ=1, KQs=1, AQs=1, KQo=2162242294808/915816488020737, KK=1, AKs=1, AJo=1, AQo=1, AKo=1, AA=1}";
 		bb = "{99=253739777465263/915816488020737, TT=1, JJ=1, QQ=1, AQs=1, KK=1, AKs=1, AQo=135265396530631/915816488020737, AKo=1, AA=1}";
 		register(new Rational(100), sb, bb, new Rational("-46115602049034385061873368", "106134774227731877876948700"));
+
+		// 150 bb
+		sb = "{A3s=193353853498333/799513507306072, A4s=1, A5s=1, 66=23258868224590/99939188413259, TT=1, JJ=1, AJs=1, QQ=1, KQs=1, AQs=1, KK=1, AKs=1, AKo=1, AA=1}";
+		bb = "{JJ=1471281611285659/2398540521918216, QQ=1, KK=1, AKs=1, AKo=2132557309753987/2398540521918216, AA=1}";
+		register(new Rational(150), sb, bb, new Rational("-7052813785989863196974101", "15442720002661821270601200"));
+
+		// 300 bb
+		sb = "{A3s=16618367/50202676, A4s=1, A5s=1, ATs=1, KK=1, AKs=1, AKo=1, AA=1}";
+		bb = "{KK=1, AKs=1, AKo=1813883/12550669, AA=1}";
+		register(new Rational(300), sb, bb, new Rational(-76861222381557200L, 161612001500049100L));
 
 	}
 	
