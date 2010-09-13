@@ -17,7 +17,7 @@ public class LCPSolverTest {
 		});
 		final Rational[] b = toRational(new int[] { 3, 5, -9, -5 });
 
-		final Rational[] z = LCPSolver.solve(M, b);
+		final Rational[] z = SimpleLCPSolver.solve(M, b);
 		
 		Assert.assertArrayEquals(toRational(new int[] { 2, 1, 3, 1 }), z);
 	}
@@ -32,7 +32,7 @@ public class LCPSolverTest {
 		final Rational[] b = toRational(new int[] { -3, -2, -1 });
 
 		try {
-			LCPSolver.solve(M, b);
+			SimpleLCPSolver.solve(M, b);
 			Assert.fail("ray termination expected");
 		} catch (IllegalStateException e) {
 			// Expected.
@@ -48,7 +48,7 @@ public class LCPSolverTest {
 		});
 		final Rational[] b = toRational(new int[] { -8, -12, -14 });
 
-		final Rational[] z = LCPSolver.solve(M, b);
+		final Rational[] z = SimpleLCPSolver.solve(M, b);
 
 		Assert.assertArrayEquals(toRational(new int[] { 8, 0, 0 }), z);
 	}
@@ -62,7 +62,7 @@ public class LCPSolverTest {
 		});
 		final Rational[] b = toRational(new int[] { -1, -1, -1 });
 
-		final Rational[] z = LCPSolver.solve(M, b);
+		final Rational[] z = SimpleLCPSolver.solve(M, b);
 
 		final Rational third = new Rational(1, 3);
 		Assert.assertArrayEquals(new Rational[] { third, third, third }, z);

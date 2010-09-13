@@ -2,7 +2,7 @@ package com.sebster.gametheory.nash;
 
 import java.util.Arrays;
 
-import com.sebster.math.lcp.LCPSolver;
+import com.sebster.math.lcp.SimpleLCPSolver;
 import com.sebster.math.rational.Rational;
 import com.sebster.math.rational.matrix.Matrix;
 import com.sebster.util.Assert;
@@ -118,7 +118,7 @@ public final class NashEquilibrium {
 		b[Ecols + Fcols + 2 * Erows + Frows] = new Rational(-1);
 
 		// Solve the LCP.
-		final Rational[] z = LCPSolver.solve(M, b);
+		final Rational[] z = SimpleLCPSolver.solve(M, b);
 		final Matrix<Rational> zM = new Matrix<Rational>(z, z.length);
 
 		// Construct the result.

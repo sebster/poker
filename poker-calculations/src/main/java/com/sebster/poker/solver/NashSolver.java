@@ -12,9 +12,9 @@ import com.sebster.util.collections.Pair;
 
 public class NashSolver {
 
-	private final static int VERSION = 3;
+	private final static int VERSION = 4;
 	
-	public static NashResult calculateNashEquilibrium(final int effectiveStack, final int smallBlind, final int bigBlind) {
+	public static NashResult calculateNashEquilibrium(final int effectiveStack, final int bigBlind) {
 		final Matrix<Rational> E = new Matrix<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
 		E.set(0, 0, Rational.ONE);
 		for (int i = 0; i < 169; i++) {
@@ -37,7 +37,7 @@ public class NashSolver {
 				
 				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack).simplify()));
 				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(bigBlind));
-				A.set(p1FoldRow, 0, hc1Prob.multiply(-smallBlind));
+				A.set(p1FoldRow, 0, hc1Prob.multiply(bigBlind).divide(-2));
 			}
 		}
 		
@@ -59,7 +59,7 @@ public class NashSolver {
 		final int bb = Integer.parseInt(args[1]);
 		System.out.println("running nash solver version " + VERSION);
 		System.out.println("effective stacks = " + stack + " big blind = " + bb);
-		final NashResult result = calculateNashEquilibrium(stack, bb / 2, bb);
+		final NashResult result = calculateNashEquilibrium(stack, bb);
 		System.out.println("sb = " + result.getSbStrategy());
 		System.out.println("bb = " + result.getBbStrategy());
 		System.out.println("sb ev = " + result.getSbEV());
