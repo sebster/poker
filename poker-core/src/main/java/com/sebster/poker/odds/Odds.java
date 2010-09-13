@@ -56,7 +56,7 @@ public abstract class Odds implements Comparable<Odds> {
 	public Rational getEquity() {
 		Rational equity = Rational.ZERO;
 		for (int n = getMaxN(); n > 0; n--) {
-			equity.add(getNWaySplitProbability(n).divide(n));
+			equity = equity.add(getNWaySplitProbability(n).divide(n));
 		}
 		return equity;
 	}
