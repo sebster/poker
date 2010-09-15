@@ -244,16 +244,31 @@ public class NashEquilibria {
 		bb = "{KK=1, AKs=1, AKo=1813883/12550669, AA=1}";
 		register(new Rational(300), sb, bb, new Rational(-76861222381557200L, 161612001500049100L));
 
+		// 350 bb
+		sb = "{A4s=1, A5s=1, ATs=46199461/125170202, KK=1, AKs=1, AKo=1, AA=1}";
+		bb = "{KK=1, AKs=46585797/62585101, AA=1}";
+		register(new Rational(350), sb, bb, new Rational(-1102913350704401L, 2302553054956154L));
+
 		// 400 bb
 		sb = "{A4s=1, A5s=1, ATs=6706942/17866169, KK=1, AKs=1, AKo=1, AA=1}";
 		bb = "{KK=1, AKs=7983861/35732338, AA=1}";
 		register(new Rational(400), sb, bb, new Rational(-110894260667085050L, 230058440010499100L));
+
+		// 450 bb
+		sb = "{A5s=16668965/28720306, KK=1, AKs=1, AKo=1, AA=1}";
+		bb = "{KK=13377961/14360153, AA=1}";
+		register(new Rational(450), sb, bb, new Rational(-640160832645546L, 1320802141063405L));
 
 		// 500 bb
 		sb = "{A5s=83915593/143506402, AKs=1, AKo=1, AA=1}";
 		bb = "{KK=52347112/71753201, AA=1}";
 		register(new Rational(500), sb, bb, new Rational(-112364861927729657L, 230987257086560975L));
 		
+		// 550 bb
+		sb = "{A5s=16837601/28685714, AKs=1, AKo=1, AA=1}";
+		bb = "{KK=8089709/14342857, AA=1}";
+		register(new Rational(550), sb, bb, new Rational(-8190922744792761L, 16789962112769300L));
+
 		// 600 bb
 		sb = "{A5s=1, ATs=75870259106331/97753735252723, AKs=1, AKo=30904646994525/97753735252723, AA=1}";
 		bb = "{KK=37827991851398/97753735252723, AKs=13890077614999/391014941010892, AA=1}";
@@ -268,6 +283,11 @@ public class NashEquilibria {
 		sb = "{A5s=1, ATs=30573243/35625319, AKs=1, AA=1}";
 		bb = "{AKs=5325337/71250638, AA=1}";
 		register(new Rational(800), sb, bb, new Rational(-5589962413828579L, 11342443391831475L));
+
+		// 850 bb
+		sb = "{AA=1}";
+		bb = "{AA=1}";
+		register(new Rational(850), sb, bb, new Rational(-133526, 270725));
 
 		// 900 bb
 		sb = "{AA=1}";
