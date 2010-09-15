@@ -36,5 +36,18 @@ public abstract class AbstractPair<T1, T2> implements Pair<T1, T2> {
 			return false;
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		final StringBuilder buffer = new StringBuilder();
+		buffer.append("(");
+		final T1 first = getFirst();
+		buffer.append(first != null ? first.toString() : "null");
+		buffer.append(", ");
+		final T2 second = getSecond();
+		buffer.append(second != null ? second.toString() : "null");
+		buffer.append(")");
+		return buffer.toString();
+	}
 
 }
