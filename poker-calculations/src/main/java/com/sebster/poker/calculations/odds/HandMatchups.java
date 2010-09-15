@@ -93,6 +93,24 @@ public class HandMatchups {
 		});
 	}
 
+	public static Result getOddsEqualUnpairedHands() {
+		return calculateMatchupStats(new MatchupFilter() {
+			@Override
+			public boolean accept(final HoleCategory hc1, final HoleCategory hc2) {
+				return hc1.getHighRank().getValue() == hc2.getHighRank().getValue() && hc1.getLowRank().getValue() == hc2.getLowRank().getValue() && !hc1.isPair() && !hc2.isPair();
+			}
+		});
+	}
+
+	public static Result getOddsEqualPairs() {
+		return calculateMatchupStats(new MatchupFilter() {
+			@Override
+			public boolean accept(final HoleCategory hc1, final HoleCategory hc2) {
+				return hc1.getHighRank().getValue() == hc2.getHighRank().getValue() && hc1.isPair() && hc2.isPair();
+			}
+		});
+	}
+
 	public static Result getOddsPairVs2Over() {
 		return calculateMatchupStats(new MatchupFilter() {
 			@Override
@@ -175,6 +193,10 @@ public class HandMatchups {
 	}
 
 	public static void main(final String[] args) {
+		System.out.println("equal unpaired hands");
+		printResults(getOddsEqualUnpairedHands());
+		System.out.println("equal paired hands");
+		printResults(getOddsEqualPairs());
 		System.out.println("2 over vs 2 under");
 		printResults(getOdds2OverVs2Under());
 		System.out.println("1 over 1 under vs 2 in between");
