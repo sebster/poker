@@ -2,42 +2,42 @@ package com.sebster.poker.calculations.odds;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.sebster.math.rational.Rational;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.odds.Odds;
+import com.sebster.util.collections.ImmutablePair;
+import com.sebster.util.collections.Pair;
 
 public class HandMatchups {
 
 	private static interface MatchupFilter {
 		boolean accept(final HoleCategory hc1, final HoleCategory hc2);
 	}
-	
+
 	public static class Result {
 		public final Rational minEquity;
-		public final HoleCategory minHoleCategory1;
-		public final HoleCategory minHoleCategory2;
+		public final Set<Pair<HoleCategory, HoleCategory>> minMatchups;
 		public final Rational maxEquity;
-		public final HoleCategory maxHoleCategory1;
-		public final HoleCategory maxHoleCategory2;
+		public final Set<Pair<HoleCategory, HoleCategory>> maxMatchups;
 		public final Rational avgEquity;
-		
-		public Result(Rational minEquity, HoleCategory minHoleCategory1, HoleCategory minHoleCategory2, Rational maxEquity, HoleCategory maxHoleCategory1, HoleCategory maxHoleCategory2, Rational avgEquity) {
+
+		public Result(Rational minEquity, Set<Pair<HoleCategory, HoleCategory>> minMatchups, Rational maxEquity, Set<Pair<HoleCategory, HoleCategory>> maxMatchups, Rational avgEquity) {
 			this.minEquity = minEquity;
-			this.minHoleCategory1 = minHoleCategory1;
-			this.minHoleCategory2 = minHoleCategory2;
+			this.minMatchups = minMatchups;
 			this.maxEquity = maxEquity;
-			this.maxHoleCategory1 = maxHoleCategory1;
-			this.maxHoleCategory2 = maxHoleCategory2;
+			this.maxMatchups = maxMatchups;
 			this.avgEquity = avgEquity;
 		}
-		
+
 	}
-	
+
 	private static Result calculateMatchupStats(final MatchupFilter filter) {
 		Rational maxEquity = Rational.ZERO, minEquity = Rational.ONE, totEquity = Rational.ZERO, totWeight = Rational.ZERO;
-		HoleCategory maxHoleCategory1 = null, maxHoleCategory2 = null, minHoleCategory1 = null, minHoleCategory2 = null;
+		Set<Pair<HoleCategory, HoleCategory>> minMatchups = new HashSet<Pair<HoleCategory,HoleCategory>>(), maxMatchups = new HashSet<Pair<HoleCategory,HoleCategory>>();
 		for (final HoleCategory hc1 : HoleCategory.values()) {
 			for (final HoleCategory hc2 : HoleCategory.values()) {
 				if (filter.accept(hc1, hc2)) {
@@ -46,13 +46,11 @@ public class HandMatchups {
 					final Rational equity = odds.getEquity();
 					if (equity.compareTo(maxEquity) > 0) {
 						maxEquity = equity;
-						maxHoleCategory1 = hc1;
-						maxHoleCategory2 = hc2;
+						maxMatchups.add(new ImmutablePair<HoleCategory, HoleCategory>(hc1, hc2));
 					}
 					if (equity.compareTo(minEquity) < 0) {
 						minEquity = equity;
-						minHoleCategory1 = hc1;
-						minHoleCategory2 = hc2;
+						minMatchups.add(new ImmutablePair<HoleCategory, HoleCategory>(hc1, hc2));
 					}
 					final int weight1 = hc1.getSize();
 					final int weight2 = hc2.getSize();
@@ -63,9 +61,9 @@ public class HandMatchups {
 				}
 			}
 		}
-		return new Result(minEquity, minHoleCategory1, minHoleCategory2, maxEquity, maxHoleCategory1, maxHoleCategory2, totEquity.divide(totWeight));
+		return new Result(minEquity, minMatchups, maxEquity, maxMatchups, totEquity.divide(totWeight));
 	}
-	
+
 	public static Result getOdds2OverVs2Under() {
 		return calculateMatchupStats(new MatchupFilter() {
 			@Override
@@ -74,7 +72,7 @@ public class HandMatchups {
 			}
 		});
 	}
-	
+
 	public static Result getOddsOverUnderVs2Between() {
 		return calculateMatchupStats(new MatchupFilter() {
 			@Override
@@ -155,7 +153,7 @@ public class HandMatchups {
 			}
 		});
 	}
-	
+
 	public static Result getOddsOverPairVsUnderPair() {
 		return calculateMatchupStats(new MatchupFilter() {
 			@Override
@@ -224,8 +222,8 @@ public class HandMatchups {
 	}
 
 	private static void printResults(final Result result) {
-		System.out.println("Minimum equity: " + equityToString(result.minEquity) + " with hole " + result.minHoleCategory1 + " vs " + result.minHoleCategory2);
-		System.out.println("Maximum equity: " + equityToString(result.maxEquity) + " with hole " + result.maxHoleCategory1 + " vs " + result.maxHoleCategory2);
+		System.out.println("Minimum equity: " + equityToString(result.minEquity) + " with holes " + result.minMatchups);
+		System.out.println("Maximum equity: " + equityToString(result.maxEquity) + " with hole " + result.maxMatchups);
 		System.out.println("Average equity: " + equityToString(result.avgEquity));
 		System.out.println();
 	}
