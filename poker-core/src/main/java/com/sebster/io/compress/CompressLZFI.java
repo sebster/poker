@@ -53,6 +53,13 @@ public final class CompressLZFI {
 	public static final int MAX_LENGTH = 1 << LENGTH_BITS - 1;
 
 	/**
+	 * Private constructor to avoid instantiation.
+	 */
+	private CompressLZFI() {
+		// Utility class.
+	}
+
+	/**
 	 * A hashable triplet of integers.
 	 * 
 	 * @author sebster
