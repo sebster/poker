@@ -1,5 +1,7 @@
 package com.sebster.poker.holdem.tournament.icm;
 
+import com.sebster.math.rational.Rational;
+
 public interface ChipModel {
 
 	/**
@@ -16,6 +18,6 @@ public interface ChipModel {
 	 *            the player
 	 * @return the winning probability of the specified player
 	 */
-	double getWinProbability(int[] stacks, final int chips, int player);
+	Rational getWinProbability(Rational[] stacks, final Rational chips, int player);
 
 }

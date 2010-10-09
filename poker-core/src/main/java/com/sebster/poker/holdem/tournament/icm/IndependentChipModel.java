@@ -1,19 +1,14 @@
 package com.sebster.poker.holdem.tournament.icm;
 
-public class IndependentChipModel implements ChipModel {
+import com.sebster.math.rational.Rational;
 
-	private static final IndependentChipModel INSTANCE = new IndependentChipModel();
-	
-	public static IndependentChipModel getInstance() {
-		return INSTANCE;
-	}
-	private IndependentChipModel() {
-		// Singleton.
-	}
+public enum IndependentChipModel implements ChipModel {
+
+	INSTANCE;
 	
 	@Override
-	public double getWinProbability(final int[] stacks, final int chips, final int player) {
-		return ((double) stacks[player]) / chips;
+	public Rational getWinProbability(final Rational[] stacks, final Rational chips, final int player) {
+		return stacks[player].divide(chips);
 	}
 
 }
