@@ -1,6 +1,6 @@
 package com.sebster.poker.util;
 
-public class Combinatorics {
+public final class Combinatorics {
 
 	private Combinatorics() {
 		// Utility class.

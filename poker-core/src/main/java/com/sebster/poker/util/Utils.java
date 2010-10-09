@@ -3,7 +3,7 @@ package com.sebster.poker.util;
 import com.sebster.poker.Card;
 import com.sebster.poker.Suit;
 
-public class Utils {
+public final class Utils {
 
 	private Utils() {
 		// Utility class.
