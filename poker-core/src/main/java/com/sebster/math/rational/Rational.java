@@ -70,6 +70,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return denominator;
 	}
 
+	@Override
 	public Rational add(final Rational other) {
 		return new Rational(numerator.multiply(other.denominator).add(other.numerator.multiply(denominator)), denominator.multiply(other.denominator));
 	}
@@ -82,6 +83,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return add(BigInteger.valueOf(other));
 	}
 
+	@Override
 	public Rational subtract(final Rational other) {
 		return new Rational(numerator.multiply(other.denominator).subtract(other.numerator.multiply(denominator)), denominator.multiply(other.denominator));
 	}
@@ -94,6 +96,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return subtract(BigInteger.valueOf(other));
 	}
 
+	@Override
 	public Rational multiply(final Rational other) {
 		return new Rational(numerator.multiply(other.numerator), denominator.multiply(other.denominator));
 	}
@@ -106,6 +109,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return multiply(BigInteger.valueOf(other));
 	}
 
+	@Override
 	public Rational divide(final Rational other) {
 		return new Rational(numerator.multiply(other.denominator), denominator.multiply(other.numerator));
 	}
@@ -118,6 +122,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return divide(BigInteger.valueOf(other));
 	}
 
+	@Override
 	public Rational negate() {
 		return new Rational(numerator.negate(), denominator);
 	}
@@ -132,6 +137,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 //		return new Rational(numerator.divide(gcd), denominator.divide(gcd));
 	}
 
+	@Override
 	public int signum() {
 		return numerator.signum();
 	}
@@ -197,6 +203,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return compareTo(other) <= 0 ? this : other;
 	}
 
+	@Override
 	public Rational abs() {
 		return signum() >= 0 ? this : negate();
 	}

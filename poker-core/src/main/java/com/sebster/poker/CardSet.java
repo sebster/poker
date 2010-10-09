@@ -516,6 +516,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		return new CardsIterator();
 	}
 
+	@Override
 	public Iterator<Card> descendingIterator() {
 		return new ReverseCardsIterator();
 	}

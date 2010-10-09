@@ -67,15 +67,15 @@ public enum Card implements LinearOrder<Card> {
 	/**
 	 * A map of the cards by their rank and suit.
 	 */
-	private static final EnumMap<Rank, EnumMap<Suit, Card>> byRankAndSuit;
+	private static final EnumMap<Rank, EnumMap<Suit, Card>> BY_RANK_AND_SUIT;
 
 	static {
-		byRankAndSuit = new EnumMap<Rank, EnumMap<Suit, Card>>(Rank.class);
+		BY_RANK_AND_SUIT = new EnumMap<Rank, EnumMap<Suit, Card>>(Rank.class);
 		for (final Rank rank : Rank.values()) {
-			byRankAndSuit.put(rank, new EnumMap<Suit, Card>(Suit.class));
+			BY_RANK_AND_SUIT.put(rank, new EnumMap<Suit, Card>(Suit.class));
 		}
 		for (final Card card : Card.values()) {
-			byRankAndSuit.get(card.getRank()).put(card.getSuit(), card);
+			BY_RANK_AND_SUIT.get(card.getRank()).put(card.getSuit(), card);
 		}
 	}
 
@@ -163,6 +163,7 @@ public enum Card implements LinearOrder<Card> {
 	 * 
 	 * @return the card suit or null if this is the last card
 	 */
+	@Override
 	public Card next() {
 		final int i = ordinal() + 1;
 		if (i < values().length) {
@@ -176,6 +177,7 @@ public enum Card implements LinearOrder<Card> {
 	 * 
 	 * @return the previous card or null if this is the first card
 	 */
+	@Override
 	public Card prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {
@@ -194,7 +196,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the card with the specified rank and suit
 	 */
 	public static Card byRankAndSuit(final Rank rank, final Suit suit) {
-		return byRankAndSuit.get(rank).get(suit);
+		return BY_RANK_AND_SUIT.get(rank).get(suit);
 	}
 
 	/**

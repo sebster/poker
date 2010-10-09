@@ -80,6 +80,7 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	 * 
 	 * @return the next hole category or null if this is the last hole category
 	 */
+	@Override
 	public HoleCategory next() {
 		final int i = ordinal() + 1;
 		if (i < values().length) {
@@ -95,6 +96,7 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	 * @return the previous hole category or null if this is the first hole
 	 *         category
 	 */
+	@Override
 	public HoleCategory prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {

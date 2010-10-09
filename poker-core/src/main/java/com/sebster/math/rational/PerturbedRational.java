@@ -35,6 +35,7 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 		terms[i] = value;
 	}
 
+	@Override
 	public PerturbedRational add(final PerturbedRational other) {
 //		Validate.notNull(other, "other == null");
 		final int newSize = Math.min(size(), other.size());
@@ -45,6 +46,7 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
+	@Override
 	public PerturbedRational subtract(final PerturbedRational other) {
 //		Validate.notNull(other, "other == null");
 		final int newSize = Math.min(size(), other.size());

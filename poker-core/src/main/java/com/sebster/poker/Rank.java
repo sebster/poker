@@ -135,6 +135,7 @@ public enum Rank implements LinearOrder<Rank> {
 	 * 
 	 * @return the next rank or null if this is the last rank
 	 */
+	@Override
 	public Rank next() {
 		final int i = ordinal() + 1;
 		if (i < values().length) {
@@ -148,6 +149,7 @@ public enum Rank implements LinearOrder<Rank> {
 	 * 
 	 * @return the previous rank or null if this is the first rank
 	 */
+	@Override
 	public Rank prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {
