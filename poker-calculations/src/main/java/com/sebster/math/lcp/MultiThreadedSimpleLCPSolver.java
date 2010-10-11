@@ -1,12 +1,9 @@
 package com.sebster.math.lcp;
 
 import java.util.Arrays;
-import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,8 +11,6 @@ import org.slf4j.LoggerFactory;
 import com.sebster.math.rational.PerturbedRational;
 import com.sebster.math.rational.Rational;
 import com.sebster.util.Validate;
-import com.sebster.util.collections.ImmutablePair;
-import com.sebster.util.collections.Pair;
 
 public final class MultiThreadedSimpleLCPSolver {
 
@@ -37,8 +32,8 @@ public final class MultiThreadedSimpleLCPSolver {
 		final int n = M.length;
 		logger.debug("doing LCP of size {}", n);
 
-		final ExecutorService executor = new ThreadPoolExecutor(threads, threads, 0L, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(threads));
-
+		final ExecutorService executor = Executors.newFixedThreadPool(threads);
+		
 		// ----------------------------------
 		// Initialization.
 
@@ -104,17 +99,16 @@ public final class MultiThreadedSimpleLCPSolver {
 
 			// Step 2: Subtract pivot row appropriate number of times from each
 			// row.
+			final CountDownLatch latch = new CountDownLatch(n - 1);
 			for (int i = 0; i < n; i++) {
 				if (i == leavingIndex)
 					continue;
-				try {
-					final Pair<Rational[], PerturbedRational> result = executor.submit(new RowProcessor(tableaux, q, i, enteringVariable, leavingIndex)).get();
-					tableaux[i] = result.getFirst();
-					q[i] = result.getSecond();
-				} catch (final Exception e) {
-					// Can't happen.
-					throw new RuntimeException(e);
-				}
+				executor.submit(new RowProcessor(tableaux, q, i, enteringVariable, leavingIndex, latch));
+			}
+			try {
+				latch.await();
+			} catch (final InterruptedException e) {
+				throw new RuntimeException(e);
 			}
 
 			// Step 3: Enter complement.
@@ -162,10 +156,8 @@ public final class MultiThreadedSimpleLCPSolver {
 		return i < n ? ("w" + (i + 1)) : "z" + (i - n);
 	}
 
-	private static class RowProcessor implements Callable<Pair<Rational[], PerturbedRational>> {
+	private static class RowProcessor implements Runnable {
 
-		private static final AtomicInteger numActive = new AtomicInteger();
-		
 		private final Rational[][] tableaux;
 
 		private final PerturbedRational[] q;
@@ -176,27 +168,26 @@ public final class MultiThreadedSimpleLCPSolver {
 
 		private final int leavingIndex;
 
-		public RowProcessor(Rational[][] tableaux, PerturbedRational[] q, int i, int enteringVariable, int leavingIndex) {
+		private final CountDownLatch latch;
+		
+		public RowProcessor(Rational[][] tableaux, PerturbedRational[] q, int i, int enteringVariable, int leavingIndex, CountDownLatch latch) {
 			this.tableaux = tableaux;
 			this.q = q;
 			this.i = i;
 			this.enteringVariable = enteringVariable;
 			this.leavingIndex = leavingIndex;
+			this.latch = latch;
 		}
 
 		@Override
-		public Pair<Rational[], PerturbedRational> call() {
-			final int num = numActive.incrementAndGet();
-			logger.debug("number of row processors active: {}" + num);
+		public void run() {
 			final int m = tableaux[i].length;
-			final Rational[] row = new Rational[m];
 			final Rational factor = tableaux[i][enteringVariable];
 			for (int j = 0; j < m; j++) {
-				row[j] = tableaux[i][j].subtract(tableaux[leavingIndex][j].multiply(factor)).simplify();
+				tableaux[i][j] = tableaux[i][j].subtract(tableaux[leavingIndex][j].multiply(factor)).simplify();
 			}
-			final PerturbedRational qr = q[i].subtract(q[leavingIndex].multiply(factor)).simplify();
-			numActive.decrementAndGet();
-			return new ImmutablePair<Rational[], PerturbedRational>(row, qr);
+			q[i] = q[i].subtract(q[leavingIndex].multiply(factor)).simplify();
+			latch.countDown();
 		}
 
 	}

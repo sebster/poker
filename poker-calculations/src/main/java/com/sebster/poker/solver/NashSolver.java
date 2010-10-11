@@ -21,7 +21,7 @@ public class NashSolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(NashSolver.class);
 
-	private final static int VERSION = 6;
+	private final static int VERSION = 7;
 	
 	public static NashResult calculateNashEquilibrium(final Rational[] payouts, final Rational[] stacks, final Rational bigBlind, final int threads) {
 		
