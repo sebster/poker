@@ -2,6 +2,7 @@ package com.sebster.gametheory.nash;
 
 import java.util.Arrays;
 
+import com.sebster.math.lcp.MultiThreadedSimpleLCPSolver;
 import com.sebster.math.lcp.SimpleLCPSolver;
 import com.sebster.math.rational.Rational;
 import com.sebster.math.rational.matrix.Matrix;
@@ -29,7 +30,7 @@ public final class NashEquilibrium {
 	 * 
 	 * @return the strategy profile of player 1 and player 2
 	 */
-	public static Pair<Matrix<Rational>, Matrix<Rational>> solve(final Matrix<Rational> E, final Matrix<Rational> F, final Matrix<Rational> A, final Matrix<Rational> B) {
+	public static Pair<Matrix<Rational>, Matrix<Rational>> solve(final Matrix<Rational> E, final Matrix<Rational> F, final Matrix<Rational> A, final Matrix<Rational> B, final int threads) {
 
 		Assert.notNull(E, "E is null");
 		Assert.notNull(F, "F is null");
@@ -118,7 +119,12 @@ public final class NashEquilibrium {
 		b[Ecols + Fcols + 2 * Erows + Frows] = new Rational(-1);
 
 		// Solve the LCP.
-		final Rational[] z = SimpleLCPSolver.solve(M, b);
+		final Rational[] z;
+		if (threads == 1) {
+			z = SimpleLCPSolver.solve(M, b);
+		} else {
+			z = MultiThreadedSimpleLCPSolver.solve(M, b, threads);
+		}
 		final Matrix<Rational> zM = new Matrix<Rational>(z, z.length);
 
 		// Construct the result.

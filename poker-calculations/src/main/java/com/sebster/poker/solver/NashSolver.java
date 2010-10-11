@@ -23,7 +23,7 @@ public class NashSolver {
 
 	private final static int VERSION = 6;
 	
-	public static NashResult calculateNashEquilibrium(final Rational[] payouts, final Rational[] stacks, final Rational bigBlind) {
+	public static NashResult calculateNashEquilibrium(final Rational[] payouts, final Rational[] stacks, final Rational bigBlind, final int threads) {
 		
 		final Rational[] equities = EquityCalculator.calculateEquities(stacks, payouts, IndependentChipModel.INSTANCE);
 		
@@ -85,7 +85,7 @@ public class NashSolver {
 			}
 		}
 		
-		final Pair<Matrix<Rational>, Matrix<Rational>> p = NashEquilibrium.solve(E, E, A, B);
+		final Pair<Matrix<Rational>, Matrix<Rational>> p = NashEquilibrium.solve(E, E, A, B, threads);
 		final Matrix<Rational> x = p.getFirst(), y = p.getSecond();
 		final MixedAllinOrFoldStrategy p1Strategy = new MixedAllinOrFoldStrategy();
 		final MixedAllinOrFoldStrategy p2Strategy = new MixedAllinOrFoldStrategy();
@@ -110,12 +110,14 @@ public class NashSolver {
 			stacks[i] = Rational.fromString(args[1 + numPayouts + 1 + i]);
 		}
 		final Rational bigBlind = Rational.fromString(args[1 + numPayouts + 1 + numPlayers]);
+		final int threads = Integer.parseInt(args[1 + numPayouts + 1 + numPlayers + 1]);
 		
 		logger.info("running nash solver version {}", VERSION);
 		logger.info("payouts={}", Arrays.toString(payouts));
 		logger.info("stacks={}", Arrays.toString(stacks));
 		logger.info("big blind={}", bigBlind);
-		final NashResult result = calculateNashEquilibrium(payouts, stacks, bigBlind);
+		logger.info("threads={}", threads);
+		final NashResult result = calculateNashEquilibrium(payouts, stacks, bigBlind, threads);
 		System.out.println("sb=" + result.getSbStrategy());
 		System.out.println("bb=" + result.getBbStrategy());
 		System.out.println("ev=" + result.getSbEV());
