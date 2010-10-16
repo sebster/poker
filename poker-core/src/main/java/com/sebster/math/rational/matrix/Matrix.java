@@ -56,6 +56,8 @@ import com.sebster.util.Validate;
 
 public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> implements Cloneable, Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * ------------------------ Class variables ------------------------
 	 */

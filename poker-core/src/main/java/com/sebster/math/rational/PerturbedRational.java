@@ -1,12 +1,15 @@
 package com.sebster.math.rational;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Arrays;
 
 import com.sebster.math.vector.Vector;
 
 public final class PerturbedRational extends Number implements Comparable<PerturbedRational>, Vector<Rational, PerturbedRational> {
 
+	private static final long serialVersionUID = 1L;
+	
 	private final Rational[] terms;
 
 	public PerturbedRational(final int size) {
@@ -80,28 +83,28 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 		return get(0);
 	}
 
-	public BigDecimal decimalValue() {
-		return get(0).decimalValue();
+	public BigDecimal decimalValue(final MathContext mathContext) {
+		return get(0).decimalValue(mathContext);
 	}
 
 	@Override
 	public double doubleValue() {
-		return decimalValue().doubleValue();
+		return get(0).doubleValue();
 	}
 
 	@Override
 	public float floatValue() {
-		return decimalValue().floatValue();
+		return get(0).floatValue();
 	}
 
 	@Override
 	public int intValue() {
-		return decimalValue().intValue();
+		return get(0).intValue();
 	}
 
 	@Override
 	public long longValue() {
-		return decimalValue().longValue();
+		return get(0).longValue();
 	}
 
 	@Override
@@ -203,7 +206,7 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 
 	@Override
 	public RationalField getScalarField() {
-		return RationalField.getInstance();
+		return RationalField.INSTANCE;
 	}
 
 }

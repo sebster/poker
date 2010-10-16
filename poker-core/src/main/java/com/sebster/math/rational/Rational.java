@@ -2,48 +2,59 @@ package com.sebster.math.rational;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.math.RoundingMode;
+import java.math.MathContext;
 
 import com.sebster.math.field.Field;
 import com.sebster.math.field.FieldValue;
 
 public final class Rational extends Number implements Comparable<Rational>, FieldValue<Rational> {
 
-	private static final long serialVersionUID = -5235703991206087636L;
+	private static final long serialVersionUID = 1L;
+
+	public static final Rational ZERO = new Rational(BigInteger.ZERO, BigInteger.ONE, false);
+
+	public static final Rational ONE = new Rational(BigInteger.ONE, BigInteger.ONE, false);
 
 	private final BigInteger numerator;
 
 	private final BigInteger denominator;
 
-	public Rational(final BigInteger numerator, final BigInteger denominator) {
-		// Validate.notNull(numerator, "numerator is null");
-		// Validate.notNull(denominator, "denominator is null");
-
-		if (denominator.signum() == 0) {
-			throw new ArithmeticException("division by zero");
-		}
-
-		if (numerator.signum() == 0) {
-			// Zero.
-			this.numerator = BigInteger.ZERO;
-			this.denominator = BigInteger.ONE;
-		} else {
-			// Non-zero.
-			BigInteger tmpNumerator = numerator;
-			BigInteger tmpDenominator = denominator;
-			if (denominator.signum() < 0) {
-				// Denominator is always positive in the internal representation.
-				tmpNumerator = tmpNumerator.negate();
-				tmpDenominator = tmpDenominator.negate();
+	private Rational(final BigInteger numerator, final BigInteger denominator, final boolean canonicalize) {
+		if (canonicalize) {
+			if (denominator.signum() == 0) {
+				throw new ArithmeticException("division by zero");
 			}
-			final BigInteger gcd = tmpNumerator.gcd(tmpDenominator);
-			this.numerator = tmpNumerator.divide(gcd);
-			this.denominator = tmpDenominator.divide(gcd);
+			if (numerator.signum() == 0) {
+				// Zero.
+				this.numerator = BigInteger.ZERO;
+				this.denominator = BigInteger.ONE;
+			} else {
+				// Non-zero.
+				BigInteger tmpNumerator = numerator;
+				BigInteger tmpDenominator = denominator;
+				if (denominator.signum() < 0) {
+					// Denominator is always positive in the internal
+					// representation.
+					tmpNumerator = tmpNumerator.negate();
+					tmpDenominator = tmpDenominator.negate();
+				}
+				final BigInteger gcd = tmpNumerator.gcd(tmpDenominator);
+				this.numerator = tmpNumerator.divide(gcd);
+				this.denominator = tmpDenominator.divide(gcd);
+			}
+		} else {
+			this.numerator = numerator;
+			this.denominator = denominator;
 		}
+
+	}
+
+	public Rational(final BigInteger numerator, final BigInteger denominator) {
+		this(numerator, denominator, true);
 	}
 
 	public Rational(final BigInteger numerator) {
-		this(numerator, BigInteger.ONE);
+		this(numerator, BigInteger.ONE, false);
 	}
 
 	public Rational(final long numerator, final long denominator) {
@@ -51,7 +62,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	}
 
 	public Rational(final long numerator) {
-		this(numerator, 1);
+		this(BigInteger.valueOf(numerator));
 	}
 
 	public Rational(final String numerator, final String denominator) {
@@ -61,7 +72,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	public Rational(final String numerator) {
 		this(new BigInteger(numerator));
 	}
-	
+
 	public BigInteger getNumerator() {
 		return numerator;
 	}
@@ -124,11 +135,18 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 
 	@Override
 	public Rational negate() {
-		return new Rational(numerator.negate(), denominator);
+		return new Rational(numerator.negate(), denominator, false);
 	}
 
 	public Rational invert() {
-		return new Rational(denominator, numerator);
+		final int numeratorSignum = numerator.signum();
+		if (numeratorSignum > 0) {
+			return new Rational(denominator, numerator, false);
+		}
+		if (numeratorSignum < 0) {
+			return new Rational(denominator.negate(), numerator.negate(), false);
+		}
+		throw new ArithmeticException("division by zero");
 	}
 
 	@Override
@@ -136,29 +154,28 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return numerator.signum();
 	}
 
-	public BigDecimal decimalValue() {
-		// FIXME arbitrary precision - find better conversion
-		return new BigDecimal(numerator).divide(new BigDecimal(denominator), 10, RoundingMode.HALF_UP);
+	public BigDecimal decimalValue(final MathContext mathContext) {
+		return new BigDecimal(numerator).divide(new BigDecimal(denominator), mathContext);
 	}
 
 	@Override
 	public double doubleValue() {
-		return decimalValue().doubleValue();
+		return decimalValue(MathContext.DECIMAL64).doubleValue();
 	}
 
 	@Override
 	public float floatValue() {
-		return decimalValue().floatValue();
+		return decimalValue(MathContext.DECIMAL32).floatValue();
 	}
 
 	@Override
 	public int intValue() {
-		return decimalValue().intValue();
+		return numerator.divide(denominator).intValue();
 	}
 
 	@Override
 	public long longValue() {
-		return decimalValue().longValue();
+		return numerator.divide(denominator).longValue();
 	}
 
 	@Override
@@ -174,12 +191,11 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	public boolean equals(final Object object) {
 		if (this == object)
 			return true;
-		if (object == null)
-			return false;
-		if (getClass() != object.getClass())
-			return false;
-		final Rational other = (Rational) object;
-		return compareTo(other) == 0;
+		if (object instanceof Rational) {
+			final Rational other = (Rational) object;
+			return compareTo(other) == 0;
+		}
+		return false;
 	}
 
 	/*
@@ -187,6 +203,10 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	 */
 	@Override
 	public int compareTo(final Rational other) {
+		final int k = numerator.signum() - other.numerator.signum();
+		if (k != 0) {
+			return k;
+		}
 		return numerator.multiply(other.denominator).compareTo(other.numerator.multiply(denominator));
 	}
 
@@ -204,7 +224,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	}
 
 	public Rational pow(final int n) {
-		return new Rational(numerator.pow(n), denominator.pow(n));
+		return new Rational(numerator.pow(n), denominator.pow(n), false);
 	}
 
 	@Override
@@ -218,13 +238,9 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return buffer.toString();
 	}
 
-	public static final Rational ZERO = new Rational(0);
-
-	public static final Rational ONE = new Rational(1);
-
 	@Override
 	public Field<Rational> getField() {
-		return RationalField.getInstance();
+		return RationalField.INSTANCE;
 	}
 
 	public static Rational fromString(final String string) {

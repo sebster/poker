@@ -18,6 +18,8 @@ import com.sebster.math.field.FieldValue;
 
 public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializable> implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * ------------------------ Class variables ------------------------
 	 */

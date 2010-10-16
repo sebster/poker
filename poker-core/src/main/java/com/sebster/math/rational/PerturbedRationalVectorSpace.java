@@ -32,7 +32,7 @@ public class PerturbedRationalVectorSpace implements VectorSpace<Rational, Pertu
 
 	@Override
 	public RationalField getScalarField() {
-		return RationalField.getInstance();
+		return RationalField.INSTANCE;
 	}
 
 }
