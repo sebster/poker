@@ -1,6 +1,5 @@
 package com.sebster.poker.holdem.odds;
 
-import java.util.Arrays;
 import java.util.EnumSet;
 
 import com.sebster.poker.Card;

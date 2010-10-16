@@ -11,11 +11,11 @@ public interface Vector<T extends FieldValue<T>, V extends Vector<T, V>> {
 
 	V subtract(V other);
 
-	V negate();
-	
 	V multiply(T scalar);
 	
 	V divide(T scalar);
+	
+	V negate();
 	
 	Field<T> getScalarField();
 	

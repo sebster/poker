@@ -2,6 +2,8 @@ package com.sebster.util.collections;
 
 public class BasicPair<T1, T2> extends AbstractPair<T1, T2> {
 	
+	private static final long serialVersionUID = 1L;
+
 	private T1 first;
 	
 	private T2 second;

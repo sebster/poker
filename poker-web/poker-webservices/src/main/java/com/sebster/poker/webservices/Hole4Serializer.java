@@ -9,7 +9,7 @@ import org.jabsorb.serializer.UnmarshallException;
 
 import com.sebster.poker.Hole4;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class Hole4Serializer implements Serializer {
 
 	private static final long serialVersionUID = 1L;

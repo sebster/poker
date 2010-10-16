@@ -11,7 +11,7 @@ import org.json.JSONException;
 
 import com.sebster.poker.odds.Odds;
 
-@SuppressWarnings("unchecked")
+@SuppressWarnings("rawtypes")
 public class OddsSerializer implements Serializer {
 
 	private static final long serialVersionUID = 1L;

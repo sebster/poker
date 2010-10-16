@@ -6,15 +6,15 @@ public interface FieldValue<T extends FieldValue<T>> {
 
 	T subtract(T other);
 
-	int signum();
-
-	T negate();
-	
-	T abs();
-	
 	T multiply(T other);
 	
 	T divide(T other);
+	
+	T negate();
+
+	T abs();
+	
+	int signum();
 	
 	Field<T> getField();
 	

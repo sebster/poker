@@ -2,6 +2,8 @@ package com.sebster.util.collections;
 
 public class ImmutablePair<T1, T2> extends AbstractPair<T1, T2> {
 
+	private static final long serialVersionUID = 1L;
+
 	private final T1 first;
 	
 	private final T2 second;

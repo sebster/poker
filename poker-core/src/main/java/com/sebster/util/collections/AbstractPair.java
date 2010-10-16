@@ -1,6 +1,8 @@
 package com.sebster.util.collections;
 
 public abstract class AbstractPair<T1, T2> implements Pair<T1, T2> {
+	
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public int hashCode() {
