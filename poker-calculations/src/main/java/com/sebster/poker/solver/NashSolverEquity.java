@@ -17,9 +17,9 @@ import com.sebster.poker.holdem.tournament.icm.IndependentChipModel;
 import com.sebster.poker.odds.Odds;
 import com.sebster.util.collections.Pair;
 
-public class NashSolver {
+public class NashSolverEquity {
 
-	private static final Logger logger = LoggerFactory.getLogger(NashSolver.class);
+	private static final Logger logger = LoggerFactory.getLogger(NashSolverEquity.class);
 
 	private final static int VERSION = 7;
 	
@@ -60,28 +60,22 @@ public class NashSolver {
 				newStacks[sbPos] = stacks[sbPos].add(chipDelta);
 				newStacks[bbPos] = stacks[bbPos].subtract(chipDelta);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])).simplify());
-				B.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])).simplify());
-//				logger.debug("old stacks: " + Arrays.toString(stacks));
-//				logger.debug("new stacks: " + Arrays.toString(newStacks));
-//				logger.debug("chip delta: " + chipDelta);
-//				logger.debug("push " + hc1 + " call " + hc2 + " deltas " + A.get(p1PushRow, p2CallCol) + ", "  + B.get(p1PushRow, p2CallCol));
-//				logger.debug("old equities: " + Arrays.toString(newEquities));
-//				logger.debug("new equities: " + Arrays.toString(newEquities));
+				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
+				B.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
 				
 				// Push-fold.
 				newStacks[sbPos] = stacks[sbPos].add(bigBlind);
 				newStacks[bbPos] = stacks[bbPos].subtract(bigBlind);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])).simplify());
-				B.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])).simplify());
+				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
+				B.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
 
 				// Fold.
 				newStacks[sbPos] = stacks[sbPos].subtract(smallBlind);
 				newStacks[bbPos] = stacks[bbPos].add(smallBlind);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])).simplify());
-				B.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])).simplify());
+				A.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
+				B.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
 			}
 		}
 		

@@ -66,14 +66,6 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
-	public PerturbedRational simplify() {
-		final Rational[] newTerms = new Rational[terms.length];
-		for (int i = 0; i < terms.length; i++) {
-			newTerms[i] = terms[i].simplify();
-		}
-		return new PerturbedRational(terms.length, newTerms);
-	}
-
 	public int signum() {
 		for (int i = 0; i < terms.length; i++) {
 			final int s = terms[i].signum();

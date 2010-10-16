@@ -225,7 +225,7 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	public double[] getDoublePivot() {
 		double[] vals = new double[m];
 		for (int i = 0; i < m; i++) {
-			vals[i] = (double) piv[i];
+			vals[i] = piv[i];
 		}
 		return vals;
 	}

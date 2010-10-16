@@ -89,9 +89,9 @@ public final class SimpleLCPSolver {
 			// Step 1: Divide pivot row by pivot number.
 			final Rational pivotNumber = tableaux[leavingIndex][enteringVariable];
 			for (int i = 0; i < n + 1 + n; i++) {
-				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].divide(pivotNumber).simplify();
+				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].divide(pivotNumber);
 			}
-			q[leavingIndex] = q[leavingIndex].divide(pivotNumber).simplify();
+			q[leavingIndex] = q[leavingIndex].divide(pivotNumber);
 
 			// Step 2: Subtract pivot row appropriate number of times from each row.
 			for (int i = 0; i < n; i++) {
@@ -99,9 +99,9 @@ public final class SimpleLCPSolver {
 					continue;
 				final Rational factor = tableaux[i][enteringVariable];
 				for (int j = 0; j < n + 1 + n; j++) {
-					tableaux[i][j] = tableaux[i][j].subtract(tableaux[leavingIndex][j].multiply(factor)).simplify();
+					tableaux[i][j] = tableaux[i][j].subtract(tableaux[leavingIndex][j].multiply(factor));
 				}
-				q[i] = q[i].subtract(q[leavingIndex].multiply(factor)).simplify();
+				q[i] = q[i].subtract(q[leavingIndex].multiply(factor));
 			}
 			
 			// Step 3: Enter complement.

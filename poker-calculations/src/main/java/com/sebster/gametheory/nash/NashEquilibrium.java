@@ -16,6 +16,10 @@ public final class NashEquilibrium {
 		// Utility class.
 	}
 
+	public static Pair<Matrix<Rational>, Matrix<Rational>> solve(final Matrix<Rational> E, final Matrix<Rational> F, final Matrix<Rational> A, final Matrix<Rational> B) {
+		return solve(E, F, A, B, 1);
+	}
+
 	/**
 	 * Calculate the Nash equilibrium of the specified 2 player game.
 	 * 

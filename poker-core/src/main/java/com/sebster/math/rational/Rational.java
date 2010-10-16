@@ -131,18 +131,13 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		return new Rational(denominator, numerator);
 	}
 
-	public Rational simplify() {
-		return this;
-//		final BigInteger gcd = numerator.gcd(denominator);
-//		return new Rational(numerator.divide(gcd), denominator.divide(gcd));
-	}
-
 	@Override
 	public int signum() {
 		return numerator.signum();
 	}
 
 	public BigDecimal decimalValue() {
+		// FIXME arbitrary precision - find better conversion
 		return new BigDecimal(numerator).divide(new BigDecimal(denominator), 10, RoundingMode.HALF_UP);
 	}
 

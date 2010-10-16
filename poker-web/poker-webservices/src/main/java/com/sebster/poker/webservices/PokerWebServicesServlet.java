@@ -40,7 +40,9 @@ public class PokerWebServicesServlet extends JSONRPCServlet {
 	public static final int DEFAULT_QUEUE_SIZE = 50;
 	public static final int DEFAULT_CACHE_SIZE = 2048;
 
-	private ExecutorService executorService;
+	/** Executor */
+	// FIXME How do I make the Servlet stateless?
+	private transient ExecutorService executorService;
 
 	@Override
 	public void init(final ServletConfig config) throws ServletException {

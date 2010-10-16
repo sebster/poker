@@ -13,7 +13,7 @@ import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 
-public class Nuts {
+public final class Nuts {
 
 	private Nuts() {
 		// Static utility class.

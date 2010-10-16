@@ -3,6 +3,7 @@ package com.sebster.poker.calculations.odds;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.sebster.math.rational.Rational;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.Rank;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
@@ -11,19 +12,19 @@ import com.sebster.poker.odds.Odds;
 public class BestWorstHands {
 
 	public static void main(String[] args) {
-		Map<HoleCategory, Double> minEquityMap = new HashMap<HoleCategory, Double>(), maxEquityMap = new HashMap<HoleCategory, Double>();
+		Map<HoleCategory, Rational> minEquityMap = new HashMap<HoleCategory, Rational>(), maxEquityMap = new HashMap<HoleCategory, Rational>();
 		Map<HoleCategory, HoleCategory> minHoleMap = new HashMap<HoleCategory, HoleCategory>(), maxHoleMap = new HashMap<HoleCategory, HoleCategory>();
 		for (HoleCategory hc1 : HoleCategory.values()) {
-			double minEquity = 1, maxEquity = 0;
+			Rational minEquity = Rational.ONE, maxEquity = Rational.ZERO;
 			HoleCategory minHole = null, maxHole = null;
 			for (HoleCategory hc2 : HoleCategory.values()) {
 				Odds odds = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance().getOdds(hc1, hc2);
-				final double equity = odds.getEquity();
-				if (equity < minEquity) {
+				final Rational equity = odds.getEquity();
+				if (equity.compareTo(minEquity) < 0) {
 					minEquity = equity;
 					minHole = hc2;
 				}
-				if (equity > maxEquity) {
+				if (equity.compareTo(maxEquity) > 0) {
 					maxEquity = equity;
 					maxHole = hc2;
 				}
@@ -46,8 +47,8 @@ public class BestWorstHands {
 			for (int j = 14; j >= 2; j--) {
 				HoleCategory hc = HoleCategory.byDescription(Rank.byValue(i), Rank.byValue(j), i > j);
 				HoleCategory maxHole = maxHoleMap.get(hc);
-				double maxEquity = maxEquityMap.get(hc);
-				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", maxHole, maxEquity * 100);
+				Rational maxEquity = maxEquityMap.get(hc);
+				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", maxHole, maxEquity.multiply(100).doubleValue());
 			}
 			System.out.println("</tr>");
 		}
@@ -65,8 +66,8 @@ public class BestWorstHands {
 			for (int j = 14; j >= 2; j--) {
 				HoleCategory hc = HoleCategory.byDescription(Rank.byValue(i), Rank.byValue(j), i > j);
 				HoleCategory minHole = minHoleMap.get(hc);
-				double minEquity = minEquityMap.get(hc);
-				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", minHole, minEquity * 100);
+				Rational minEquity = minEquityMap.get(hc);
+				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", minHole, minEquity.multiply(100).doubleValue());
 			}
 			System.out.println("</tr>");
 		}
