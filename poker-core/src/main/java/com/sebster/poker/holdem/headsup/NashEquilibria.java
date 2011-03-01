@@ -37,7 +37,7 @@ public class NashEquilibria {
 	public static Rational getBBNashEquilibriumEV(final Rational r) {
 		// Zero sum.
 		final Rational sbEV = sbNashEquilibriaEV.get(r);
-		return sbEV == null ? null : sbEV.negate();
+		return sbEV == null ? null : sbEV.opposite();
 	}
 	
 	public static Set<Rational> getRs() {
@@ -288,21 +288,6 @@ public class NashEquilibria {
 		sb = "{AA=1}";
 		bb = "{AA=1}";
 		register(new Rational(850), sb, bb, new Rational(-133526, 270725));
-
-		// 900 bb
-		sb = "{AA=1}";
-		bb = "{AA=1}";
-		register(new Rational(900), sb, bb, new Rational(-133526, 270725));
-
-		// 1000 bb
-		sb = "{AA=1}";
-		bb = "{AA=1}";
-		register(new Rational(1000), sb, bb, new Rational(-133526, 270725));
-
-		// 2000 bb
-		sb = "{AA=1}";
-		bb = "{AA=1}";
-		register(new Rational(2000), sb, bb, new Rational(-133526, 270725));
 
 	}
 	

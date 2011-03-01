@@ -2,19 +2,19 @@ package com.sebster.math.field;
 
 public interface FieldValue<T extends FieldValue<T>> {
 
-	T add(T other);
+	T plus(T other);
 
-	T subtract(T other);
+	T minus(T other);
 
 	int signum();
 
-	T negate();
+	T opposite();
 	
 	T abs();
 	
-	T multiply(T other);
+	T times(T other);
 	
-	T divide(T other);
+	T dividedBy(T other);
 	
 	Field<T> getField();
 	

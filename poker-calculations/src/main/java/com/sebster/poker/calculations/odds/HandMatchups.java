@@ -56,12 +56,12 @@ public class HandMatchups {
 					final int weight2 = hc2.getSize();
 					final int weight = weight1 * weight2;
 
-					totEquity = totEquity.add(equity.multiply(weight));
+					totEquity = totEquity.plus(equity.times(weight));
 					totWeight = totWeight.add(weight);
 				}
 			}
 		}
-		return new Result(minEquity, minMatchups, maxEquity, maxMatchups, totEquity.divide(totWeight));
+		return new Result(minEquity, minMatchups, maxEquity, maxMatchups, totEquity.dividedBy(totWeight));
 	}
 
 	public static Result getOdds2OverVs2Under() {
@@ -231,7 +231,7 @@ public class HandMatchups {
 	private static String equityToString(final Rational equity) {
 		NumberFormat decimalFormat = new DecimalFormat("0.0");
 		StringBuffer buffer = new StringBuffer();
-		final double equityPercent = equity.multiply(100).doubleValue();
+		final double equityPercent = equity.times(100).doubleValue();
 		buffer.append(decimalFormat.format(equityPercent));
 		buffer.append("-");
 		buffer.append(decimalFormat.format(100 - equityPercent));

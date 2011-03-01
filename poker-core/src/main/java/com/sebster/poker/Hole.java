@@ -3,29 +3,50 @@ package com.sebster.poker;
 import java.util.Collection;
 
 import net.jcip.annotations.Immutable;
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 @Immutable
 public final class Hole extends CardSet {
 
+	private static final long serialVersionUID = 6042681695574660408L;
+
+	@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached computation")
+	private transient Hole next;
+
+	@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached computation")
+	private transient Hole prev;
+
 	private Hole(final Card first, final Card second) {
 		super(new Card[] { first, second });
+	}
+
+	public Card getFirst() {
+		return cards[0];
+	}
+
+	public Card getSecond() {
+		return cards[1];
 	}
 
 	@Override
 	public int size() {
 		return 2;
 	}
-	
+
 	@Override
 	public Hole next() {
-		// TODO more efficient implementation
-		return (Hole) super.next();
+		if (next == null) {
+			next = (Hole) super.next();
+		}
+		return next;
 	}
 
 	@Override
 	public Hole prev() {
-		// TODO more efficient implementation
-		return (Hole) super.prev();
+		if (prev == null) {
+			prev = (Hole) super.prev();
+		}
+		return prev;
 	}
 
 	@Override
@@ -75,8 +96,11 @@ public final class Hole extends CardSet {
 		return (Hole) CardSet.lastSet(2);
 	}
 
-	public static Hole fromCards(final Card first, final Card second) {
-		return (Hole) CardSet.fromCards(first, second);
+	public static Hole fromCards(final Card... cards) {
+		if (cards.length == 2) {
+			return (Hole) CardSet.fromCards(cards);
+		}
+		throw new IllegalArgumentException("invalid number of cards: " + cards.length);
 	}
 
 	public static Hole fromCards(final Collection<Card> cards) {
@@ -142,8 +166,7 @@ public final class Hole extends CardSet {
 				holes[i] = getInstance(Card.byRankAndSuit(high, Suit.byValue(i)), Card.byRankAndSuit(low, Suit.byValue(i)));
 			}
 			return holes;
-		}
-		if (holeCategory.isPair()) {
+		} else if (holeCategory.isPair()) {
 			final Hole[] holes = new Hole[6];
 			int k = 0;
 			for (int i = 0; i < 4; i++) {
@@ -152,37 +175,37 @@ public final class Hole extends CardSet {
 				}
 			}
 			return holes;
-
-		}
-		final Hole[] holes = new Hole[12];
-		int k = 0;
-		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 4; j++) {
-				if (i != j) {
-					holes[k++] = getInstance(Card.byRankAndSuit(high, Suit.byValue(i)), Card.byRankAndSuit(low, Suit.byValue(j)));
+		} else {
+			final Hole[] holes = new Hole[12];
+			int k = 0;
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 4; j++) {
+					if (i != j) {
+						holes[k++] = getInstance(Card.byRankAndSuit(high, Suit.byValue(i)), Card.byRankAndSuit(low, Suit.byValue(j)));
+					}
 				}
 			}
+			return holes;
 		}
-		return holes;
 	}
 
 	/**
 	 * Get the instance for the specified first and second cards.
 	 * 
 	 * @param first
-	 *            the lowest card of the hole
+	 *            the first card of the hole
 	 * @param second
-	 *            the highest card of the hole
+	 *            the second card of the hole
 	 * @return the hole for the specified cards
 	 * @throws NullPointerException
 	 *             if either of the cards are null
 	 * @throws ArrayIndexOutOfBoundsException
-	 *             if the first card is not smaller than; the second card
+	 *             if the first card is equal to second card
 	 */
-	static Hole getInstance(final Card first, final Card second) {
+	public static Hole getInstance(final Card first, final Card second) {
 		// Return existing instance.
-		final int i = first.ordinal(), j = second.ordinal() - i - 1;
-		return HOLES[i][j];
+		final int i = first.ordinal(), j = second.ordinal();
+		return i < j ? HOLES[i][j - i - 1] : HOLES[j][i - j - 1];
 	}
 
 	/**

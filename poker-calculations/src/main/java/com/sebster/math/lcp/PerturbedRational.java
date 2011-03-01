@@ -1,15 +1,17 @@
-package com.sebster.math.rational;
+package com.sebster.math.lcp;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.Arrays;
 
+import com.sebster.math.rational.Rational;
+import com.sebster.math.rational.RationalField;
+import com.sebster.math.vector.ImmutableVector;
 import com.sebster.math.vector.Vector;
+import com.sebster.math.vector.VectorSpace;
 
-public final class PerturbedRational extends Number implements Comparable<PerturbedRational>, Vector<Rational, PerturbedRational> {
+public final class PerturbedRational extends Number implements Comparable<PerturbedRational>, ImmutableVector<Rational> {
 
-	private static final long serialVersionUID = 1L;
-	
 	private final Rational[] terms;
 
 	public PerturbedRational(final int size) {
@@ -29,6 +31,7 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 		Arrays.fill(terms, rationals.length, size, Rational.ZERO);
 	}
 
+	@Override
 	public Rational get(final int i) {
 		return terms[i];
 	}
@@ -39,32 +42,32 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 	}
 
 	@Override
-	public PerturbedRational add(final PerturbedRational other) {
+	public PerturbedRational plus(final Vector<Rational> other) {
 //		Validate.notNull(other, "other == null");
-		final int newSize = Math.min(size(), other.size());
+		final int newSize = Math.min(getDimension(), other.getDimension());
 		final Rational[] newTerms = new Rational[newSize];
 		for (int i = 0; i < newSize; i++) {
-			newTerms[i] = get(i).add(other.get(i));
+			newTerms[i] = get(i).plus(other.get(i));
 		}
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
 	@Override
-	public PerturbedRational subtract(final PerturbedRational other) {
+	public PerturbedRational minus(final Vector<Rational> other) {
 //		Validate.notNull(other, "other == null");
-		final int newSize = Math.min(size(), other.size());
+		final int newSize = Math.min(getDimension(), other.getDimension());
 		final Rational[] newTerms = new Rational[newSize];
 		for (int i = 0; i < newSize; i++) {
-			newTerms[i] = get(i).subtract(other.get(i));
+			newTerms[i] = get(i).minus(other.get(i));
 		}
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
 	@Override
-	public PerturbedRational negate() {
+	public PerturbedRational opposite() {
 		final Rational[] newTerms = new Rational[terms.length];
 		for (int i = 0; i < terms.length; i++) {
-			newTerms[i] = terms[i].negate();
+			newTerms[i] = terms[i].opposite();
 		}
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
@@ -129,29 +132,29 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 	@Override
 	public int compareTo(final PerturbedRational other) {
 //		Validate.notNull(other, "other == null");
-		final int minSize = Math.min(size(), other.size());
+		final int minSize = Math.min(getDimension(), other.getDimension());
 		for (int i = 0; i < minSize; i++) {
 			final int k = get(i).compareTo(other.get(i));
 			if (k != 0) {
 				return k;
 			}
 		}
-		if (size() > minSize) {
+		if (getDimension() > minSize) {
 			return get(minSize).signum();
 		}
-		if (other.size() > minSize) {
+		if (other.getDimension() > minSize) {
 			return -other.get(minSize).signum();
 		}
 		return 0;
 	}
 
 	public PerturbedRational abs() {
-		return signum() >= 0 ? this : negate();
+		return signum() >= 0 ? this : opposite();
 	}
 
 	@Override
 	public String toString() {
-		final int n = size();
+		final int n = getDimension();
 		final StringBuilder buffer = new StringBuilder("[ ");
 		for (int i = 0; i < n - 1; i++) {
 			buffer.append(get(i));
@@ -163,32 +166,32 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 	}
 
 	@Override
-	public PerturbedRationalVectorSpace getVectorField() {
-		return PerturbedRationalVectorSpace.getInstance(size());
-	}
-
-	@Override
-	public PerturbedRational multiply(final Rational scalar) {
+	public PerturbedRational times(final Rational scalar) {
 //		Validate.notNull(scalar, "scalar == null");
 		final Rational[] newTerms = new Rational[terms.length];
 		for (int i = 0; i < terms.length; i++) {
-			newTerms[i] = terms[i].multiply(scalar);
+			newTerms[i] = terms[i].times(scalar);
 		}
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
 	@Override
-	public PerturbedRational divide(final Rational scalar) {
+	public PerturbedRational dividedBy(final Rational scalar) {
 //		Validate.notNull(scalar, "scalar == null");
 		final Rational[] newTerms = new Rational[terms.length];
 		for (int i = 0; i < terms.length; i++) {
-			newTerms[i] = terms[i].divide(scalar);
+			newTerms[i] = terms[i].dividedBy(scalar);
 		}
 		return new PerturbedRational(newTerms.length, newTerms);
 	}
 
 	@Override
-	public int size() {
+	public Rational dot(final Vector<Rational> other) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public int getDimension() {
 		return terms.length;
 	}
 
@@ -207,6 +210,16 @@ public final class PerturbedRational extends Number implements Comparable<Pertur
 	@Override
 	public RationalField getScalarField() {
 		return RationalField.INSTANCE;
+	}
+
+	@Override
+	public VectorSpace<Rational> getVectorSpace() {
+		return getVectorSpace(terms.length);
+	}
+
+	@Override
+	public VectorSpace<Rational> getVectorSpace(final int dimension) {
+		return new VectorSpace<Rational>(RationalField.INSTANCE, dimension);
 	}
 
 }

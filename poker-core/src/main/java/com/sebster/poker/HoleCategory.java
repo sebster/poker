@@ -43,6 +43,10 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	public Rational getProbability() {
 		return new Rational(getSize(), Constants.HOLE_COUNT);
 	}
+	
+	public double getProbabilityAsDouble() {
+		return getSize() / (double) Constants.HOLE_COUNT;
+	}
 
 	@Override
 	public String toString() {

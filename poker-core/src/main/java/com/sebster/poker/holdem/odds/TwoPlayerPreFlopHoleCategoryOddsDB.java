@@ -75,5 +75,9 @@ public class TwoPlayerPreFlopHoleCategoryOddsDB {
 	public Rational getProbability(final HoleCategory holeCategory1, final HoleCategory holeCategory2) {
 		return new Rational(getHandCombinations(holeCategory1, holeCategory2), (52 * 51 / 2) * (50 * 49 / 2));
 	}
+	
+	public double getProbabilityAsDouble(final HoleCategory holeCategory1, final HoleCategory holeCategory2) {
+		return getHandCombinations(holeCategory1, holeCategory2) / ((double) (52 * 51 / 2) * (50 * 49 / 2));
+	}
 
 }

@@ -4,8 +4,8 @@ import java.util.Arrays;
 
 import com.sebster.math.lcp.MultiThreadedSimpleLCPSolver;
 import com.sebster.math.lcp.SimpleLCPSolver;
+import com.sebster.math.matrix.MatrixImpl;
 import com.sebster.math.rational.Rational;
-import com.sebster.math.rational.matrix.Matrix;
 import com.sebster.util.Assert;
 import com.sebster.util.collections.ImmutablePair;
 import com.sebster.util.collections.Pair;
@@ -16,7 +16,7 @@ public final class NashEquilibrium {
 		// Utility class.
 	}
 
-	public static Pair<Matrix<Rational>, Matrix<Rational>> solve(final Matrix<Rational> E, final Matrix<Rational> F, final Matrix<Rational> A, final Matrix<Rational> B) {
+	public static Pair<MatrixImpl<Rational>, MatrixImpl<Rational>> solve(final MatrixImpl<Rational> E, final MatrixImpl<Rational> F, final MatrixImpl<Rational> A, final MatrixImpl<Rational> B) {
 		return solve(E, F, A, B, 1);
 	}
 
@@ -34,22 +34,22 @@ public final class NashEquilibrium {
 	 * 
 	 * @return the strategy profile of player 1 and player 2
 	 */
-	public static Pair<Matrix<Rational>, Matrix<Rational>> solve(final Matrix<Rational> E, final Matrix<Rational> F, final Matrix<Rational> A, final Matrix<Rational> B, final int threads) {
+	public static Pair<MatrixImpl<Rational>, MatrixImpl<Rational>> solve(final MatrixImpl<Rational> E, final MatrixImpl<Rational> F, final MatrixImpl<Rational> A, final MatrixImpl<Rational> B, final int threads) {
 
-		Assert.notNull(E, "E is null");
-		Assert.notNull(F, "F is null");
-		Assert.notNull(A, "A is null");
-		Assert.notNull(B, "B is null");
+		Assert.assertNotNull(E, "E is null");
+		Assert.assertNotNull(F, "F is null");
+		Assert.assertNotNull(A, "A is null");
+		Assert.assertNotNull(B, "B is null");
 
 		final int Ecols = E.getColumnDimension();
 		final int Erows = E.getRowDimension();
 		final int Fcols = F.getColumnDimension();
 		final int Frows = F.getRowDimension();
 
-		Assert.isTrue(A.getRowDimension() == Ecols, "A must have same number of rows as E has columns");
-		Assert.isTrue(A.getColumnDimension() == Fcols, "A must have same number of columns as F");
-		Assert.isTrue(B.getRowDimension() == Ecols, "B must have same number of rows as E has columns");
-		Assert.isTrue(B.getColumnDimension() == Fcols, "B must have same number of columns as F");
+		Assert.assertTrue(A.getRowDimension() == Ecols, "A must have same number of rows as E has columns");
+		Assert.assertTrue(A.getColumnDimension() == Fcols, "A must have same number of columns as F");
+		Assert.assertTrue(B.getRowDimension() == Ecols, "B must have same number of rows as E has columns");
+		Assert.assertTrue(B.getColumnDimension() == Fcols, "B must have same number of columns as F");
 
 		Rational max = Rational.ZERO;
 		for (int i = 0; i < Ecols; i++) {
@@ -57,12 +57,12 @@ public final class NashEquilibrium {
 				max = max.max(A.get(i, j)).max(B.get(i, j));
 			}
 		}
-		final Matrix<Rational> Ap = new Matrix<Rational>(Ecols, Fcols, Rational.ZERO);
-		final Matrix<Rational> Bp = new Matrix<Rational>(Ecols, Fcols, Rational.ZERO);
+		final MatrixImpl<Rational> Ap = new MatrixImpl<Rational>(Ecols, Fcols, Rational.ZERO);
+		final MatrixImpl<Rational> Bp = new MatrixImpl<Rational>(Ecols, Fcols, Rational.ZERO);
 		for (int i = 0; i < Ecols; i++) {
 			for (int j = 0; j < Fcols; j++) {
-				Ap.set(i, j, A.get(i, j).subtract(max));
-				Bp.set(i, j, B.get(i, j).subtract(max));
+				Ap.set(i, j, A.get(i, j).minus(max));
+				Bp.set(i, j, B.get(i, j).minus(max));
 			}
 		}
 
@@ -85,10 +85,10 @@ public final class NashEquilibrium {
 		// 2 - E's.
 		for (int i = 0; i < Erows; i++) {
 			for (int j = 0; j < Ecols; j++) {
-				M[Ecols + Fcols + i][j] = E.get(i, j).negate(); // -E
+				M[Ecols + Fcols + i][j] = E.get(i, j).opposite(); // -E
 				M[Ecols + Fcols + Erows + i][j] = E.get(i, j); // E
 				M[j][Ecols + Fcols + i] = E.get(i, j); // E^T
-				M[j][Ecols + Fcols + Erows + i] = E.get(i, j).negate(); // -E^T
+				M[j][Ecols + Fcols + Erows + i] = E.get(i, j).opposite(); // -E^T
 			}
 		}
 
@@ -96,8 +96,8 @@ public final class NashEquilibrium {
 		for (int i = 0; i < Frows; i++) {
 			for (int j = 0; j < Fcols; j++) {
 				M[Ecols + j][Ecols + Fcols + 2 * Erows + i] = F.get(i, j); // F^T
-				M[Ecols + j][Ecols + Fcols + 2 * Erows + Frows + i] = F.get(i, j).negate(); // -F^T
-				M[Ecols + Fcols + 2 * Erows + i][Ecols + j] = F.get(i, j).negate(); // -F
+				M[Ecols + j][Ecols + Fcols + 2 * Erows + Frows + i] = F.get(i, j).opposite(); // -F^T
+				M[Ecols + Fcols + 2 * Erows + i][Ecols + j] = F.get(i, j).opposite(); // -F
 				M[Ecols + Fcols + 2 * Erows + Frows + i][Ecols + j] = F.get(i, j); // F
 			}
 		}
@@ -105,8 +105,8 @@ public final class NashEquilibrium {
 		// 4 - -A and -B^T
 		for (int i = 0; i < Ecols; i++) {
 			for (int j = 0; j < Fcols; j++) {
-				M[i][Ecols + j] = Ap.get(i, j).negate(); // -A
-				M[Ecols + j][i] = Bp.get(i, j).negate(); // -B^T
+				M[i][Ecols + j] = Ap.get(i, j).opposite(); // -A
+				M[Ecols + j][i] = Bp.get(i, j).opposite(); // -B^T
 			}
 		}
 
@@ -129,14 +129,14 @@ public final class NashEquilibrium {
 		} else {
 			z = MultiThreadedSimpleLCPSolver.solve(M, b, threads);
 		}
-		final Matrix<Rational> zM = new Matrix<Rational>(z, z.length);
+		final MatrixImpl<Rational> zM = new MatrixImpl<Rational>(z, z.length);
 
 		// Construct the result.
-		final Matrix<Rational> x = zM.getSubMatrix(0, Ecols - 1, 0, 0);
-		final Matrix<Rational> y = zM.getSubMatrix(Ecols, Ecols + Fcols - 1, 0, 0);
+		final MatrixImpl<Rational> x = zM.getSubMatrix(0, Ecols - 1, 0, 0);
+		final MatrixImpl<Rational> y = zM.getSubMatrix(Ecols, Ecols + Fcols - 1, 0, 0);
 
 		// Return the result.
-		return new ImmutablePair<Matrix<Rational>, Matrix<Rational>>(x, y);
+		return new ImmutablePair<MatrixImpl<Rational>, MatrixImpl<Rational>>(x, y);
 	}
 
 }

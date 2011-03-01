@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sebster.math.rational.PerturbedRational;
 import com.sebster.math.rational.Rational;
 import com.sebster.util.Validate;
 
@@ -50,9 +49,9 @@ public final class MultiThreadedSimpleLCPSolver {
 			for (int j = 0; j < n; j++) {
 				tableaux[i][j] = (i == j) ? Rational.ONE : Rational.ZERO;
 			}
-			tableaux[i][n] = Rational.ONE.negate();
+			tableaux[i][n] = Rational.ONE.opposite();
 			for (int j = 0; j < n; j++) {
-				tableaux[i][n + 1 + j] = M[i][j].negate();
+				tableaux[i][n + 1 + j] = M[i][j].opposite();
 			}
 		}
 
@@ -95,9 +94,9 @@ public final class MultiThreadedSimpleLCPSolver {
 			// Step 1: Divide pivot row by pivot number.
 			final Rational pivotNumber = tableaux[leavingIndex][enteringVariable];
 			for (int i = 0; i < n + 1 + n; i++) {
-				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].divide(pivotNumber);
+				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].dividedBy(pivotNumber);
 			}
-			q[leavingIndex] = q[leavingIndex].divide(pivotNumber);
+			q[leavingIndex] = q[leavingIndex].dividedBy(pivotNumber);
 
 			// Step 2: Subtract pivot row appropriate number of times from each row.
 			final int fEnteringVariable = enteringVariable;
@@ -112,9 +111,9 @@ public final class MultiThreadedSimpleLCPSolver {
 					public void run() {
 						final Rational factor = tableaux[fi][fEnteringVariable];
 						for (int j = 0; j < m; j++) {
-							tableaux[fi][j] = tableaux[fi][j].subtract(tableaux[fLeavingIndex][j].multiply(factor));
+							tableaux[fi][j] = tableaux[fi][j].minus(tableaux[fLeavingIndex][j].times(factor));
 						}
-						q[fi] = q[fi].subtract(q[fLeavingIndex].multiply(factor));
+						q[fi] = q[fi].minus(q[fLeavingIndex].times(factor));
 						latch.countDown();
 					}
 				});
@@ -138,7 +137,7 @@ public final class MultiThreadedSimpleLCPSolver {
 			PerturbedRational minRatio = null;
 			for (int i = 0; i < n; i++) {
 				if (tableaux[i][enteringVariable].signum() > 0) {
-					final PerturbedRational ratio = q[i].divide(tableaux[i][enteringVariable]);
+					final PerturbedRational ratio = q[i].dividedBy(tableaux[i][enteringVariable]);
 					if (leavingIndex == -1 || ratio.compareTo(minRatio) < 0) {
 						leavingIndex = i;
 						minRatio = ratio;

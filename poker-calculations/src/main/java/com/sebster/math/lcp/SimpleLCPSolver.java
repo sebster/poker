@@ -5,20 +5,21 @@ import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sebster.math.rational.PerturbedRational;
 import com.sebster.math.rational.Rational;
 import com.sebster.util.Validate;
 
 public final class SimpleLCPSolver {
 
 	private static final Logger logger = LoggerFactory.getLogger(SimpleLCPSolver.class);
-	
-	
+
 	private SimpleLCPSolver() {
 		// Utility class.
 	}
 
 	public static Rational[] solve(final Rational[][] M, final Rational[] b) {
+
+		Rational.logCounters("before solve");
+		Rational.resetCounters();
 
 		// ----------------------------------
 		// Validation.
@@ -47,9 +48,9 @@ public final class SimpleLCPSolver {
 			for (int j = 0; j < n; j++) {
 				tableaux[i][j] = (i == j) ? Rational.ONE : Rational.ZERO;
 			}
-			tableaux[i][n] = Rational.ONE.negate();
+			tableaux[i][n] = Rational.ONE.opposite();
 			for (int j = 0; j < n; j++) {
-				tableaux[i][n + 1 + j] = M[i][j].negate();
+				tableaux[i][n + 1 + j] = M[i][j].opposite();
 			}
 		}
 
@@ -78,9 +79,13 @@ public final class SimpleLCPSolver {
 			return makeResult(basis, q);
 		}
 
+		Rational.logCounters("initialization");
+		Rational.resetCounters();
+
 		// ----------------------------------
 		// Main loop.
 		while (true) {
+
 			// Step 0: Update basis.
 			final int leavingVariable = basis[leavingIndex];
 			basis[leavingIndex] = enteringVariable;
@@ -89,20 +94,27 @@ public final class SimpleLCPSolver {
 			// Step 1: Divide pivot row by pivot number.
 			final Rational pivotNumber = tableaux[leavingIndex][enteringVariable];
 			for (int i = 0; i < n + 1 + n; i++) {
-				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].divide(pivotNumber);
+				tableaux[leavingIndex][i] = tableaux[leavingIndex][i].dividedBy(pivotNumber);
 			}
-			q[leavingIndex] = q[leavingIndex].divide(pivotNumber);
+			q[leavingIndex] = q[leavingIndex].dividedBy(pivotNumber);
 
-			// Step 2: Subtract pivot row appropriate number of times from each row.
+			Rational.logCounters("step 1");
+			Rational.resetCounters();
+			
+			// Step 2: Subtract pivot row appropriate number of times from each
+			// row.
 			for (int i = 0; i < n; i++) {
 				if (i == leavingIndex)
 					continue;
 				final Rational factor = tableaux[i][enteringVariable];
 				for (int j = 0; j < n + 1 + n; j++) {
-					tableaux[i][j] = tableaux[i][j].subtract(tableaux[leavingIndex][j].multiply(factor));
+					tableaux[i][j] = tableaux[i][j].minus(tableaux[leavingIndex][j].times(factor));
 				}
-				q[i] = q[i].subtract(q[leavingIndex].multiply(factor));
+				q[i] = q[i].minus(q[leavingIndex].times(factor));
 			}
+
+			Rational.logCounters("step 2");
+			Rational.resetCounters();
 			
 			// Step 3: Enter complement.
 			if (leavingVariable == n) {
@@ -117,13 +129,17 @@ public final class SimpleLCPSolver {
 			PerturbedRational minRatio = null;
 			for (int i = 0; i < n; i++) {
 				if (tableaux[i][enteringVariable].signum() > 0) {
-					final PerturbedRational ratio = q[i].divide(tableaux[i][enteringVariable]);
+					final PerturbedRational ratio = q[i].dividedBy(tableaux[i][enteringVariable]);
 					if (leavingIndex == -1 || ratio.compareTo(minRatio) < 0) {
 						leavingIndex = i;
 						minRatio = ratio;
 					}
 				}
 			}
+			
+			Rational.logCounters("step 4");
+			Rational.resetCounters();
+
 			if (leavingIndex == -1) {
 				// FIXME proper exception
 				throw new IllegalStateException("no leaving variable found");
@@ -144,7 +160,7 @@ public final class SimpleLCPSolver {
 		}
 		return z;
 	}
-	
+
 	private static String varToString(final int i, final int n) {
 		return i < n ? ("w" + (i + 1)) : "z" + (i - n);
 	}

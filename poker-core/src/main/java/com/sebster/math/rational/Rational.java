@@ -4,10 +4,60 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.sebster.math.field.Field;
 import com.sebster.math.field.FieldValue;
 
 public final class Rational extends Number implements Comparable<Rational>, FieldValue<Rational> {
+
+	private static Logger logger = LoggerFactory.getLogger(Rational.class);
+
+	private static long multiplications = 0;
+
+	private static long divisions = 0;
+
+	private static long additions = 0;
+
+	private static long gcds = 0;
+
+	private static long compares = 0;
+	
+	public static long getMultiplications() {
+		return multiplications;
+	}
+
+	public static long getDivisions() {
+		return divisions;
+	}
+
+	public static long getAdditions() {
+		return additions;
+	}
+
+	public static long getGcds() {
+		return gcds;
+	}
+
+	public static long getCompares() {
+		return compares;
+	}
+
+	public static void resetCounters() {
+		logger.debug("counters reset");
+		multiplications = 0;
+		divisions = 0;
+		additions = 0;
+		gcds = 0;
+		compares = 0;
+	}
+
+	public static void logCounters(final String message) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("{}: multiplications={} divisions={} additions={} gcds={} compares={}", new Object[] { message, multiplications, divisions, additions, gcds, compares });
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,9 +88,12 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 					tmpNumerator = tmpNumerator.negate();
 					tmpDenominator = tmpDenominator.negate();
 				}
+
 				final BigInteger gcd = tmpNumerator.gcd(tmpDenominator);
+				gcds++;
 				this.numerator = tmpNumerator.divide(gcd);
 				this.denominator = tmpDenominator.divide(gcd);
+				divisions += 2;
 			}
 		} else {
 			this.numerator = numerator;
@@ -82,11 +135,15 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	}
 
 	@Override
-	public Rational add(final Rational other) {
+	public Rational plus(final Rational other) {
+		additions++;
+		multiplications += 3;
 		return new Rational(numerator.multiply(other.denominator).add(other.numerator.multiply(denominator)), denominator.multiply(other.denominator));
 	}
 
 	public Rational add(final BigInteger other) {
+		additions++;
+		multiplications++;
 		return new Rational(numerator.add(other.multiply(denominator)), denominator);
 	}
 
@@ -95,50 +152,59 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 	}
 
 	@Override
-	public Rational subtract(final Rational other) {
+	public Rational minus(final Rational other) {
+		additions++;
+		multiplications += 3;
 		return new Rational(numerator.multiply(other.denominator).subtract(other.numerator.multiply(denominator)), denominator.multiply(other.denominator));
 	}
 
-	public Rational subtract(final BigInteger other) {
+	public Rational minus(final BigInteger other) {
+		additions++;
+		multiplications++;
 		return new Rational(numerator.subtract(other.multiply(denominator)), denominator);
 	}
 
-	public Rational subtract(final long other) {
-		return subtract(BigInteger.valueOf(other));
+	public Rational minus(final long other) {
+		return minus(BigInteger.valueOf(other));
 	}
 
 	@Override
-	public Rational multiply(final Rational other) {
+	public Rational times(final Rational other) {
+		multiplications += 2;
 		return new Rational(numerator.multiply(other.numerator), denominator.multiply(other.denominator));
 	}
 
-	public Rational multiply(final BigInteger other) {
+	public Rational times(final BigInteger other) {
+		multiplications++;
 		return new Rational(numerator.multiply(other), denominator);
 	}
 
-	public Rational multiply(final long other) {
-		return multiply(BigInteger.valueOf(other));
+	public Rational times(final long other) {
+		return times(BigInteger.valueOf(other));
 	}
 
 	@Override
-	public Rational divide(final Rational other) {
+	public Rational dividedBy(final Rational other) {
+		multiplications += 2;
 		return new Rational(numerator.multiply(other.denominator), denominator.multiply(other.numerator));
 	}
 
-	public Rational divide(final BigInteger other) {
+	public Rational dividedBy(final BigInteger other) {
+		multiplications++;
 		return new Rational(numerator, denominator.multiply(other));
 	}
 
-	public Rational divide(final long other) {
-		return divide(BigInteger.valueOf(other));
+	public Rational dividedBy(final long other) {
+		return dividedBy(BigInteger.valueOf(other));
 	}
 
 	@Override
-	public Rational negate() {
+	public Rational opposite() {
 		return new Rational(numerator.negate(), denominator, false);
 	}
 
-	public Rational invert() {
+	@Override
+	public Rational reciprocal() {
 		final int numeratorSignum = numerator.signum();
 		if (numeratorSignum > 0) {
 			return new Rational(denominator, numerator, false);
@@ -207,6 +273,8 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 		if (k != 0) {
 			return k;
 		}
+		multiplications += 2;
+		compares++;
 		return numerator.multiply(other.denominator).compareTo(other.numerator.multiply(denominator));
 	}
 
@@ -220,7 +288,7 @@ public final class Rational extends Number implements Comparable<Rational>, Fiel
 
 	@Override
 	public Rational abs() {
-		return signum() >= 0 ? this : negate();
+		return signum() >= 0 ? this : opposite();
 	}
 
 	public Rational pow(final int n) {

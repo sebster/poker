@@ -12,7 +12,6 @@ import java.util.concurrent.Semaphore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sebster.math.rational.PerturbedRational;
 import com.sebster.math.rational.Rational;
 import com.sebster.util.Validate;
 import com.sebster.util.collections.ImmutablePair;
@@ -60,9 +59,9 @@ public final class FineMultiThreadedSimpleLCPSolver {
 				for (int j = 0; j < n; j++) {
 					tableaux[i][j] = (i == j) ? Rational.ONE : Rational.ZERO;
 				}
-				tableaux[i][n] = Rational.ONE.negate();
+				tableaux[i][n] = Rational.ONE.opposite();
 				for (int j = 0; j < n; j++) {
-					tableaux[i][n + 1 + j] = M[i][j].negate();
+					tableaux[i][n + 1 + j] = M[i][j].opposite();
 				}
 			}
 
@@ -106,7 +105,7 @@ public final class FineMultiThreadedSimpleLCPSolver {
 				final Rational pivotNumber = tableaux[leavingIndex][enteringVariable];
 				executor.submit(new Runnable() {
 					public void run() {
-						q[fLeavingIndex] = q[fLeavingIndex].divide(pivotNumber);
+						q[fLeavingIndex] = q[fLeavingIndex].dividedBy(pivotNumber);
 						latch1.countDown();
 					}
 				});
@@ -114,7 +113,7 @@ public final class FineMultiThreadedSimpleLCPSolver {
 					final int fi = i;
 					executor.submit(new Runnable() {
 						public void run() {
-							tableaux[fLeavingIndex][fi] = tableaux[fLeavingIndex][fi].divide(pivotNumber);
+							tableaux[fLeavingIndex][fi] = tableaux[fLeavingIndex][fi].dividedBy(pivotNumber);
 							latch1.countDown();
 						}
 					});
@@ -131,7 +130,7 @@ public final class FineMultiThreadedSimpleLCPSolver {
 					final Rational factor = tableaux[i][enteringVariable];
 					executor.submit(new Runnable() {
 						public void run() {
-							q[fi] = q[fi].subtract(q[fLeavingIndex].multiply(factor));
+							q[fi] = q[fi].minus(q[fLeavingIndex].times(factor));
 							latch2.countDown();
 						}
 					});
@@ -145,7 +144,7 @@ public final class FineMultiThreadedSimpleLCPSolver {
 						final int fj = j;
 						executor.submit(new Runnable() {
 							public void run() {
-								tableaux[fi][fj] = tableaux[fi][fj].subtract(tableaux[fLeavingIndex][fj].multiply(factor));
+								tableaux[fi][fj] = tableaux[fi][fj].minus(tableaux[fLeavingIndex][fj].times(factor));
 								latch2.countDown();
 							}
 						});
@@ -171,7 +170,7 @@ public final class FineMultiThreadedSimpleLCPSolver {
 					if (tableaux[i][enteringVariable].signum() > 0) {
 						executor.submit(new Runnable() {
 							public void run() {
-								final PerturbedRational ratio = q[fi].divide(tableaux[fi][fEnteringVariable]);
+								final PerturbedRational ratio = q[fi].dividedBy(tableaux[fi][fEnteringVariable]);
 								ratios.add(new ImmutablePair<PerturbedRational, Integer>(ratio, fi));
 							};
 						});

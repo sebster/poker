@@ -14,9 +14,9 @@ import com.sebster.poker.holdem.PureAllinOrFoldStrategy;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopHoleCategoryOddsDB;
 import com.sebster.poker.odds.Odds;
 
-public class Solver {
+public class RationalBestResponseSolver {
 
-	private static final Logger logger = LoggerFactory.getLogger(Solver.class);
+	private static final Logger logger = LoggerFactory.getLogger(RationalBestResponseSolver.class);
 
 	// BBEV = -SBEV
 	public static Rational computeSBEV(final AllinOrFoldStrategy sbStrategy, final AllinOrFoldStrategy bbStrategy, final Rational r) {
@@ -31,15 +31,15 @@ public class Solver {
 				final Odds odds = db.getOdds(sbHoleCategory, bbHoleCategory);
 
 				// sb fold EV: (1 - sbPushFreq) * -sb
-				Rational equity = Rational.ONE.subtract(sbPushFreq).divide(-2);
+				Rational equity = Rational.ONE.minus(sbPushFreq).dividedBy(-2);
 				// sb push, bb fold EV: sbPushFreq * (1 - bbCallFreq) * +bb
-				equity = equity.add(sbPushFreq.multiply(Rational.ONE.subtract(bbCallFreq)));
+				equity = equity.plus(sbPushFreq.times(Rational.ONE.minus(bbCallFreq)));
 				// sb push, bb call EV: sbPushFreq * bbCallFreq * (p_win - p_loss) * effectiveStacks
-				equity = equity.add(sbPushFreq.multiply(bbCallFreq).multiply(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(r)));
+				equity = equity.plus(sbPushFreq.times(bbCallFreq).times(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).times(r)));
 
 				// Scale to probability of being dealt.
 				final Rational gameProb = db.getProbability(sbHoleCategory, bbHoleCategory);
-				result = result.add(gameProb.multiply(equity));
+				result = result.plus(gameProb.times(equity));
 			}
 		}
 		return result;
@@ -57,7 +57,7 @@ public class Solver {
 				final HoleCategory hc1 = HoleCategory.values()[j];
 				final Odds odds = db.getOdds(hc1, hc2);
 				final Rational gameProb = db.getProbability(hc1, hc2);
-				coefficient = coefficient.add(gameProb.multiply(sbStrategy.getAllinFrequency(hc1)).multiply((new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(r /* effective stack */).subtract(1 /* bb */))));
+				coefficient = coefficient.plus(gameProb.times(sbStrategy.getAllinFrequency(hc1)).times((new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).times(r /* effective stack */).minus(1 /* bb */))));
 			}
 			if (coefficient.signum() < 0) {
 				bbStrategy.addHoleCategory(hc2);
@@ -75,12 +75,12 @@ public class Solver {
 		final PureAllinOrFoldStrategy sbStrategy = new PureAllinOrFoldStrategy();
 		for (int i = 0; i < 169; i++) {
 			final HoleCategory hc1 = HoleCategory.values()[i];
-			Rational coefficient = hc1.getProbability().multiply(new Rational(3, 2) /* bb + sb */);
+			Rational coefficient = hc1.getProbability().times(new Rational(3, 2) /* bb + sb */);
 			for (int j = 0; j < 169; j++) {
 				final HoleCategory hc2 = HoleCategory.values()[j];
 				final Rational gameProb = db.getProbability(hc1, hc2);
 				final Odds odds = db.getOdds(hc1, hc2);
-				coefficient = coefficient.add(gameProb.multiply(bbStrategy.getAllinFrequency(hc2).multiply(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(r /* effective stack */).subtract(1 /* bb */))));
+				coefficient = coefficient.plus(gameProb.times(bbStrategy.getAllinFrequency(hc2).times(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).times(r /* effective stack */).minus(1 /* bb */))));
 			}
 			if (coefficient.signum() > 0) {
 				sbStrategy.addHoleCategory(hc1);
@@ -101,9 +101,9 @@ public class Solver {
 				final HoleCategory hc1 = HoleCategory.values()[j];
 				final Odds odds = db.getOdds(hc1, hc2);
 				final Rational gameProb = db.getProbability(hc1, hc2);
-				coefficient = coefficient.add(gameProb.multiply(sbStrategy.getAllinFrequency(hc1)).multiply((new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(r /* effective stack */).subtract(1 /* bb */))));
+				coefficient = coefficient.plus(gameProb.times(sbStrategy.getAllinFrequency(hc1)).times((new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).times(r /* effective stack */).minus(1 /* bb */))));
 			}
-			handRanking.put(hc2, coefficient.negate());
+			handRanking.put(hc2, coefficient.opposite());
 		}
 		return handRanking;
 	}
@@ -113,12 +113,12 @@ public class Solver {
 		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
 		for (int i = 0; i < 169; i++) {
 			final HoleCategory hc1 = HoleCategory.values()[i];
-			Rational coefficient = hc1.getProbability().multiply(new Rational(3, 2));
+			Rational coefficient = hc1.getProbability().times(new Rational(3, 2));
 			for (int j = 0; j < 169; j++) {
 				final HoleCategory hc2 = HoleCategory.values()[j];
 				final Rational gameProb = Rational.ONE; // db.getProbability(hc1, hc2);
 				final Odds odds = db.getOdds(hc1, hc2);
-				coefficient = coefficient.add(gameProb.multiply(bbStrategy.getAllinFrequency(hc2).multiply(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).multiply(r /* effective stack */).subtract(1 /* bb */))));
+				coefficient = coefficient.plus(gameProb.times(bbStrategy.getAllinFrequency(hc2).times(new Rational(odds.getWins() - odds.getLosses(), odds.getTotal()).times(r /* effective stack */).minus(1 /* bb */))));
 			}
 			handRanking.put(hc1, coefficient);
 		}

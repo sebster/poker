@@ -48,7 +48,7 @@ public class BestWorstHands {
 				HoleCategory hc = HoleCategory.byDescription(Rank.byValue(i), Rank.byValue(j), i > j);
 				HoleCategory maxHole = maxHoleMap.get(hc);
 				Rational maxEquity = maxEquityMap.get(hc);
-				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", maxHole, maxEquity.multiply(100).doubleValue());
+				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", maxHole, maxEquity.times(100).doubleValue());
 			}
 			System.out.println("</tr>");
 		}
@@ -67,7 +67,7 @@ public class BestWorstHands {
 				HoleCategory hc = HoleCategory.byDescription(Rank.byValue(i), Rank.byValue(j), i > j);
 				HoleCategory minHole = minHoleMap.get(hc);
 				Rational minEquity = minEquityMap.get(hc);
-				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", minHole, minEquity.multiply(100).doubleValue());
+				System.out.printf("<td class=\"%s\">%3s (%4.1f%%)</td>", i > j ? "suited" : i < j ? "offsuit" : "pair", minHole, minEquity.times(100).doubleValue());
 			}
 			System.out.println("</tr>");
 		}

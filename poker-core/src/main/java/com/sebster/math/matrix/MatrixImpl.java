@@ -1,4 +1,4 @@
-package com.sebster.math.rational.matrix;
+package com.sebster.math.matrix;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
@@ -54,7 +54,7 @@ import com.sebster.util.Validate;
  * @version 5 August 1998
  */
 
-public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> implements Cloneable, Serializable {
+public class MatrixImpl<T extends FieldValue<T> & Comparable<T> & Serializable> implements Cloneable, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -81,7 +81,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * ------------------------ Constructors ------------------------
 	 */
 
-	protected Matrix(final int m, final int n) {
+	protected MatrixImpl(final int m, final int n) {
 		Validate.isTrue(m > 0, "m must be non-negative");
 		Validate.isTrue(n > 0, "n must be non-negative");
 		this.m = m;
@@ -100,7 +100,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *            Fill the matrix with this scalar value.
 	 */
 
-	public Matrix(final int m, final int n, final T s) {
+	public MatrixImpl(final int m, final int n, final T s) {
 		this(m, n);
 		Validate.notNull(s, "s == null");
 		for (int i = 0; i < m; i++) {
@@ -118,7 +118,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @exception IllegalArgumentException
 	 *                All rows must have the same length
 	 */
-	public Matrix(final T[][] a) {
+	public MatrixImpl(final T[][] a) {
 		m = a.length;
 		Validate.isTrue(m > 0, "m must be non-negative");
 		n = a[0].length;
@@ -140,7 +140,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @exception IllegalArgumentException
 	 *                Array length must be a multiple of m.
 	 */
-	public Matrix(final T vals[], final int m) {
+	public MatrixImpl(final T vals[], final int m) {
 		this.m = m;
 		n = (m != 0 ? vals.length / m : 0);
 		if (m * n != vals.length) {
@@ -162,8 +162,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * Make a deep copy of a matrix
 	 */
 
-	public Matrix<T> copy() {
-		final Matrix<T> x = new Matrix<T>(m, n);
+	public MatrixImpl<T> copy() {
+		final MatrixImpl<T> x = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				x.set(i, j, get(i, j));
@@ -177,7 +177,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 */
 
 	@Override
-	public Matrix<T> clone() {
+	public MatrixImpl<T> clone() {
 		return this.copy();
 	}
 
@@ -242,8 +242,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public Matrix<T> getSubMatrix(int i0, int i1, int j0, int j1) {
-		Matrix<T> x = new Matrix<T>(i1 - i0 + 1, j1 - j0 + 1);
+	public MatrixImpl<T> getSubMatrix(int i0, int i1, int j0, int j1) {
+		MatrixImpl<T> x = new MatrixImpl<T>(i1 - i0 + 1, j1 - j0 + 1);
 		try {
 			for (int i = i0; i <= i1; i++) {
 				for (int j = j0; j <= j1; j++) {
@@ -268,8 +268,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public Matrix<T> getSubMatrix(int[] r, int[] c) {
-		Matrix<T> x = new Matrix<T>(r.length, c.length);
+	public MatrixImpl<T> getSubMatrix(int[] r, int[] c) {
+		MatrixImpl<T> x = new MatrixImpl<T>(r.length, c.length);
 		try {
 			for (int i = 0; i < r.length; i++) {
 				for (int j = 0; j < c.length; j++) {
@@ -296,8 +296,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public Matrix<T> getSubMatrix(int i0, int i1, int[] c) {
-		Matrix<T> x = new Matrix<T>(i1 - i0 + 1, c.length);
+	public MatrixImpl<T> getSubMatrix(int i0, int i1, int[] c) {
+		MatrixImpl<T> x = new MatrixImpl<T>(i1 - i0 + 1, c.length);
 		try {
 			for (int i = i0; i <= i1; i++) {
 				for (int j = 0; j < c.length; j++) {
@@ -324,8 +324,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public Matrix<T> getMatrix(int[] r, int j0, int j1) {
-		Matrix<T> x = new Matrix<T>(r.length, j1 - j0 + 1);
+	public MatrixImpl<T> getMatrix(int[] r, int j0, int j1) {
+		MatrixImpl<T> x = new MatrixImpl<T>(r.length, j1 - j0 + 1);
 		try {
 			for (int i = 0; i < r.length; i++) {
 				for (int j = j0; j <= j1; j++) {
@@ -371,7 +371,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public void setMatrix(int i0, int i1, int j0, int j1, Matrix<T> X) {
+	public void setMatrix(int i0, int i1, int j0, int j1, MatrixImpl<T> X) {
 		try {
 			for (int i = i0; i <= i1; i++) {
 				for (int j = j0; j <= j1; j++) {
@@ -396,7 +396,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public void setMatrix(int[] r, int[] c, Matrix<T> X) {
+	public void setMatrix(int[] r, int[] c, MatrixImpl<T> X) {
 		try {
 			for (int i = 0; i < r.length; i++) {
 				for (int j = 0; j < c.length; j++) {
@@ -423,7 +423,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public void setMatrix(int[] r, int j0, int j1, Matrix<T> X) {
+	public void setMatrix(int[] r, int j0, int j1, MatrixImpl<T> X) {
 		try {
 			for (int i = 0; i < r.length; i++) {
 				for (int j = j0; j <= j1; j++) {
@@ -450,7 +450,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Submatrix indices
 	 */
 
-	public void setMatrix(int i0, int i1, int[] c, Matrix<T> X) {
+	public void setMatrix(int i0, int i1, int[] c, MatrixImpl<T> X) {
 		try {
 			for (int i = i0; i <= i1; i++) {
 				for (int j = 0; j < c.length; j++) {
@@ -468,8 +468,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A'
 	 */
 
-	public Matrix<T> transpose() {
-		Matrix<T> X = new Matrix<T>(n, m);
+	public MatrixImpl<T> transpose() {
+		MatrixImpl<T> X = new MatrixImpl<T>(n, m);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				X.set(j, i, get(i, j));
@@ -489,7 +489,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 		for (int j = 0; j < n; j++) {
 			T s = getField().getZero();
 			for (int i = 0; i < m; i++) {
-				s = s.add(get(i, j).abs());
+				s = s.plus(get(i, j).abs());
 			}
 			f = MathUtil.max(f, s);
 		}
@@ -517,7 +517,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 		for (int i = 0; i < m; i++) {
 			T s = getField().getZero();
 			for (int j = 0; j < n; j++) {
-				s = s.add(get(i, j).abs());
+				s = s.plus(get(i, j).abs());
 			}
 			f = MathUtil.max(f, s);
 		}
@@ -544,11 +544,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return -A
 	 */
 
-	public Matrix<T> uminus() {
-		Matrix<T> X = new Matrix<T>(m, n);
+	public MatrixImpl<T> uminus() {
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, get(i, j).negate());
+				X.set(i, j, get(i, j).opposite());
 			}
 		}
 		return X;
@@ -562,12 +562,12 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A + B
 	 */
 
-	public Matrix<T> plus(Matrix<T> B) {
+	public MatrixImpl<T> plus(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
-		Matrix<T> X = new Matrix<T>(m, n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, get(i, j).add(B.get(i, j)));
+				X.set(i, j, get(i, j).plus(B.get(i, j)));
 			}
 		}
 		return X;
@@ -581,11 +581,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A + B
 	 */
 
-	public Matrix<T> plusEquals(Matrix<T> B) {
+	public MatrixImpl<T> plusEquals(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, get(i, j).add(B.get(i, j)));
+				set(i, j, get(i, j).plus(B.get(i, j)));
 			}
 		}
 		return this;
@@ -599,12 +599,12 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A - B
 	 */
 
-	public Matrix<T> minus(Matrix<T> B) {
+	public MatrixImpl<T> minus(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
-		Matrix<T> X = new Matrix<T>(m, n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, get(i, j).subtract(B.get(i, j)));
+				X.set(i, j, get(i, j).minus(B.get(i, j)));
 			}
 		}
 		return X;
@@ -618,11 +618,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A - B
 	 */
 
-	public Matrix<T> minusEquals(Matrix<T> B) {
+	public MatrixImpl<T> minusEquals(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, get(i, j).subtract(B.get(i, j)));
+				set(i, j, get(i, j).minus(B.get(i, j)));
 			}
 		}
 		return this;
@@ -636,12 +636,12 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A.*B
 	 */
 
-	public Matrix<T> arrayTimes(Matrix<T> B) {
+	public MatrixImpl<T> arrayTimes(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
-		Matrix<T> X = new Matrix<T>(m, n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, get(i, j).multiply(B.get(i, j)));
+				X.set(i, j, get(i, j).times(B.get(i, j)));
 			}
 		}
 		return X;
@@ -655,11 +655,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A.*B
 	 */
 
-	public Matrix<T> arrayTimesEquals(Matrix<T> B) {
+	public MatrixImpl<T> arrayTimesEquals(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, get(i, j).multiply(B.get(i, j)));
+				set(i, j, get(i, j).times(B.get(i, j)));
 			}
 		}
 		return this;
@@ -673,12 +673,12 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A./B
 	 */
 
-	public Matrix<T> arrayRightDivide(Matrix<T> B) {
+	public MatrixImpl<T> arrayRightDivide(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
-		Matrix<T> X = new Matrix<T>(m, n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, get(i, j).divide(B.get(i, j)));
+				X.set(i, j, get(i, j).dividedBy(B.get(i, j)));
 			}
 		}
 		return X;
@@ -692,11 +692,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A./B
 	 */
 
-	public Matrix<T> arrayRightDivideEquals(Matrix<T> B) {
+	public MatrixImpl<T> arrayRightDivideEquals(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, get(i, j).divide(B.get(i, j)));
+				set(i, j, get(i, j).dividedBy(B.get(i, j)));
 			}
 		}
 		return this;
@@ -710,12 +710,12 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A.\B
 	 */
 
-	public Matrix<T> arrayLeftDivide(Matrix<T> B) {
+	public MatrixImpl<T> arrayLeftDivide(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
-		Matrix<T> X = new Matrix<T>(m, n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, B.get(i, j).divide(get(i, j)));
+				X.set(i, j, B.get(i, j).dividedBy(get(i, j)));
 			}
 		}
 		return X;
@@ -729,11 +729,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return A.\B
 	 */
 
-	public Matrix<T> arrayLeftDivideEquals(Matrix<T> B) {
+	public MatrixImpl<T> arrayLeftDivideEquals(MatrixImpl<T> B) {
 		checkMatrixDimensions(B);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, B.get(i, j).divide(get(i, j)));
+				set(i, j, B.get(i, j).dividedBy(get(i, j)));
 			}
 		}
 		return this;
@@ -747,11 +747,11 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return s*A
 	 */
 
-	public Matrix<T> times(T s) {
-		Matrix<T> X = new Matrix<T>(m, n);
+	public MatrixImpl<T> times(T s) {
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				X.set(i, j, s.multiply(get(i, j)));
+				X.set(i, j, s.times(get(i, j)));
 			}
 		}
 		return X;
@@ -765,10 +765,10 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return replace A by s*A
 	 */
 
-	public Matrix<T> timesEquals(T s) {
+	public MatrixImpl<T> timesEquals(T s) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
-				set(i, j, s.multiply(get(i, j)));
+				set(i, j, s.times(get(i, j)));
 			}
 		}
 		return this;
@@ -784,16 +784,16 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 *                Matrix inner dimensions must agree.
 	 */
 
-	public Matrix<T> times(Matrix<T> B) {
+	public MatrixImpl<T> times(MatrixImpl<T> B) {
 		if (B.m != n) {
 			throw new IllegalArgumentException("Matrix inner dimensions must agree.");
 		}
-		Matrix<T> X = new Matrix<T>(m, B.n);
+		MatrixImpl<T> X = new MatrixImpl<T>(m, B.n);
 		for (int j = 0; j < B.n; j++) {
 			for (int i = 0; i < m; i++) {
 				T s = getField().getZero();
 				for (int k = 0; k < n; k++) {
-					s = s.add(get(i, k).multiply(B.get(k, j)));
+					s = s.plus(get(i, k).times(B.get(k, j)));
 				}
 				X.set(i, j, s);
 			}
@@ -860,7 +860,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return solution if A is square, least squares solution otherwise
 	 */
 
-	public Matrix<T> solve(Matrix<T> B) {
+	public MatrixImpl<T> solve(MatrixImpl<T> B) {
 		if (m == n) {
 			return new LUDecomposition<T>(this).solve(B);
 		}
@@ -876,7 +876,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return solution if A is square, least squares solution otherwise.
 	 */
 
-	public Matrix<T> solveTranspose(Matrix<T> B) {
+	public MatrixImpl<T> solveTranspose(MatrixImpl<T> B) {
 		return transpose().solve(B.transpose());
 	}
 
@@ -886,7 +886,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return inverse(A) if A is square, pseudoinverse otherwise.
 	 */
 
-	public Matrix<T> inverse() {
+	public MatrixImpl<T> inverse() {
 		return solve(identity(m, m, getField()));
 	}
 
@@ -929,7 +929,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	public T trace() {
 		T t = getField().getZero();
 		for (int i = 0; i < Math.min(m, n); i++) {
-			t = t.add(get(i, i));
+			t = t.plus(get(i, i));
 		}
 		return t;
 	}
@@ -961,8 +961,8 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 	 * @return An m-by-n matrix with ones on the diagonal and zeros elsewhere.
 	 */
 
-	public static <T extends FieldValue<T> & Comparable<T> & Serializable> Matrix<T> identity(int m, int n, Field<T> field) {
-		final Matrix<T> A = new Matrix<T>(m, n);
+	public static <T extends FieldValue<T> & Comparable<T> & Serializable> MatrixImpl<T> identity(int m, int n, Field<T> field) {
+		final MatrixImpl<T> A = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				A.set(i, j, i == j ? field.getOne() : field.getZero());
@@ -1123,7 +1123,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 
 	/** Check if size(A) == size(B) **/
 
-	private void checkMatrixDimensions(Matrix<T> B) {
+	private void checkMatrixDimensions(MatrixImpl<T> B) {
 		if (B.m != m || B.n != n) {
 			throw new IllegalArgumentException("Matrix dimensions must agree.");
 		}
@@ -1184,7 +1184,7 @@ public class Matrix<T extends FieldValue<T> & Comparable<T> & Serializable> impl
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Matrix<?> other = (Matrix<?>) obj;
+		MatrixImpl<?> other = (MatrixImpl<?>) obj;
 		if (m != other.m)
 			return false;
 		if (n != other.n)

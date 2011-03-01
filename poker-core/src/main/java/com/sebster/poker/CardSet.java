@@ -1,5 +1,6 @@
 package com.sebster.poker;
 
+import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -10,12 +11,20 @@ import java.util.NavigableSet;
 import net.jcip.annotations.Immutable;
 
 import com.sebster.poker.util.Combinatorics;
+import com.sebster.util.ArrayUtils;
 import com.sebster.util.LinearOrder;
 
+import edu.umd.cs.findbugs.annotations.SuppressWarnings;
+
 @Immutable
-public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, NavigableSet<Card> {
+public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, NavigableSet<Card>, Serializable {
+
+	private static final long serialVersionUID = 6615016694702661720L;
 
 	protected final Card[] cards;
+
+	@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached computation")
+	private transient int hash;
 
 	/**
 	 * Create a new card set from the specified cards. A defensive copy is made
@@ -30,6 +39,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		if (cards == null) {
 			throw new NullPointerException("cards");
 		}
+
 		if (cards.length == 0) {
 			throw new IllegalArgumentException("cards is empty");
 		}
@@ -43,9 +53,8 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 				throw new IllegalArgumentException("cards contains null at index " + i);
 			}
 		}
-
 		// Sort and check for duplicate cards.
-		Arrays.sort(cards);
+		ArrayUtils.insertionSort(cards);
 		for (int i = 1; i < cards.length; i++) {
 			if (cards[i] == cards[i - 1]) {
 				throw new IllegalArgumentException("cards contains duplicate card " + cards[i]);
@@ -118,7 +127,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 			throw new IllegalArgumentException("size <= 0");
 		}
 		if (size > 8) {
-			throw new UnsupportedOperationException("card set too big to be indexed");
+			throw new UnsupportedOperationException("card set too big to be indexed (size > 8)");
 		}
 
 		final Card[] cards = new Card[size];
@@ -128,7 +137,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 			// Binary search.
 			int low = 0, high = a.length;
 			while (low + 1 != high) {
-				final int mid = (low + high) >>> 1;
+				final int mid = low + high >>> 1;
 				if (a[mid] > index) {
 					high = mid;
 				} else {
@@ -180,7 +189,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 * @return the string representation of the card set
 	 */
 	@Override
-	public String toString() {
+	public final String toString() {
 		final StringBuilder buffer = new StringBuilder(first().getShortName());
 		final int size = cards.length;
 		for (int i = 1; i < size; i++) {
@@ -243,7 +252,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 *            the size of the card sets
 	 * @return the number of different card sets with the specified size
 	 */
-	public static int numberOfSets(int size) {
+	public static int numberOfSets(final int size) {
 		if (size <= 0) {
 			throw new IllegalArgumentException("size <= 0");
 		}
@@ -263,12 +272,12 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 */
 	public int getIndex() {
 		if (size() > 8) {
-			throw new UnsupportedOperationException("card set too big to be indexed");
+			throw new UnsupportedOperationException("card set too big to be indexed (size > 8)");
 		}
 		final int size = cards.length;
 		int index = 0, offset = 0;
 		for (int i = 0; i < size; i++) {
-			int first = cards[i].ordinal() - offset;
+			final int first = cards[i].ordinal() - offset;
 			index += INDEXES[offset][size - 1 - i][first];
 			offset += first + 1;
 		}
@@ -321,7 +330,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 * @throws IllegalArgumentException
 	 *             if {@literal index < 0 or index >= size()}
 	 */
-	public Card get(final int index) {
+	public final Card get(final int index) {
 		try {
 			return cards[index];
 		} catch (final ArrayIndexOutOfBoundsException e) {
@@ -335,23 +344,21 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public int compareTo(final CardSet other) {
-		final int size = cards.length;
-		final int otherSize = other.cards.length;
-		if (size == otherSize) {
-			for (int i = 0; i < size; i++) {
-				final int c = cards[i].compareTo(other.cards[i]);
-				if (c != 0) {
-					return c;
-				}
-			}
-			return 0;
+	public final int compareTo(final CardSet cardSet) {
+		if (cards.length != cardSet.cards.length) {
+			return cards.length < cardSet.cards.length ? -1 : 1;
 		}
-		return size < otherSize ? -1 : 1;
+		for (int i = 0; i < cards.length; i++) {
+			final int c = cards[i].compareTo(cardSet.cards[i]);
+			if (c != 0) {
+				return c;
+			}
+		}
+		return 0;
 	}
 
 	@Override
-	public Card[] toArray() {
+	public final Card[] toArray() {
 		// Defensive copy.
 		return cards.clone();
 	}
@@ -399,10 +406,9 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	 *         specified card set, <code>false</code> otherwise
 	 */
 	public boolean intersects(final CardSet cardSet) {
-		final int size = cards.length, otherSize = cardSet.cards.length;
 		int i = 0, j = 0;
-		while (i < size && j < otherSize) {
-			int k = cards[i].compareTo(cardSet.cards[j]);
+		while (i < cards.length && j < cardSet.cards.length) {
+			final int k = cards[i].compareTo(cardSet.cards[j]);
 			if (k == 0) {
 				return true;
 			}
@@ -416,44 +422,44 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public Card first() {
+	public final Card first() {
 		return cards[0];
 	}
 
 	@Override
-	public Card last() {
+	public final Card last() {
 		return cards[cards.length - 1];
 	}
 
 	@Override
-	public NavigableSet<Card> headSet(final Card toElement) {
+	public final NavigableSet<Card> headSet(final Card toElement) {
 		return headSet(toElement, false);
 	}
 
 	@Override
-	public NavigableSet<Card> headSet(final Card toElement, final boolean inclusive) {
+	public final NavigableSet<Card> headSet(final Card toElement, final boolean inclusive) {
 		// FIXME implement
 		throw new AssertionError("not implemented yet");
 	}
 
 	@Override
-	public NavigableSet<Card> subSet(final Card fromElement, final Card toElement) {
+	public final NavigableSet<Card> subSet(final Card fromElement, final Card toElement) {
 		return subSet(toElement, true, fromElement, false);
 	}
 
 	@Override
-	public NavigableSet<Card> subSet(final Card fromElement, final boolean fromInclusive, final Card toElement, final boolean toInclusive) {
+	public final NavigableSet<Card> subSet(final Card fromElement, final boolean fromInclusive, final Card toElement, final boolean toInclusive) {
 		// FIXME implement
 		throw new AssertionError("not implemented yet");
 	}
 
 	@Override
-	public NavigableSet<Card> tailSet(final Card fromElement) {
+	public final NavigableSet<Card> tailSet(final Card fromElement) {
 		return tailSet(fromElement, true);
 	}
 
 	@Override
-	public NavigableSet<Card> tailSet(final Card fromElement, final boolean inclusive) {
+	public final NavigableSet<Card> tailSet(final Card fromElement, final boolean inclusive) {
 		// FIXME implement
 		throw new AssertionError("not implemented yet");
 	}
@@ -465,14 +471,14 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public Card lower(final Card e) {
+	public final Card lower(final Card e) {
 		int i = Arrays.binarySearch(cards, e);
 		i = i < 0 ? -(i + 2) : i - 1;
 		return i < 0 ? null : cards[i];
 	}
 
 	@Override
-	public Card floor(final Card e) {
+	public final Card floor(final Card e) {
 		int i = Arrays.binarySearch(cards, e);
 		if (i < 0) {
 			i = -(i + 2);
@@ -482,14 +488,14 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public Card higher(final Card e) {
+	public final Card higher(final Card e) {
 		int i = Arrays.binarySearch(cards, e);
 		i = i < 0 ? -(i + 1) : i + 1;
 		return i < cards.length ? cards[i] : null;
 	}
 
 	@Override
-	public Card ceiling(final Card e) {
+	public final Card ceiling(final Card e) {
 		int i = Arrays.binarySearch(cards, e);
 		if (i < 0) {
 			i = -(i + 1);
@@ -506,22 +512,22 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		// A card set is never empty.
 		return false;
 	}
 
 	@Override
-	public Iterator<Card> iterator() {
+	public final Iterator<Card> iterator() {
 		return new CardsIterator();
 	}
 
 	@Override
-	public Iterator<Card> descendingIterator() {
+	public final Iterator<Card> descendingIterator() {
 		return new ReverseCardsIterator();
 	}
 
-	public Iterable<Card> descendingIterable() {
+	public final Iterable<Card> descendingIterable() {
 		return new Iterable<Card>() {
 			@Override
 			public Iterator<Card> iterator() {
@@ -530,7 +536,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		};
 	}
 
-	class CardsIterator implements Iterator<Card> {
+	private final class CardsIterator implements Iterator<Card> {
 
 		private int i = 0;
 
@@ -551,7 +557,7 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 	}
 
-	class ReverseCardsIterator implements Iterator<Card> {
+	private final class ReverseCardsIterator implements Iterator<Card> {
 
 		private int i = cards.length;
 
@@ -567,14 +573,15 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 
 		@Override
 		public void remove() {
+			// Immutable.
 			throw new UnsupportedOperationException();
 		}
 
 	}
 
 	@Override
-	public Comparator<? super Card> comparator() {
-		// Natural order of the cards.
+	public final Comparator<? super Card> comparator() {
+		// Return null to use the natural order of the cards.
 		return null;
 	}
 
@@ -587,11 +594,10 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 			return false;
 		}
 		final CardSet other = (CardSet) object;
-		final int size = cards.length;
-		if (size != other.cards.length) {
+		if (cards.length != other.cards.length) {
 			return false;
 		}
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < cards.length; i++) {
 			if (cards[i] != other.cards[i]) {
 				return false;
 			}
@@ -600,66 +606,69 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 	}
 
 	@Override
-	public int hashCode() {
-		final int size = cards.length;
-		int result = 1;
-		for (int i = 0; i < size; i++) {
-			result = result * 31 + cards[i].getRank().ordinal();
+	public final int hashCode() {
+		if (hash == 0) {
+			final int size = cards.length;
+			int result = 1;
+			for (int i = 0; i < size; i++) {
+				result = result * 31 + cards[i].getRank().ordinal();
+			}
+			hash = result;
 		}
-		return result;
+		return hash;
 	}
 
 	@Override
-	public boolean add(final Card card) {
+	public final boolean add(final Card card) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean addAll(final Collection<? extends Card> collection) {
+	public final boolean addAll(final Collection<? extends Card> collection) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean remove(final Object object) {
+	public final boolean remove(final Object object) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean removeAll(final Collection<?> collection) {
+	public final boolean removeAll(final Collection<?> collection) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public boolean retainAll(final Collection<?> collection) {
+	public final boolean retainAll(final Collection<?> collection) {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Card pollFirst() {
+	public final Card pollFirst() {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Card pollLast() {
+	public final Card pollLast() {
 		// Immutable.
 		throw new UnsupportedOperationException();
 	}
 
-	protected static final int[][][] INDEXES;
+	private static final int[][][] INDEXES;
 
-	protected static final int[] NUMBER_OF_SETS;
+	private static final int[] NUMBER_OF_SETS;
 
 	static {
 		INDEXES = new int[52][][];
@@ -679,6 +688,10 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		for (int i = 0; i < NUMBER_OF_SETS.length; i++) {
 			NUMBER_OF_SETS[i] = Combinatorics.combinations(52, i + 1);
 		}
+	}
+
+	protected final Object readResolve() {
+		return getInstance(cards);
 	}
 
 }

@@ -67,7 +67,7 @@ public class Tableaux {
 			Rational minRatio = null;
 			for (int i = 0; i < m; i++) {
 				if (solved[i][pivotColumn].signum() > 0) {
-					Rational ratio = solved[i][n + m].divide(solved[i][pivotColumn]);
+					Rational ratio = solved[i][n + m].dividedBy(solved[i][pivotColumn]);
 					if (minRatio == null || ratio.compareTo(minRatio) < 0) {
 						minRatio = ratio;
 						pivotRow = i;
@@ -90,7 +90,7 @@ public class Tableaux {
 			// Step 3, divide pivot row by pivot number.
 			final Rational pivotNumber = solved[pivotRow][pivotColumn];
 			for (int j = 0; j < n + m + 1; j++) {
-				solved[pivotRow][j] = solved[pivotRow][j].divide(pivotNumber);
+				solved[pivotRow][j] = solved[pivotRow][j].dividedBy(pivotNumber);
 			}
 
 			// Step 4, make all other pivot column values zero.
@@ -99,7 +99,7 @@ public class Tableaux {
 					continue;
 				Rational factor = solved[i][pivotColumn];
 				for (int j = 0; j < n + m + 1; j++) {
-					solved[i][j] = solved[i][j].subtract(solved[pivotRow][j].multiply(factor));
+					solved[i][j] = solved[i][j].minus(solved[pivotRow][j].times(factor));
 				}
 			}
 			
@@ -117,7 +117,7 @@ public class Tableaux {
 	}
 
 	public Rational getOptimum() {
-		return solved[m][n + m].negate();
+		return solved[m][n + m].opposite();
 	}
 
 	public int[] getBasis() {

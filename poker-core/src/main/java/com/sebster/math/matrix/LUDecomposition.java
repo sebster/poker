@@ -1,4 +1,4 @@
-package com.sebster.math.rational.matrix;
+package com.sebster.math.matrix;
 
 import java.io.Serializable;
 
@@ -29,7 +29,7 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	 * 
 	 * @serial internal array storage.
 	 */
-	private Matrix<T> LU;
+	private MatrixImpl<T> LU;
 
 	/**
 	 * Row and column dimensions, and pivot sign.
@@ -59,7 +59,7 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	 * @return Structure to access L, U and piv.
 	 */
 
-	public LUDecomposition(Matrix<T> A) {
+	public LUDecomposition(MatrixImpl<T> A) {
 
 		// Use a "left-looking", dot-product, Crout/Doolittle algorithm.
 
@@ -85,10 +85,10 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 				int kmax = Math.min(i, j);
 				T s = LU.getField().getZero();
 				for (int k = 0; k < kmax; k++) {
-					s = s.add(LU.get(i, k).multiply(LU.get(k, j)));
+					s = s.plus(LU.get(i, k).times(LU.get(k, j)));
 				}
 
-				LU.set(i, j, LU.get(i, j).subtract(s));
+				LU.set(i, j, LU.get(i, j).minus(s));
 			}
 
 			// Find pivot and exchange if necessary.
@@ -115,7 +115,7 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 
 			if (j < m & LU.get(j, j).signum() != 0) {
 				for (int i = j + 1; i < m; i++) {
-					LU.set(i, j, LU.get(i, j).divide(LU.get(j, j)));
+					LU.set(i, j, LU.get(i, j).dividedBy(LU.get(j, j)));
 				}
 			}
 		}
@@ -168,8 +168,8 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	 * @return L
 	 */
 
-	public Matrix<T> getL() {
-		Matrix<T> X = new Matrix<T>(m, n);
+	public MatrixImpl<T> getL() {
+		MatrixImpl<T> X = new MatrixImpl<T>(m, n);
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i > j) {
@@ -190,8 +190,8 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	 * @return U
 	 */
 
-	public Matrix<T> getU() {
-		Matrix<T> X = new Matrix<T>(n, n);
+	public MatrixImpl<T> getU() {
+		MatrixImpl<T> X = new MatrixImpl<T>(n, n);
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (i <= j) {
@@ -245,9 +245,9 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 			throw new IllegalArgumentException("Matrix must be square.");
 		}
 		final Field<T> field = LU.getField();
-		T d = pivsign == 0 ? field.getZero() : (pivsign > 0 ? field.getOne() : field.getOne().negate());
+		T d = pivsign == 0 ? field.getZero() : (pivsign > 0 ? field.getOne() : field.getOne().opposite());
 		for (int j = 0; j < n; j++) {
-			d = d.multiply(LU.get(j, j));
+			d = d.times(LU.get(j, j));
 		}
 		return d;
 	}
@@ -264,7 +264,7 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 	 *                Matrix is singular.
 	 */
 
-	public Matrix<T> solve(Matrix<T> B) {
+	public MatrixImpl<T> solve(MatrixImpl<T> B) {
 		if (B.getRowDimension() != m) {
 			throw new IllegalArgumentException("Matrix row dimensions must agree.");
 		}
@@ -274,24 +274,24 @@ public class LUDecomposition<T extends FieldValue<T> & Comparable<T> & Serializa
 
 		// Copy right hand side with pivoting
 		int nx = B.getColumnDimension();
-		Matrix<T> X = B.getMatrix(piv, 0, nx - 1);
+		MatrixImpl<T> X = B.getMatrix(piv, 0, nx - 1);
 
 		// Solve L*Y = B(piv,:)
 		for (int k = 0; k < n; k++) {
 			for (int i = k + 1; i < n; i++) {
 				for (int j = 0; j < nx; j++) {
-					X.set(i, j, X.get(i, j).subtract(X.get(k, j).multiply(LU.get(i, k))));
+					X.set(i, j, X.get(i, j).minus(X.get(k, j).times(LU.get(i, k))));
 				}
 			}
 		}
 		// Solve U*X = Y;
 		for (int k = n - 1; k >= 0; k--) {
 			for (int j = 0; j < nx; j++) {
-				X.set(k, j, X.get(k, j).divide(LU.get(k, k)));
+				X.set(k, j, X.get(k, j).dividedBy(LU.get(k, k)));
 			}
 			for (int i = 0; i < k; i++) {
 				for (int j = 0; j < nx; j++) {
-					X.set(i, j, X.get(i, j).subtract(X.get(k, j).multiply(LU.get(i, k))));
+					X.set(i, j, X.get(i, j).minus(X.get(k, j).times(LU.get(i, k))));
 				}
 			}
 		}

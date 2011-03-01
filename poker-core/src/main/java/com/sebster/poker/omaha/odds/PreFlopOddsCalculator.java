@@ -15,6 +15,7 @@ import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
+import com.sebster.util.ArrayUtils;
 
 public class PreFlopOddsCalculator {
 
@@ -33,15 +34,20 @@ public class PreFlopOddsCalculator {
 	 */
 	private final int[][] udata;
 
+	/**
+	 * Save the last hole indexes for caching purposes.
+	 */
+	private final int[] udataIndexes;
+
 	private int lastExpandTime;
 
 	private int lastCompareTime;
 
 	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
-		this(db, new int[36][Constants.BOARD_COUNT_52]);
+		this(db, new int[36][Constants.BOARD_COUNT_52], ArrayUtils.constantArray(36, -1));
 	}
 
-	public PreFlopOddsCalculator(final CompressedHandValueDB db, int[][] udata) {
+	public PreFlopOddsCalculator(final CompressedHandValueDB db, final int[][] udata, final int[] udataIndexes) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
@@ -58,6 +64,7 @@ public class PreFlopOddsCalculator {
 		}
 		this.db = db;
 		this.udata = udata;
+		this.udataIndexes = udataIndexes;
 	}
 
 	public final Odds[] calculateOdds(final Hole4[] holes) {
@@ -89,14 +96,23 @@ public class PreFlopOddsCalculator {
 		final long t1 = System.currentTimeMillis();
 
 		// Decompress the hands.
-		for (int i = 0; i < num2Holes; i++) {
+		nh: for (int i = 0; i < num2Holes; i++) {
+			final int holeIndex = holeIndexes[i];
+			for (int j = i; j < udataIndexes.length; j++) {
+				if (udataIndexes[j] == holeIndex) {
+					ArrayUtils.swap(udata, i, j);
+					ArrayUtils.swap(udataIndexes, i, j);
+					continue nh;
+				}
+			}
 			db.expand(holeIndexes[i], udata[i]);
+			udataIndexes[i] = holeIndexes[i];
 		}
 
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
-		int[] max2 = new int[numHoles];
+		final int[] max2 = new int[numHoles];
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
 			for (int j = 0; j < num2Holes; j++) {
 				if (udata[j][i] < 0) {
@@ -222,6 +238,6 @@ public class PreFlopOddsCalculator {
 			}
 		}
 
-		System.out.println("avg expand=" + (totalExpandTime / 100) + " avg compare=" + (totalCompareTime / 100) + " avg total=" + (totalTime / 100) + " ms");
+		System.out.println("avg expand=" + totalExpandTime / 100 + " avg compare=" + totalCompareTime / 100 + " avg total=" + totalTime / 100 + " ms");
 	}
 }

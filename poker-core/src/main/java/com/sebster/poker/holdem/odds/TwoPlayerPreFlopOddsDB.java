@@ -90,14 +90,14 @@ public class TwoPlayerPreFlopOddsDB {
 		// Make sure the first suit is clubs.
 		Suit suit0 = cards[0].getSuit();
 		if (suit0 != Suit.CLUBS) {
-			Utils.permuteSuits(cards, suit0, Suit.CLUBS);
+			Utils.swapSuits(cards, suit0, Suit.CLUBS);
 			suit0 = Suit.CLUBS;
 		}
 
 		// Make sure the seconds suit is clubs or diamonds.
 		Suit suit1 = cards[1].getSuit();
 		if (suit1 != Suit.CLUBS && suit1 != Suit.DIAMONDS) {
-			Utils.permuteSuits(cards, suit1, Suit.DIAMONDS);
+			Utils.swapSuits(cards, suit1, Suit.DIAMONDS);
 			suit1 = Suit.DIAMONDS;
 		}
 
@@ -110,7 +110,7 @@ public class TwoPlayerPreFlopOddsDB {
 			 * the second hand (because it contains at most 2 suits different
 			 * from the clubs and we already have hearts and spades).
 			 */
-			Utils.permuteSuits(cards, (suit2 != Suit.HEARTS && suit3 != Suit.HEARTS) ? Suit.HEARTS : Suit.SPADES, Suit.DIAMONDS);
+			Utils.swapSuits(cards, (suit2 != Suit.HEARTS && suit3 != Suit.HEARTS) ? Suit.HEARTS : Suit.SPADES, Suit.DIAMONDS);
 			suit2 = cards[2].getSuit();
 			suit3 = cards[3].getSuit();
 		}
@@ -120,7 +120,7 @@ public class TwoPlayerPreFlopOddsDB {
 			 * If there is a heart AND a spade we can always permute the suits
 			 * so that the heart is first.
 			 */
-			Utils.permuteSuits(cards, Suit.HEARTS, Suit.SPADES);
+			Utils.swapSuits(cards, Suit.HEARTS, Suit.SPADES);
 			suit2 = Suit.HEARTS;
 			suit3 = Suit.SPADES;
 		} else if (suit2 != Suit.HEARTS && suit3 != Suit.HEARTS && (suit2 == Suit.SPADES || suit3 == Suit.SPADES)) {
@@ -128,14 +128,14 @@ public class TwoPlayerPreFlopOddsDB {
 			 * If there is no heart and a spade we can always permute the suits
 			 * so that the spade becomes a heart.
 			 */
-			Utils.permuteSuits(cards, Suit.HEARTS, Suit.SPADES);
+			Utils.swapSuits(cards, Suit.HEARTS, Suit.SPADES);
 			suit2 = cards[2].getSuit();
 			suit3 = cards[3].getSuit();
 		}
 
 		// If the second hand is suited, we don't need spades.
 		if (suit2 == suit3 && suit2 == Suit.SPADES) {
-			Utils.permuteSuits(cards, Suit.HEARTS, Suit.SPADES);
+			Utils.swapSuits(cards, Suit.HEARTS, Suit.SPADES);
 			suit2 = suit3 = Suit.HEARTS;
 		}
 		/*
@@ -143,7 +143,7 @@ public class TwoPlayerPreFlopOddsDB {
 		 * club, we can permute the pair and switch clubs and diamonds.
 		 */
 		if (cards[0].getRank() == cards[1].getRank() && (suit2 != Suit.CLUBS && suit3 != Suit.CLUBS && (suit2 == Suit.DIAMONDS || suit3 == Suit.DIAMONDS))) {
-			Utils.permuteSuits(cards, Suit.CLUBS, Suit.DIAMONDS);
+			Utils.swapSuits(cards, Suit.CLUBS, Suit.DIAMONDS);
 			ArrayUtils.swap(cards, 0, 1);
 		}
 

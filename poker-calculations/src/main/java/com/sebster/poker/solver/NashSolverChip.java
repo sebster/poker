@@ -4,8 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.gametheory.nash.NashEquilibrium;
+import com.sebster.math.matrix.MatrixImpl;
 import com.sebster.math.rational.Rational;
-import com.sebster.math.rational.matrix.Matrix;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.holdem.AllinOrFoldStrategy;
 import com.sebster.poker.holdem.MixedAllinOrFoldStrategy;
@@ -20,15 +20,15 @@ public class NashSolverChip {
 	private final static int VERSION = 4;
 	
 	public static NashResult calculateNashEquilibrium(final int effectiveStack, final int bigBlind) {
-		final Matrix<Rational> E = new Matrix<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
+		final MatrixImpl<Rational> E = new MatrixImpl<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
 		E.set(0, 0, Rational.ONE);
 		for (int i = 0; i < 169; i++) {
-			E.set(i + 1, 0, Rational.ONE.negate());
+			E.set(i + 1, 0, Rational.ONE.opposite());
 			E.set(i + 1, 2 * i + 1, Rational.ONE);
 			E.set(i + 1, 2 * i + 2, Rational.ONE);
 		}
 		
-		final Matrix<Rational> A = new Matrix<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
+		final MatrixImpl<Rational> A = new MatrixImpl<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
 		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
 		for (final HoleCategory hc1 : HoleCategory.values()) {
 			for (final HoleCategory hc2 : HoleCategory.values()) {
@@ -40,14 +40,14 @@ public class NashSolverChip {
 				final Rational hc1Prob = hc1.getProbability();
 				final Rational hc1hc2Prob = db.getProbability(hc1, hc2);
 				
-				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack)));
-				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(bigBlind));
-				A.set(p1FoldRow, 0, hc1Prob.multiply(bigBlind).divide(-2));
+				A.set(p1PushRow, p2CallCol, hc1hc2Prob.times(odds.getWinProbability().minus(odds.getLossProbability()).times(effectiveStack)));
+				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.times(bigBlind));
+				A.set(p1FoldRow, 0, hc1Prob.times(bigBlind).dividedBy(-2));
 			}
 		}
 		
-		final Pair<Matrix<Rational>, Matrix<Rational>> p = NashEquilibrium.solve(E, E, A, A.uminus());
-		final Matrix<Rational> x = p.getFirst(), y = p.getSecond();
+		final Pair<MatrixImpl<Rational>, MatrixImpl<Rational>> p = NashEquilibrium.solve(E, E, A, A.uminus());
+		final MatrixImpl<Rational> x = p.getFirst(), y = p.getSecond();
 		final MixedAllinOrFoldStrategy p1Strategy = new MixedAllinOrFoldStrategy();
 		final MixedAllinOrFoldStrategy p2Strategy = new MixedAllinOrFoldStrategy();
 		for (final HoleCategory hc : HoleCategory.values()) {

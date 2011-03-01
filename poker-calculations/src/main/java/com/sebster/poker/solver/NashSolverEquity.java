@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.sebster.gametheory.nash.NashEquilibrium;
+import com.sebster.math.matrix.MatrixImpl;
 import com.sebster.math.rational.Rational;
-import com.sebster.math.rational.matrix.Matrix;
 import com.sebster.poker.HoleCategory;
 import com.sebster.poker.holdem.AllinOrFoldStrategy;
 import com.sebster.poker.holdem.MixedAllinOrFoldStrategy;
@@ -30,18 +30,19 @@ public class NashSolverEquity {
 		final int sbPos = stacks.length - 2;
 		final int bbPos = stacks.length - 1;
 		final Rational effectiveStack = stacks[sbPos].min(stacks[bbPos]);
-		final Rational smallBlind = bigBlind.divide(2);
+		final Rational smallBlind = bigBlind.dividedBy(2);
 		
-		final Matrix<Rational> E = new Matrix<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
+		final MatrixImpl<Rational> E = new MatrixImpl<Rational>(1 + 169, 1 + 2 * 169, Rational.ZERO);
 		E.set(0, 0, Rational.ONE);
 		for (int i = 0; i < 169; i++) {
-			E.set(i + 1, 0, Rational.ONE.negate());
+			E.set(i + 1, 0, Rational.ONE.opposite());
 			E.set(i + 1, 2 * i + 1, Rational.ONE);
 			E.set(i + 1, 2 * i + 2, Rational.ONE);
 		}
 		
-		final Matrix<Rational> A = new Matrix<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
-		final Matrix<Rational> B = new Matrix<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
+		// FIXME calculate equities only once outside loop.
+		final MatrixImpl<Rational> A = new MatrixImpl<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
+		final MatrixImpl<Rational> B = new MatrixImpl<Rational>(1 + 169 * 2, 1 + 169 * 2, Rational.ZERO);
 		final Rational[] newStacks = stacks.clone();
 		Rational[] newEquities;
 		final TwoPlayerPreFlopHoleCategoryOddsDB db = TwoPlayerPreFlopHoleCategoryOddsDB.getInstance();
@@ -56,31 +57,32 @@ public class NashSolverEquity {
 				final Rational hc1hc2Prob = db.getProbability(hc1, hc2);
 		
 				// Push-call.
-				final Rational chipDelta = odds.getWinProbability().subtract(odds.getLossProbability()).multiply(effectiveStack);
-				newStacks[sbPos] = stacks[sbPos].add(chipDelta);
-				newStacks[bbPos] = stacks[bbPos].subtract(chipDelta);
+				// FIXME is this correct?
+				final Rational chipDelta = odds.getWinProbability().minus(odds.getLossProbability()).times(effectiveStack);
+				newStacks[sbPos] = stacks[sbPos].plus(chipDelta);
+				newStacks[bbPos] = stacks[bbPos].minus(chipDelta);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
-				B.set(p1PushRow, p2CallCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
+				A.set(p1PushRow, p2CallCol, hc1hc2Prob.times(newEquities[sbPos].minus(equities[sbPos])));
+				B.set(p1PushRow, p2CallCol, hc1hc2Prob.times(newEquities[bbPos].minus(equities[bbPos])));
 				
 				// Push-fold.
-				newStacks[sbPos] = stacks[sbPos].add(bigBlind);
-				newStacks[bbPos] = stacks[bbPos].subtract(bigBlind);
+				newStacks[sbPos] = stacks[sbPos].plus(bigBlind);
+				newStacks[bbPos] = stacks[bbPos].minus(bigBlind);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
-				B.set(p1PushRow, p2FoldCol, hc1hc2Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
+				A.set(p1PushRow, p2FoldCol, hc1hc2Prob.times(newEquities[sbPos].minus(equities[sbPos])));
+				B.set(p1PushRow, p2FoldCol, hc1hc2Prob.times(newEquities[bbPos].minus(equities[bbPos])));
 
 				// Fold.
-				newStacks[sbPos] = stacks[sbPos].subtract(smallBlind);
-				newStacks[bbPos] = stacks[bbPos].add(smallBlind);
+				newStacks[sbPos] = stacks[sbPos].minus(smallBlind);
+				newStacks[bbPos] = stacks[bbPos].plus(smallBlind);
 				newEquities = EquityCalculator.calculateEquities(newStacks, payouts, IndependentChipModel.INSTANCE);
-				A.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[sbPos].subtract(equities[sbPos])));
-				B.set(p1FoldRow, 0, hc1Prob.multiply(newEquities[bbPos].subtract(equities[bbPos])));
+				A.set(p1FoldRow, 0, hc1Prob.times(newEquities[sbPos].minus(equities[sbPos])));
+				B.set(p1FoldRow, 0, hc1Prob.times(newEquities[bbPos].minus(equities[bbPos])));
 			}
 		}
 		
-		final Pair<Matrix<Rational>, Matrix<Rational>> p = NashEquilibrium.solve(E, E, A, B, threads);
-		final Matrix<Rational> x = p.getFirst(), y = p.getSecond();
+		final Pair<MatrixImpl<Rational>, MatrixImpl<Rational>> p = NashEquilibrium.solve(E, E, A, B, threads);
+		final MatrixImpl<Rational> x = p.getFirst(), y = p.getSecond();
 		final MixedAllinOrFoldStrategy p1Strategy = new MixedAllinOrFoldStrategy();
 		final MixedAllinOrFoldStrategy p2Strategy = new MixedAllinOrFoldStrategy();
 		for (final HoleCategory hc : HoleCategory.values()) {
