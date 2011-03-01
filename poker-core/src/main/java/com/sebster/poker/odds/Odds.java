@@ -1,7 +1,10 @@
 package com.sebster.poker.odds;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
+
 import com.sebster.math.rational.Rational;
 
+// TODO add double methods in addition to rational methods for probability and equity
 public abstract class Odds implements Comparable<Odds> {
 
 	/**
@@ -17,31 +20,31 @@ public abstract class Odds implements Comparable<Odds> {
 
 	public abstract int getMaxN();
 
-	public Rational getNWaySplitProbability(final int n) {
+	public final Rational getNWaySplitProbability(final int n) {
 		return new Rational(getNWaySplits(n), getTotal());
 	}
 
-	public int getLosses() {
+	public final int getLosses() {
 		return getNWaySplits(0);
 	}
 
-	public Rational getLossProbability() {
+	public final Rational getLossProbability() {
 		return new Rational(getLosses(), getTotal());
 	}
 
-	public int getWins() {
+	public final int getWins() {
 		return getNWaySplits(1);
 	}
 
-	public Rational getWinProbability() {
+	public final Rational getWinProbability() {
 		return new Rational(getWins(), getTotal());
 	}
 
-	public int getSplits() {
+	public final int getSplits() {
 		return getTotal() - getWins() - getLosses();
 	}
 
-	public Rational getSplitProbability() {
+	public final Rational getSplitProbability() {
 		return new Rational(getSplits(), getTotal());
 	}
 
@@ -53,10 +56,10 @@ public abstract class Odds implements Comparable<Odds> {
 		return total;
 	}
 
-	public Rational getEquity() {
+	public final Rational getEquity() {
 		Rational equity = Rational.ZERO;
 		for (int n = getMaxN(); n > 0; n--) {
-			equity = equity.add(getNWaySplitProbability(n).divide(n));
+			equity = equity.plus(getNWaySplitProbability(n).dividedBy(n));
 		}
 		return equity;
 	}
@@ -76,8 +79,40 @@ public abstract class Odds implements Comparable<Odds> {
 	}
 
 	@Override
-	public int compareTo(final Odds odds) {
+	public final int compareTo(final Odds odds) {
 		return getEquity().compareTo(odds.getEquity());
+	}
+
+	@Override
+	public final int hashCode() {
+		final HashCodeBuilder builder = new HashCodeBuilder();
+		final int maxN = getMaxN();
+		builder.append(maxN);
+		for (int n = 0; n < maxN; n++) {
+			builder.append(getNWaySplits(n));
+		}
+		return builder.toHashCode();
+	}
+
+	@Override
+	public final boolean equals(final Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (!(object instanceof Odds)) {
+			return false;
+		}
+		final Odds other = (Odds) object;
+		final int maxN = getMaxN();
+		if (maxN != other.getMaxN()) {
+			return false;
+		}
+		for (int n = 0; n < maxN; n++) {
+			if (getNWaySplits(n) != other.getNWaySplits(n)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 }

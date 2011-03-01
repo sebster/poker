@@ -1,6 +1,8 @@
 package com.sebster.poker.odds;
 
+import net.jcip.annotations.Immutable;
 
+@Immutable
 public class TwoPlayerOdds extends Odds {
 
 	private final int wins;
