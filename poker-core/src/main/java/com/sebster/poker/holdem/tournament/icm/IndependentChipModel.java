@@ -8,7 +8,12 @@ public enum IndependentChipModel implements ChipModel {
 	
 	@Override
 	public Rational getWinProbability(final Rational[] stacks, final Rational chips, final int player) {
-		return stacks[player].divide(chips);
+		return stacks[player].dividedBy(chips);
+	}
+
+	@Override
+	public double getWinProbabilityAsDouble(final int[] stacks, final int chips, final int player) {
+		return stacks[player] / (double) chips;
 	}
 
 }
