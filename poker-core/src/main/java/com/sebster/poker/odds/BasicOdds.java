@@ -2,7 +2,9 @@ package com.sebster.poker.odds;
 
 import java.util.Arrays;
 
+import net.jcip.annotations.Immutable;
 
+@Immutable
 public class BasicOdds extends Odds {
 
 	private final int[] nWaySplits;
