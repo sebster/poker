@@ -9,7 +9,7 @@ public final class Utils {
 		// Utility class.
 	}
 
-	public static void permuteSuits(final Card[] cards, final Suit suit1, final Suit suit2) {
+	public static void swapSuits(final Card[] cards, final Suit suit1, final Suit suit2) {
 		for (int i = 0; i < cards.length; i++) {
 			final Card card = cards[i];
 			final Suit suit = card.getSuit();
@@ -20,5 +20,5 @@ public final class Utils {
 			}
 		}
 	}
-
+	
 }
