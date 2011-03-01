@@ -12,9 +12,15 @@ public class Validate {
 		}
 	}
 
+	public static void notNull(final Object value) {
+		if (value == null) {
+			throw new NullPointerException();
+		}
+	}
+
 	public static void notNull(final Object value, final String message) {
 		if (value == null) {
-			throw new IllegalArgumentException(message);
+			throw new NullPointerException(message);
 		}
 	}
 	
