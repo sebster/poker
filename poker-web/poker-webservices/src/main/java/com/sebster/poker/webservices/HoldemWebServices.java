@@ -31,7 +31,7 @@ public class HoldemWebServices {
 	private final CompressedHandValueDB db;
 
 	private final ExecutorService executor;
-	
+
 	private final DecompressBufferHolder decompressBufferHolder;
 
 	private final ThreadLocal<PreFlopOddsCalculator> calculator = new ThreadLocal<PreFlopOddsCalculator>();
@@ -54,7 +54,7 @@ public class HoldemWebServices {
 
 		// Initialize holder of decompress buffers.
 		this.decompressBufferHolder = decompressBufferHolder;
-		
+
 		// Initialize the cache.
 		cache = new LRUMap(cacheSize);
 	}
@@ -107,7 +107,7 @@ public class HoldemWebServices {
 			final long t1 = System.currentTimeMillis();
 			PreFlopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
 			if (calculator == null) {
-				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer());
+				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer(), decompressBufferHolder.getIndexes());
 				HoldemWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);

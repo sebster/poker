@@ -96,7 +96,7 @@ public class OmahaWebServices {
 			final long t1 = System.currentTimeMillis();
 			PreFlopOddsCalculator calculator = OmahaWebServices.this.calculator.get();
 			if (calculator == null) {
-				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer());
+				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer(), decompressBufferHolder.getIndexes());
 				OmahaWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
