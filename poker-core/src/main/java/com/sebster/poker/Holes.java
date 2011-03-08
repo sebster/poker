@@ -10,30 +10,25 @@ public final class Holes {
 		// Utility class.
 	}
 
-	public static IndexedHole[] normalize(final Hole... holes) {
-		final IndexedHole[] indexedHoles = new IndexedHole[holes.length];
-		for (int h = 0; h < holes.length; h++) {
-			indexedHoles[h] = new IndexedHole(holes[h], h);
-		}
-		ArrayUtils.insertionSort(indexedHoles, IndexedHoleRankComparator.INSTANCE);
+	public static int[] normalize(final Hole[] holes) {
+		final int[] indexes = ArrayUtils.trackedInsertionSort(holes, HoleRankComparator.INSTANCE);
 		final Permutation permutation = new Permutation();
-		for (final IndexedHole indexedHole : indexedHoles) {
-			permutation.fix(indexedHole.getHole());
+		for (final Hole hole : holes) {
+			permutation.fix(hole);
 			if (permutation.isFixed()) {
 				break;
 			}
 		}
-		permutation.applyTo(indexedHoles);
-		return indexedHoles;
+		permutation.applyTo(holes);
+		return indexes;
 	}
 
-	private static enum IndexedHoleRankComparator implements Comparator<IndexedHole> {
+	private static enum HoleRankComparator implements Comparator<Hole> {
 
 		INSTANCE;
 
 		@Override
-		public int compare(final IndexedHole indexedHole1, final IndexedHole indexedHole2) {
-			final Hole hole1 = indexedHole1.getHole(), hole2 = indexedHole2.getHole();
+		public int compare(final Hole hole1, final Hole hole2) {
 			final int c = hole1.getFirst().getRank().compareTo(hole2.getFirst().getRank());
 			if (c != 0) {
 				return c;
@@ -47,11 +42,11 @@ public final class Holes {
 
 		private final int[] choices = new int[] { 0x0f, 0x0f, 0x0f, 0x0f };
 
-		public void applyTo(final IndexedHole[] indexedHoles) {
+		public void applyTo(final Hole[] holes) {
 			final int[] permutation = asArray();
 			final Suit[] suits = Suit.values();
-			for (final IndexedHole indexedHole : indexedHoles) {
-				final Hole hole = indexedHole.getHole();
+			for (int i = 0; i < holes.length; i++) {
+				final Hole hole = holes[i];
 				final Card card1 = hole.getFirst(), card2 = hole.getSecond();
 				final int suit1 = card1.getSuit().ordinal(), newSuit1 = permutation[suit1];
 				final int suit2 = card2.getSuit().ordinal(), newSuit2 = permutation[suit2];
@@ -59,7 +54,7 @@ public final class Holes {
 				if (suit1Changed || suit2Changed) {
 					final Card newCard1 = suit1Changed ? Card.byRankAndSuit(card1.getRank(), suits[newSuit1]) : card1;
 					final Card newCard2 = suit2Changed ? Card.byRankAndSuit(card2.getRank(), suits[newSuit2]) : card2;
-					indexedHole.setHole(Hole.getInstance(newCard1, newCard2));
+					holes[i] = Hole.getInstance(newCard1, newCard2);
 				}
 			}
 		}

@@ -6,7 +6,7 @@ import org.junit.Test;
 import com.sebster.poker.Hole;
 import com.sebster.poker.odds.Odds;
 
-public class PreflopOddsDBTest {
+public class PreflopHoleOddsDatabaseTest {
 
 	@Test
 	public void testAllHands() {
@@ -15,7 +15,7 @@ public class PreflopOddsDBTest {
 			Hole hole2 = Hole.firstHole();
 			while (hole2 != null) {
 				if (!hole1.intersects(hole2)) {
-					final Odds[] odds = PreFlopOddsDB.getTwoPlayerDB().getOdds(hole1, hole2);
+					final Odds[] odds = PreflopHoleOddsDatabase.getTwoPlayerDatabase().getOdds(hole1, hole2);
 					final Odds oldOdds1 = TwoPlayerPreFlopOddsDB.getInstance().getOdds(hole1, hole2);
 					Assert.assertEquals(oldOdds1, odds[0]);
 					final Odds oldOdds2 = TwoPlayerPreFlopOddsDB.getInstance().getOdds(hole2, hole1);

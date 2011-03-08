@@ -590,30 +590,17 @@ public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, 
 		if (this == object) {
 			return true;
 		}
-		if (!(object instanceof CardSet)) {
-			return false;
+		if (object instanceof CardSet) {
+			final CardSet other = (CardSet) object;
+			return Arrays.equals(cards, other.cards);
 		}
-		final CardSet other = (CardSet) object;
-		if (cards.length != other.cards.length) {
-			return false;
-		}
-		for (int i = 0; i < cards.length; i++) {
-			if (cards[i] != other.cards[i]) {
-				return false;
-			}
-		}
-		return true;
+		return false;
 	}
 
 	@Override
 	public final int hashCode() {
 		if (hash == 0) {
-			final int size = cards.length;
-			int result = 1;
-			for (int i = 0; i < size; i++) {
-				result = result * 31 + cards[i].getRank().ordinal();
-			}
-			hash = result;
+			hash = Arrays.hashCode(cards);
 		}
 		return hash;
 	}

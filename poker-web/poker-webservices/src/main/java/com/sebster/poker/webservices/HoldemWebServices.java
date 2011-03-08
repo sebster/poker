@@ -3,8 +3,6 @@ package com.sebster.poker.webservices;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -18,11 +16,12 @@ import org.slf4j.LoggerFactory;
 import com.sebster.poker.Card;
 import com.sebster.poker.Hole;
 import com.sebster.poker.holdem.odds.PostFlopOddsCalculator;
-import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
+import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
 import com.sebster.poker.odds.TwoPlayerOdds;
+import com.sebster.util.arrays.ObjectArrayWrapper;
 
 public class HoldemWebServices {
 
@@ -32,13 +31,11 @@ public class HoldemWebServices {
 
 	private final ExecutorService executor;
 
-	private final DecompressBufferHolder decompressBufferHolder;
-
-	private final ThreadLocal<PreFlopOddsCalculator> calculator = new ThreadLocal<PreFlopOddsCalculator>();
+	private final ThreadLocal<PreflopOddsCalculator> calculator = new ThreadLocal<PreflopOddsCalculator>();
 
 	private final LRUMap cache;
 
-	public HoldemWebServices(final String dbPath, final int cacheSize, final ExecutorService exector, final DecompressBufferHolder decompressBufferHolder) throws IOException {
+	public HoldemWebServices(final String dbPath, final int cacheSize, final ExecutorService exector) throws IOException {
 
 		// Initialize compressed hand value db.
 		InputStream in = null;
@@ -51,9 +48,6 @@ public class HoldemWebServices {
 
 		// Initialize task thread pool.
 		this.executor = exector;
-
-		// Initialize holder of decompress buffers.
-		this.decompressBufferHolder = decompressBufferHolder;
 
 		// Initialize the cache.
 		cache = new LRUMap(cacheSize);
@@ -74,7 +68,7 @@ public class HoldemWebServices {
 				}
 				return new Odds[] { odds, odds.reverse() };
 			}
-			final List<Hole> key = Arrays.asList(holes);
+			final ObjectArrayWrapper<Hole> key = new ObjectArrayWrapper<Hole>(holes);
 			synchronized (cache) {
 				final Odds[] result = (Odds[]) cache.get(key);
 				if (result != null) {
@@ -105,15 +99,15 @@ public class HoldemWebServices {
 		@Override
 		public Odds[] call() throws Exception {
 			final long t1 = System.currentTimeMillis();
-			PreFlopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
+			PreflopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
 			if (calculator == null) {
-				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer(), decompressBufferHolder.getIndexes());
+				calculator = new PreflopOddsCalculator(db);
 				HoldemWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
 			final long t2 = System.currentTimeMillis();
 			if (logger.isDebugEnabled()) {
-				logger.debug("{} player odds calculated in {} ms, expand in {} ms, compare in {} ms", new Object[] { holes.length, t2 - t1, calculator.getLastExpandTime(), calculator.getLastCompareTime() });
+				logger.debug("{} player odds calculated in {} ms, expand in {} ms, expand cache hits {}, compare in {} ms", new Object[] { holes.length, t2 - t1, calculator.getLastExpandTime(), calculator.getLastExpandCacheHits(), calculator.getLastCompareTime() });
 			}
 			return odds;
 		}

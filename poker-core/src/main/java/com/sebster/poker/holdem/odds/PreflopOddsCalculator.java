@@ -19,53 +19,36 @@ import com.sebster.poker.odds.Odds;
 import com.sebster.util.ArrayUtils;
 
 @NotThreadSafe
-public class PreFlopOddsCalculator {
-
-	private static final boolean COUNT_LOSSES = false;
+public class PreflopOddsCalculator {
 
 	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
 
-	/**
-	 * The compressed hand value database.
-	 */
 	private final CompressedHandValueDB db;
 
 	/**
 	 * The uncompressed hand value arrays for up to 10 hands.
 	 */
-	private final int[][] udata;
+	private final int[][] udata = new int[10][Constants.BOARD_COUNT_52];
 
 	/**
-	 * Save the last hole indexes for caching purposes.
+	 * The hole indexes of the uncompressed hand value arrays. This allows a
+	 * check to see if a required hole index is already present, in which case
+	 * it does not need to be uncompressed.
 	 */
-	private final int[] udataIndexes;
+	private final int[] udataIndexes = new int[10];
 
 	private int lastExpandTime;
 
+	private int lastExpandCacheHits;
+
 	private int lastCompareTime;
 
-	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
-		this(db, new int[10][Constants.BOARD_COUNT_52], ArrayUtils.constantArray(10, -1));
-	}
-
-	public PreFlopOddsCalculator(final CompressedHandValueDB db, final int[][] udata, final int[] udataIndexes) {
+	public PreflopOddsCalculator(final CompressedHandValueDB db) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
-		if (udata == null) {
-			throw new NullPointerException("udata");
-		}
-		if (udata.length < 10) {
-			throw new IllegalArgumentException("udata must have at least length 10");
-		}
-		for (int i = 0; i < 10; i++) {
-			if (udata[i].length < Constants.BOARD_COUNT_52) {
-				throw new IllegalArgumentException("udata[" + i + "] must have at least length " + Constants.BOARD_COUNT_52);
-			}
-		}
 		this.db = db;
-		this.udata = udata;
-		this.udataIndexes = udataIndexes;
+		Arrays.fill(udataIndexes, -1);
 	}
 
 	public final Odds[] calculateOdds(final Hole[] holes) {
@@ -87,75 +70,85 @@ public class PreFlopOddsCalculator {
 		}
 
 		final int[][] udata = this.udata;
+		final int[] udataIndexes = this.udataIndexes;
 		final int[][] nWaySplits = new int[numHoles][numHoles + 1];
 
 		final long t1 = System.currentTimeMillis();
 
 		// Decompress the hands.
+		lastExpandCacheHits = 0;
 		nh: for (int i = 0; i < numHoles; i++) {
 			final int holeIndex = holeIndexes[i];
-			for (int j = i; j < udataIndexes.length; j++) {
+			// Scan the current udata for the specified hole.
+			for (int j = i; j < 10; j++) {
 				if (udataIndexes[j] == holeIndex) {
-					ArrayUtils.swap(udata, i, j);
-					ArrayUtils.swap(udataIndexes, i, j);
+					// Found cached decomressed hand.
+					lastExpandCacheHits++;
+					if (i != j) {
+						// Make sure it's in the correct place.
+						ArrayUtils.swap(udata, i, j);
+						ArrayUtils.swap(udataIndexes, i, j);
+					}
 					continue nh;
 				}
 			}
-			db.expand(holeIndexes[i], udata[i]);
-			udataIndexes[i] = holeIndexes[i];
+			// No cached hand, decompress.
+			db.expand(holeIndex, udata[i]);
+			udataIndexes[i] = holeIndex;
 		}
 
 		final long t2 = System.currentTimeMillis();
 
 		// Compare.
 		nb: for (int i = 0; i < Constants.BOARD_COUNT_52; i++) {
+			// First check if the board intersects any of the holes.
 			for (int j = 0; j < numHoles; j++) {
 				if (udata[j][i] < 0) {
-					// Invalid board.
+					// Board intersects hole, skip board.
 					continue nb;
 				}
 			}
+			// Find the maximum hand value, and the number of times it occurs.
 			int max = 0, count = 0;
 			for (int j = 0; j < numHoles; j++) {
 				final int v = udata[j][i];
 				if (v < max) {
-					// Do nothing.
+					// Losing hand.
 				} else if (v > max) {
 					// New winning hand.
 					max = v;
 					count = 1;
 				} else if (v == max) {
-					// Split.
+					// Split with current winning hand.
 					count++;
 				}
 			}
+			// Count the win/split for the winning hands.
 			for (int j = 0; j < numHoles; j++) {
 				if (udata[j][i] == max) {
+					// Count win/split.
 					nWaySplits[j][count]++;
-				} else {
-					if (COUNT_LOSSES) {
-						nWaySplits[j][0]++;
-					}
 				}
 			}
 		}
 
 		final long t3 = System.currentTimeMillis();
 
+		// Record the expand and compare times.
 		lastExpandTime = (int) (t2 - t1);
 		lastCompareTime = (int) (t3 - t2);
 
-		// Create return value.
+		// Create the return value.
 		final Odds[] odds = new Odds[numHoles];
 		for (int i = 0; i < numHoles; i++) {
 			final int[] nWaySplitsI = nWaySplits[i];
-			if (!COUNT_LOSSES) {
-				int k = Constants.getHole2BoardCount(numHoles);
-				for (int j = 1; j <= numHoles; j++) {
-					k -= nWaySplitsI[j];
-				}
-				nWaySplitsI[0] = k;
+			// Compute losses because they were not counted.
+			int k = Constants.getHole2BoardCount(numHoles);
+			for (int j = 1; j <= numHoles; j++) {
+				k -= nWaySplitsI[j];
 			}
+			nWaySplitsI[0] = k;
+			// Initialize the odds for this hole.
 			odds[i] = new BasicOdds(nWaySplitsI);
 		}
 		return odds;
@@ -163,6 +156,10 @@ public class PreFlopOddsCalculator {
 
 	public int getLastExpandTime() {
 		return lastExpandTime;
+	}
+
+	public int getLastExpandCacheHits() {
+		return lastExpandCacheHits;
 	}
 
 	public int getLastCompareTime() {
@@ -185,7 +182,7 @@ public class PreFlopOddsCalculator {
 		final CompressedHandValueDB db = new CompressedHandValueDB(in);
 		in.close();
 
-		final PreFlopOddsCalculator calculator = new PreFlopOddsCalculator(db);
+		final PreflopOddsCalculator calculator = new PreflopOddsCalculator(db);
 
 		final Random random = new Random();
 		final Deck deck = new Deck(random);

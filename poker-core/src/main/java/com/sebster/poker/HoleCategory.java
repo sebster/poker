@@ -37,13 +37,13 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	}
 
 	public int getSize() {
-		return isSuited() ? 4 : (isPair() ? 6 : 12);
+		return isSuited() ? 4 : isPair() ? 6 : 12;
 	}
 
 	public Rational getProbability() {
 		return new Rational(getSize(), Constants.HOLE_COUNT);
 	}
-	
+
 	public double getProbabilityAsDouble() {
 		return getSize() / (double) Constants.HOLE_COUNT;
 	}
@@ -66,7 +66,7 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	 * 
 	 * @return the first hole category
 	 */
-	public HoleCategory first() {
+	public static HoleCategory first() {
 		return values()[0];
 	}
 
@@ -75,7 +75,7 @@ public enum HoleCategory implements LinearOrder<HoleCategory> {
 	 * 
 	 * @return the last hole category
 	 */
-	public HoleCategory last() {
+	public static HoleCategory last() {
 		return values()[values().length - 1];
 	}
 

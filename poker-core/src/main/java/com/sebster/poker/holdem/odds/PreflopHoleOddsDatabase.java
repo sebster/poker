@@ -14,32 +14,30 @@ import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Hole;
 import com.sebster.poker.Holes;
-import com.sebster.poker.IndexedHole;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 import com.sebster.util.arrays.ShortArrayWrapper;
 
-public class PreFlopOddsDB {
+public class PreflopHoleOddsDatabase {
 
-	private static final Logger logger = LoggerFactory.getLogger(PreFlopOddsDB.class);
+	private static final Logger logger = LoggerFactory.getLogger(PreflopHoleOddsDatabase.class);
 
 	public static final String DB_RESOURCE_NAME = "holdem_%sp_preflop_full.db";
 
-	/*
-	 * Initialize-on-demand holder class idiom.
-	 */
-	private static class TwoPlayerDBHolder {
-
-		public static final PreFlopOddsDB db = getInstance(2);
-
+	private static class TwoPlayerDatabaseHolder {
+		static final PreflopHoleOddsDatabase db = loadDatabase(2);
 	}
 
-	private static final PreFlopOddsDB getInstance(final int players) {
+	private static class ThreePlayerDatabaseHolder {
+		static final PreflopHoleOddsDatabase db = loadDatabase(3);
+	}
+
+	private static final PreflopHoleOddsDatabase loadDatabase(final int players) {
 		InputStream in = null;
 		try {
-			in = PreFlopOddsDB.class.getResourceAsStream(String.format(DB_RESOURCE_NAME, players));
-			return new PreFlopOddsDB(in);
+			in = PreflopHoleOddsDatabase.class.getResourceAsStream(String.format(DB_RESOURCE_NAME, players));
+			return new PreflopHoleOddsDatabase(in);
 		} catch (final IOException e) {
 			// Should not happen.
 			throw new RuntimeException(e);
@@ -48,30 +46,39 @@ public class PreFlopOddsDB {
 		}
 	}
 
-	public static final PreFlopOddsDB getTwoPlayerDB() {
-		return TwoPlayerDBHolder.db;
+	public static final PreflopHoleOddsDatabase getTwoPlayerDatabase() {
+		return TwoPlayerDatabaseHolder.db;
+	}
+
+	public static final PreflopHoleOddsDatabase getThreePlayerDatabase() {
+		return ThreePlayerDatabaseHolder.db;
+	}
+
+	public static final PreflopHoleOddsDatabase getDatabase(final int players) {
+		switch (players) {
+		case 2:
+			return getTwoPlayerDatabase();
+		case 3:
+			return getThreePlayerDatabase();
+		default:
+			throw new UnsupportedOperationException("no database available for " + players + " players");
+		}
 	}
 
 	private final int players;
 
 	private final Map<ShortArrayWrapper, Odds[]> oddsMap;
 
-	public PreFlopOddsDB(final InputStream in) throws IOException {
+	public PreflopHoleOddsDatabase(final InputStream in) throws IOException {
 		final long t1 = System.currentTimeMillis();
 		final DataInputStream dis = new DataInputStream(new BufferedInputStream(new GZIPInputStream(in)));
 		this.players = dis.readByte();
+		final int records = dis.readInt();
 		oddsMap = new HashMap<ShortArrayWrapper, Odds[]>();
-		while (true) {
+		for (int k = 0; k < records; k++) {
 			final short[] holes = new short[players];
 			final Odds[] odds = new Odds[players];
-			// Read first hole index.
-			holes[0] = dis.readShort();
-			if (holes[0] == -1) {
-				// This means EOF.
-				break;
-			}
-			for (int i = 1; i < players; i++) {
-				// Read remaining holes.
+			for (int i = 0; i < players; i++) {
 				holes[i] = dis.readShort();
 			}
 			for (int i = 0; i < players; i++) {
@@ -93,15 +100,16 @@ public class PreFlopOddsDB {
 		if (holes.length != players) {
 			throw new IllegalArgumentException("invalid number of holes: " + holes.length);
 		}
-		final IndexedHole[] indexedHoles = Holes.normalize(holes);
+		final Hole[] normalizedHoles = holes.clone();
+		final int[] indexes = Holes.normalize(normalizedHoles);
 		final short[] holeIndexes = new short[holes.length];
-		for (int h = 0; h < holes.length; h++) {
-			holeIndexes[h] = (short) indexedHoles[h].getHole().getIndex();
+		for (int h = 0; h < normalizedHoles.length; h++) {
+			holeIndexes[h] = (short) normalizedHoles[h].getIndex();
 		}
 		final Odds[] indexedOdds = oddsMap.get(new ShortArrayWrapper(holeIndexes));
 		final Odds[] odds = new Odds[holes.length];
-		for (int h = 0; h < holes.length; h++) {
-			odds[indexedHoles[h].getIndex()] = indexedOdds[h];
+		for (int h = 0; h < odds.length; h++) {
+			odds[indexes[h]] = indexedOdds[h];
 		}
 		return odds;
 	}

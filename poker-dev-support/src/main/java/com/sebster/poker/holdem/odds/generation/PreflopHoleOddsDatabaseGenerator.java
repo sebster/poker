@@ -1,18 +1,17 @@
 package com.sebster.poker.holdem.odds.generation;
 
 import java.io.BufferedInputStream;
-import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,24 +21,24 @@ import com.sebster.poker.CardSet;
 import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 import com.sebster.poker.Holes;
-import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
+import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
 import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
 import com.sebster.util.ArrayUtils;
 import com.sebster.util.arrays.ShortArrayWrapper;
 
-public class PreFlopOddsDBGenerator {
+public class PreflopHoleOddsDatabaseGenerator {
 
-	private static final Logger logger = LoggerFactory.getLogger(PreFlopOddsDBGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(PreflopHoleOddsDatabaseGenerator.class);
 
-	private final PreFlopOddsCalculator calculator;
+	private final PreflopOddsCalculator calculator;
 
 	private final int players;
 
 	private final String outputFileName;
 
-	public PreFlopOddsDBGenerator(final String compressedHandValueDBFileName, final String outputFileName, final int players) throws IOException {
+	public PreflopHoleOddsDatabaseGenerator(final String compressedHandValueDBFileName, final String outputFileName, final int players) throws IOException {
 		if (compressedHandValueDBFileName == null) {
 			logger.info("not using compressed hand value database: THIS IS SLOW!");
 			calculator = null;
@@ -48,7 +47,7 @@ public class PreFlopOddsDBGenerator {
 			final InputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(compressedHandValueDBFileName)));
 			final CompressedHandValueDB db = new CompressedHandValueDB(in);
 			in.close();
-			calculator = new PreFlopOddsCalculator(db);
+			calculator = new PreflopOddsCalculator(db);
 		}
 
 		this.players = players;
@@ -56,25 +55,27 @@ public class PreFlopOddsDBGenerator {
 	}
 
 	public void generate() throws FileNotFoundException, IOException {
-		logger.info("generating {} player preflop odds database to output file {}", players, outputFileName);
+		logger.info("generating {} player preflop hole odds database to output file {}", players, outputFileName);
 		final long t1 = System.currentTimeMillis();
 		final Set<ShortArrayWrapper> seen = new HashSet<ShortArrayWrapper>();
-		final DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(outputFileName)));
-		dos.writeByte(players);
-		iterateHands(dos, seen, 0, new Hole[players]);
-		dos.writeShort(-1);
-		dos.close();
+		final RandomAccessFile raf = new RandomAccessFile(new File(outputFileName), "rw");
+		raf.writeByte(players);
+		raf.writeInt(0);
+		iterateHands(raf, seen, 0, new Hole[players]);
+		raf.seek(1);
+		raf.writeInt(seen.size());
+		raf.close();
 		final long t2 = System.currentTimeMillis();
 		logger.info("generation complete: {} records, {} seconds", seen.size(), (t2 - t1) / 1000);
 	}
 
-	private void iterateHands(final DataOutputStream dos, final Set<ShortArrayWrapper> seen, final int index, final Hole[] holes) throws IOException {
+	private void iterateHands(final RandomAccessFile raf, final Set<ShortArrayWrapper> seen, final int index, final Hole[] holes) throws IOException {
 
 		if (index == holes.length) {
 			final Hole[] normalizedHoles = holes.clone();
 			Holes.normalize(normalizedHoles);
 			final short[] holeIndexes = new short[holes.length];
-			for (int h = 0; h < holes.length; h++) {
+			for (int h = 0; h < normalizedHoles.length; h++) {
 				holeIndexes[h] = (short) normalizedHoles[h].getIndex();
 			}
 			final ShortArrayWrapper key = new ShortArrayWrapper(holeIndexes);
@@ -82,11 +83,11 @@ public class PreFlopOddsDBGenerator {
 				final Odds[] odds = calculator != null ? calculator.calculateOdds(normalizedHoles) : calculateOdds(normalizedHoles);
 				seen.add(key);
 				for (int h = 0; h < holes.length; h++) {
-					dos.writeShort(holeIndexes[h]);
+					raf.writeShort(holeIndexes[h]);
 				}
 				for (int h = 0; h < holes.length; h++) {
 					for (int n = 0; n < holes.length; n++) {
-						dos.writeInt(odds[h].getNWaySplits(n + 1));
+						raf.writeInt(odds[h].getNWaySplits(n + 1));
 					}
 				}
 				logger.info("{}: {}", Arrays.toString(normalizedHoles), Arrays.toString(odds));
@@ -100,7 +101,7 @@ public class PreFlopOddsDBGenerator {
 				}
 				if (ok) {
 					holes[index] = hole;
-					iterateHands(dos, seen, index + 1, holes);
+					iterateHands(raf, seen, index + 1, holes);
 				}
 				hole = hole.next();
 			}
@@ -161,9 +162,10 @@ public class PreFlopOddsDBGenerator {
 
 	public static void main(final String[] args) throws IOException {
 		if (args.length != 2 && args.length != 3) {
-			System.err.println("usage: " + PreFlopOddsCalculator.class.getName() + " <players> <outpuFileName> [handValueDBFileName]");
+			System.err.println("usage: " + PreflopHoleOddsDatabaseGenerator.class.getName() + " <players> <outpuFileName> [handValueDBFileName]");
+			System.exit(1);
 		}
-		final PreFlopOddsDBGenerator generator = new PreFlopOddsDBGenerator(args.length == 3 ? args[2] : null, args[1], Integer.parseInt(args[0]));
+		final PreflopHoleOddsDatabaseGenerator generator = new PreflopHoleOddsDatabaseGenerator(args.length == 3 ? args[2] : null, args[1], Integer.parseInt(args[0]));
 		generator.generate();
 	}
 

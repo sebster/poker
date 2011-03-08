@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 
 import com.sebster.poker.Hole;
-import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
+import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
 
@@ -17,7 +17,7 @@ public class TestBaseLineJava {
 		DataInputStream dis = new DataInputStream(new FileInputStream(args[0]));
 
 		CompressedHandValueDB db = new CompressedHandValueDB(new GZIPInputStream(new FileInputStream(args[1])));
-		PreFlopOddsCalculator preflopOddsCalculator = new PreFlopOddsCalculator(db);
+		PreflopOddsCalculator preflopOddsCalculator = new PreflopOddsCalculator(db);
 		final int numHoles = dis.readInt();
 		int numRounds = dis.readInt();
 		numRounds = 120;

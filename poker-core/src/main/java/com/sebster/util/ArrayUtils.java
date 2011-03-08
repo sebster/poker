@@ -59,15 +59,24 @@ public class ArrayUtils {
 		array[j] = value;
 	}
 
+	public static void insertionSort(final int[] array) {
+		for (int i = 1; i < array.length; i++) {
+			// Insert array[i] into the sorted sub-array array[0..i-1].
+			final int value = array[i];
+			int j;
+			for (j = i - 1; j >= 0 && value < array[j]; j--) {
+				array[j + 1] = array[j];
+			}
+			array[j + 1] = value;
+		}
+	}
+
 	public static <T extends Comparable<? super T>> void insertionSort(final T[] array) {
 		for (int i = 1; i < array.length; i++) {
-			// Insert array[i] into the sorted sublist.
+			// Insert array[i] into the sorted sub-array array[0..i-1].
 			final T value = array[i];
 			int j;
-			for (j = i - 1; j >= 0; j--) {
-				if (value.compareTo(array[j]) >= 0) {
-					break;
-				}
+			for (j = i - 1; j >= 0 && value.compareTo(array[j]) < 0; j--) {
 				array[j + 1] = array[j];
 			}
 			array[j + 1] = value;
@@ -76,17 +85,62 @@ public class ArrayUtils {
 
 	public static <T> void insertionSort(final T[] array, final Comparator<? super T> comparator) {
 		for (int i = 1; i < array.length; i++) {
-			// Insert array[i] into the sorted sublist.
+			// Insert array[i] into the sorted sub-array array[0..i-1].
 			final T value = array[i];
 			int j;
-			for (j = i - 1; j >= 0; j--) {
-				if (comparator.compare(value, array[j]) >= 0) {
-					break;
-				}
+			for (j = i - 1; j >= 0 && comparator.compare(value, array[j]) < 0; j--) {
 				array[j + 1] = array[j];
 			}
 			array[j + 1] = value;
 		}
+	}
+
+	public static int[] trackedInsertionSort(final int[] array) {
+		final int[] indexes = new int[array.length];
+		for (int i = 1; i < array.length; i++) {
+			// Insert array[i] into the sorted sub-array array[0..i-1].
+			final int value = array[i];
+			int j;
+			for (j = i - 1; j >= 0 && value < array[j]; j--) {
+				array[j + 1] = array[j];
+				indexes[j + 1] = indexes[j];
+			}
+			array[j + 1] = value;
+			indexes[j + 1] = i;
+		}
+		return indexes;
+	}
+
+	public static <T extends Comparable<? super T>> int[] trackedInsertionSort(final T[] array) {
+		final int[] indexes = new int[array.length];
+		for (int i = 1; i < array.length; i++) {
+			// Insert array[i] into the sorted sub-array array[0..i-1].
+			final T value = array[i];
+			int j;
+			for (j = i - 1; j >= 0 && value.compareTo(array[j]) < 0; j--) {
+				array[j + 1] = array[j];
+				indexes[j + 1] = indexes[j];
+			}
+			array[j + 1] = value;
+			indexes[j + 1] = i;
+		}
+		return indexes;
+	}
+
+	public static <T> int[] trackedInsertionSort(final T[] array, final Comparator<? super T> comparator) {
+		final int[] indexes = new int[array.length];
+		for (int i = 1; i < array.length; i++) {
+			// Insert array[i] into the sorted sub-array array[0..i-1].
+			final T value = array[i];
+			int j;
+			for (j = i - 1; j >= 0 && comparator.compare(value, array[j]) < 0; j--) {
+				array[j + 1] = array[j];
+				indexes[j + 1] = indexes[j];
+			}
+			array[j + 1] = value;
+			indexes[j + 1] = i;
+		}
+		return indexes;
 	}
 
 	public static int max(final int... values) {

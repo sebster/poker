@@ -3,8 +3,6 @@ package com.sebster.poker.webservices;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -20,6 +18,7 @@ import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
 import com.sebster.poker.omaha.odds.PreFlopOddsCalculator;
+import com.sebster.util.arrays.ObjectArrayWrapper;
 
 public class OmahaWebServices {
 
@@ -28,14 +27,12 @@ public class OmahaWebServices {
 	private final CompressedHandValueDB db;
 
 	private final ExecutorService executor;
-	
-	private final DecompressBufferHolder decompressBufferHolder;
 
 	private final ThreadLocal<PreFlopOddsCalculator> calculator = new ThreadLocal<PreFlopOddsCalculator>();
 
 	private final LRUMap cache;
 
-	public OmahaWebServices(final String dbPath, final int cacheSize, final ExecutorService exector, final DecompressBufferHolder decompressBufferHolder) throws IOException {
+	public OmahaWebServices(final String dbPath, final int cacheSize, final ExecutorService exector) throws IOException {
 
 		// Initialize compressed hand value db.
 		InputStream in = null;
@@ -48,10 +45,7 @@ public class OmahaWebServices {
 
 		// Initialize task thread pool.
 		this.executor = exector;
-		
-		// Initialize holder of decompress buffers.
-		this.decompressBufferHolder = decompressBufferHolder;
-	
+
 		// Initialize the cache.
 		cache = new LRUMap(cacheSize);
 	}
@@ -62,7 +56,7 @@ public class OmahaWebServices {
 
 	public Odds[] calculateOdds(final Hole4[] holes, final Card[] board) throws InterruptedException, ExecutionException {
 		if (board == null || board.length == 0) {
-			final List<Hole4> key = Arrays.asList(holes);
+			final ObjectArrayWrapper<Hole4> key = new ObjectArrayWrapper<Hole4>(holes);
 			synchronized (cache) {
 				final Odds[] result = (Odds[]) cache.get(key);
 				if (result != null) {
@@ -79,7 +73,8 @@ public class OmahaWebServices {
 			return result;
 		} else {
 			throw new UnsupportedOperationException();
-//			return PostFlopOddsCalculator.getInstance().calculateOdds(holes, board);
+			// return PostFlopOddsCalculator.getInstance().calculateOdds(holes,
+			// board);
 		}
 	}
 
@@ -96,13 +91,13 @@ public class OmahaWebServices {
 			final long t1 = System.currentTimeMillis();
 			PreFlopOddsCalculator calculator = OmahaWebServices.this.calculator.get();
 			if (calculator == null) {
-				calculator = new PreFlopOddsCalculator(db, decompressBufferHolder.getBuffer(), decompressBufferHolder.getIndexes());
+				calculator = new PreFlopOddsCalculator(db);
 				OmahaWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
 			final long t2 = System.currentTimeMillis();
 			if (logger.isDebugEnabled()) {
-				logger.debug("{} player odds calculated in {} ms, expand in {} ms, compare in {} ms", new Object[] { holes.length, t2 - t1, calculator.getLastExpandTime(), calculator.getLastCompareTime() });
+				logger.debug("{} player odds calculated in {} ms, expand in {} ms, expand cache hits {}, compare in {} ms", new Object[] { holes.length, t2 - t1, calculator.getLastExpandTime(), calculator.getLastExpandCacheHits(), calculator.getLastCompareTime() });
 			}
 			return odds;
 		}

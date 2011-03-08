@@ -2,7 +2,7 @@ package com.sebster.poker.holdem.odds.generation;
 
 import java.io.IOException;
 
-import com.sebster.poker.holdem.odds.PreFlopOddsCalculator;
+import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
 
 public class CompressHandValueDB {
 
@@ -21,12 +21,12 @@ public class CompressHandValueDB {
 	 */
 	public static void main(final String[] args) throws IOException {
 
-		String input = GenerateHandValueDB.FILENAME;
+		String input = GenerateHandValueDB.DEFAULT_FILENAME;
 		if (args.length > 0) {
 			input = args[0];
 		}
 
-		String output = PreFlopOddsCalculator.DB_FILENAME;
+		String output = PreflopOddsCalculator.DB_FILENAME;
 		if (args.length > 1) {
 			output = args[1];
 		}

@@ -23,9 +23,10 @@ public class GenerateHandValueDB {
 	 */
 	public static final String FILENAME = "omaha_hand_value_db.bin.gz";
 
-	private static final int[][] combinations = {
+	private static final int[][] COMBINATIONS = {
 			{ 0, 1, 2 }, { 0, 1, 3 }, { 0, 1, 4 }, { 0, 2, 3 }, { 0, 2, 4 }, { 0, 3, 4 },
-			{ 1, 2, 3 }, { 1, 2, 4 }, { 1, 3, 4 }, { 2, 3, 4 }
+			{ 1, 2, 3 }, { 1, 2, 4 }, { 1, 3, 4 },
+			{ 2, 3, 4 }
 	};
 
 	/**
@@ -66,8 +67,7 @@ public class GenerateHandValueDB {
 								for (int o = n + 1; o < 52; o++) { // board 5
 									board[4] = Card.values()[o];
 									int maxValue = -1;
-									for (int p = 0; p < combinations.length; p++) {
-										int c[] = combinations[p];
+									for (final int[] c : COMBINATIONS) {
 										cards[0] = board[c[0]];
 										cards[1] = board[c[1]];
 										cards[2] = board[c[2]];

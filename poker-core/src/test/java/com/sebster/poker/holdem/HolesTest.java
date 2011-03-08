@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Hole;
 import com.sebster.poker.Holes;
-import com.sebster.poker.IndexedHole;
 import com.sebster.util.arrays.ShortArrayWrapper;
 import com.sebster.util.collections.ImmutablePair;
 import com.sebster.util.collections.Pair;
@@ -22,12 +21,18 @@ public class HolesTest {
 
 	@Test
 	public void testNormalize() {
-		Assert.assertArrayEquals(
-				new IndexedHole[] { new IndexedHole(Hole.fromString("2c,2d"), 0), new IndexedHole(Hole.fromString("2h,2s"), 1) },
-				Holes.normalize(Hole.fromString("2c,2h"), Hole.fromString("2d,2s")));
-		Assert.assertArrayEquals(
-				new IndexedHole[] { new IndexedHole(Hole.fromString("2c,2d"), 1), new IndexedHole(Hole.fromString("2h,3c"), 0) },
-				Holes.normalize(Hole.fromString("2c,3d"), Hole.fromString("2s,2d")));
+		Hole[] holes;
+		int[] indexes;
+
+		holes = new Hole[] { Hole.fromString("2c,2h"), Hole.fromString("2d,2s") };
+		indexes = Holes.normalize(holes);
+		Assert.assertArrayEquals(new Hole[] { Hole.fromString("2c,2d"), Hole.fromString("2h,2s") }, holes);
+		Assert.assertArrayEquals(new int[] { 0, 1 }, indexes);
+
+		holes = new Hole[] { Hole.fromString("2c,3d"), Hole.fromString("2s,2d") };
+		indexes = Holes.normalize(holes);
+		Assert.assertArrayEquals(new Hole[] { Hole.fromString("2c,2d"), Hole.fromString("2h,3c") }, holes);
+		Assert.assertArrayEquals(new int[] { 1, 0 }, indexes);
 	}
 
 	@Test
@@ -38,8 +43,9 @@ public class HolesTest {
 			Hole hole2 = hole1.next();
 			while (hole2 != null) {
 				if (!hole1.intersects(hole2)) {
-					final IndexedHole[] holeMatchup = Holes.normalize(hole1, hole2);
-					holeMatchups.add(new ImmutablePair<Hole, Hole>(holeMatchup[0].getHole(), holeMatchup[1].getHole()));
+					final Hole[] holes = new Hole[] { hole1, hole2 };
+					Holes.normalize(holes);
+					holeMatchups.add(new ImmutablePair<Hole, Hole>(holes[0], holes[1]));
 				}
 				hole2 = hole2.next();
 			}
@@ -61,11 +67,12 @@ public class HolesTest {
 					Hole hole3 = hole2.next();
 					while (hole3 != null) {
 						if (!hole1.intersects(hole3) && !hole2.intersects(hole3)) {
-							final IndexedHole[] holeMatchup = Holes.normalize(hole1, hole2, hole3);
+							final Hole[] holes = new Hole[] { hole1, hole2, hole3 };
+							Holes.normalize(holes);
 							holeMatchups.add(new ShortArrayWrapper(new short[] {
-									(short) holeMatchup[0].getHole().getIndex(),
-									(short) holeMatchup[1].getHole().getIndex(),
-									(short) holeMatchup[2].getHole().getIndex()
+									(short) holes[0].getIndex(),
+									(short) holes[1].getIndex(),
+									(short) holes[2].getIndex()
 							}));
 						}
 						hole3 = hole3.next();

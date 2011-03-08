@@ -21,7 +21,7 @@ public class GenerateHandValueDB {
 	/**
 	 * The default hand value database filename.
 	 */
-	public static final String FILENAME = "holdem_hand_value_db.bin.gz";
+	public static final String DEFAULT_FILENAME = "holdem_hand_value_db.bin.gz";
 
 	/**
 	 * Generate the hand value database of for every hole (starting hand) for
@@ -29,8 +29,8 @@ public class GenerateHandValueDB {
 	 * cards in the hole. For these invalid boards the hand value is set to -1.
 	 * This will generate a DB of 1326 times 2598960 integer hand values, for a
 	 * total of 12.8 GB of data. By default the DB will be saved to
-	 * "holdem_hand_values.dat.gz", but if an argument is given, that will be used as
-	 * the filename instead.
+	 * "holdem_hand_values.bin.gz", but if an argument is given, that will be
+	 * used as the filename instead.
 	 * 
 	 * @param args
 	 *            the output filename
@@ -38,7 +38,7 @@ public class GenerateHandValueDB {
 	 *             if an I/O exception occurs
 	 */
 	public static void main(final String[] args) throws IOException {
-		final String fileName = args.length == 0 ? FILENAME : args[0];
+		final String fileName = args.length == 0 ? DEFAULT_FILENAME : args[0];
 		final DataOutputStream dos = new DataOutputStream(new GZIPOutputStream(new BufferedOutputStream(new FileOutputStream(fileName))));
 		final Card[] cards = new Card[7];
 		final long t0 = System.currentTimeMillis();

@@ -1,5 +1,12 @@
-* use spring to create the beans?
 * make three player odds db for 3 player hands
+* best response for 3 players
+
+* fix matrix/vector classes
+* make double versions of rational methods
+* use own json-rpc library
+* figure out why new 2p odds calculator is slower than old version
+
+* use spring to create the beans?
 * make odds calculator for hole categories
 * make odds calculator for hand ranges
 * add ICM calculator service?

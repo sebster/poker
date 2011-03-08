@@ -5,7 +5,7 @@ import java.util.Arrays;
 import net.jcip.annotations.Immutable;
 
 @Immutable
-public class BasicOdds extends Odds {
+public final class BasicOdds extends Odds {
 
 	private final int[] nWaySplits;
 
@@ -14,6 +14,16 @@ public class BasicOdds extends Odds {
 	public BasicOdds(final int[] nWaySplits) {
 		this.nWaySplits = nWaySplits;
 		total = super.getTotal();
+	}
+
+	public BasicOdds(final Odds odds) {
+		int total = 0;
+		nWaySplits = new int[odds.getMaxN() + 1];
+		for (int n = 0; n < nWaySplits.length; n++) {
+			nWaySplits[n] = odds.getNWaySplits(n);
+			total += nWaySplits[n];
+		}
+		this.total = total;
 	}
 
 	@Override
