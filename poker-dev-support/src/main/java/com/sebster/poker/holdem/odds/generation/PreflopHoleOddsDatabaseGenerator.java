@@ -59,9 +59,10 @@ public class PreflopHoleOddsDatabaseGenerator {
 		final long t1 = System.currentTimeMillis();
 		final Set<ShortArrayWrapper> seen = new HashSet<ShortArrayWrapper>();
 		final RandomAccessFile raf = new RandomAccessFile(new File(outputFileName), "rw");
+		final long length = raf.length();
 		raf.writeByte(players);
 		raf.writeInt(0);
-		iterateHands(raf, seen, 0, new Hole[players]);
+		iterateHands(raf, length, seen, 0, new Hole[players]);
 		raf.seek(1);
 		raf.writeInt(seen.size());
 		raf.close();
@@ -69,7 +70,7 @@ public class PreflopHoleOddsDatabaseGenerator {
 		logger.info("generation complete: {} records, {} seconds", seen.size(), (t2 - t1) / 1000);
 	}
 
-	private void iterateHands(final RandomAccessFile raf, final Set<ShortArrayWrapper> seen, final int index, final Hole[] holes) throws IOException {
+	private void iterateHands(final RandomAccessFile raf, final long length, final Set<ShortArrayWrapper> seen, final int index, final Hole[] holes) throws IOException {
 
 		if (index == holes.length) {
 			final Hole[] normalizedHoles = holes.clone();
@@ -80,17 +81,23 @@ public class PreflopHoleOddsDatabaseGenerator {
 			}
 			final ShortArrayWrapper key = new ShortArrayWrapper(holeIndexes);
 			if (!seen.contains(key)) {
-				final Odds[] odds = calculator != null ? calculator.calculateOdds(normalizedHoles) : calculateOdds(normalizedHoles);
 				seen.add(key);
-				for (int h = 0; h < holes.length; h++) {
-					raf.writeShort(holeIndexes[h]);
-				}
-				for (int h = 0; h < holes.length; h++) {
-					for (int n = 0; n < holes.length; n++) {
-						raf.writeInt(odds[h].getNWaySplits(n + 1));
+				final long pos = raf.getFilePointer();
+				final long bytes = 2 * holes.length + 4 * holes.length * holes.length;
+				if (pos + bytes > length) {
+					final Odds[] odds = calculator != null ? calculator.calculateOdds(normalizedHoles) : calculateOdds(normalizedHoles);
+					for (int h = 0; h < holes.length; h++) {
+						raf.writeShort(holeIndexes[h]);
 					}
+					for (int h = 0; h < holes.length; h++) {
+						for (int n = 0; n < holes.length; n++) {
+							raf.writeInt(odds[h].getNWaySplits(n + 1));
+						}
+					}
+					logger.info("{}: {}", Arrays.toString(normalizedHoles), Arrays.toString(odds));
+				} else {
+					raf.seek(pos + bytes);
 				}
-				logger.info("{}: {}", Arrays.toString(normalizedHoles), Arrays.toString(odds));
 			}
 		} else {
 			Hole hole = index == 0 ? Hole.firstHole() : holes[index - 1].next();
@@ -101,7 +108,7 @@ public class PreflopHoleOddsDatabaseGenerator {
 				}
 				if (ok) {
 					holes[index] = hole;
-					iterateHands(raf, seen, index + 1, holes);
+					iterateHands(raf, length, seen, index + 1, holes);
 				}
 				hole = hole.next();
 			}
