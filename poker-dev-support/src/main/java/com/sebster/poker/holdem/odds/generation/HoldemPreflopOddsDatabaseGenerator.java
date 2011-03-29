@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.zip.GZIPInputStream;
@@ -16,38 +15,35 @@ import java.util.zip.GZIPInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sebster.poker.Card;
-import com.sebster.poker.CardSet;
-import com.sebster.poker.Combination;
 import com.sebster.poker.Hole;
 import com.sebster.poker.Holes;
-import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
-import com.sebster.poker.odds.BasicOdds;
-import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.holdem.odds.FastHoldemPreflopOddsCalculator;
+import com.sebster.poker.holdem.odds.HoldemPreflopOddsCalculator;
+import com.sebster.poker.holdem.odds.SimpleHoldemPreflopOddsCalculator;
+import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Odds;
-import com.sebster.util.ArrayUtils;
 import com.sebster.util.arrays.ShortArrayWrapper;
 
-public class PreflopHoleOddsDatabaseGenerator {
+public class HoldemPreflopOddsDatabaseGenerator {
 
-	private static final Logger logger = LoggerFactory.getLogger(PreflopHoleOddsDatabaseGenerator.class);
+	private static final Logger logger = LoggerFactory.getLogger(HoldemPreflopOddsDatabaseGenerator.class);
 
-	private final PreflopOddsCalculator calculator;
+	private final HoldemPreflopOddsCalculator calculator;
 
 	private final int players;
 
 	private final String outputFileName;
 
-	public PreflopHoleOddsDatabaseGenerator(final String compressedHandValueDBFileName, final String outputFileName, final int players) throws IOException {
+	public HoldemPreflopOddsDatabaseGenerator(final String compressedHandValueDBFileName, final String outputFileName, final int players) throws IOException {
 		if (compressedHandValueDBFileName == null) {
 			logger.info("not using compressed hand value database: THIS IS SLOW!");
-			calculator = null;
+			calculator = new SimpleHoldemPreflopOddsCalculator();
 		} else {
 			logger.info("reading compressed hand value database from {}", compressedHandValueDBFileName);
 			final InputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(compressedHandValueDBFileName)));
-			final CompressedHandValueDB db = new CompressedHandValueDB(in);
+			final CompressedHandValueDatabase db = new CompressedHandValueDatabase(in);
 			in.close();
-			calculator = new PreflopOddsCalculator(db);
+			calculator = new FastHoldemPreflopOddsCalculator(db);
 		}
 
 		this.players = players;
@@ -60,10 +56,9 @@ public class PreflopHoleOddsDatabaseGenerator {
 		final Set<ShortArrayWrapper> seen = new HashSet<ShortArrayWrapper>();
 		final RandomAccessFile raf = new RandomAccessFile(new File(outputFileName), "rw");
 		final long length = raf.length();
-		raf.writeByte(players);
 		raf.writeInt(0);
 		iterateHands(raf, length, seen, 0, new Hole[players]);
-		raf.seek(1);
+		raf.seek(0);
 		raf.writeInt(seen.size());
 		raf.close();
 		final long t2 = System.currentTimeMillis();
@@ -85,7 +80,7 @@ public class PreflopHoleOddsDatabaseGenerator {
 				final long pos = raf.getFilePointer();
 				final long bytes = 2 * holes.length + 4 * holes.length * holes.length;
 				if (pos + bytes > length) {
-					final Odds[] odds = calculator != null ? calculator.calculateOdds(normalizedHoles) : calculateOdds(normalizedHoles);
+					final Odds[] odds = calculator.calculateOdds(normalizedHoles);
 					for (int h = 0; h < holes.length; h++) {
 						raf.writeShort(holeIndexes[h]);
 					}
@@ -116,63 +111,12 @@ public class PreflopHoleOddsDatabaseGenerator {
 
 	}
 
-	private Odds[] calculateOdds(final Hole[] holes) {
-		final EnumSet<Card> deckSet = EnumSet.allOf(Card.class);
-		for (final Hole hole : holes) {
-			deckSet.remove(hole.get(0));
-			deckSet.remove(hole.get(1));
-		}
-		final int deckSize = deckSet.size();
-		final Card[] deck = deckSet.toArray(new Card[deckSize]);
-		final Card[] cards = new Card[7];
-		final int holeCount = holes.length;
-		final int[] handValues = new int[holeCount];
-		final int[][] nWaySplits = new int[holeCount][holeCount + 1];
-		int total = 0;
-		for (int i = 0; i < deckSize; i++) {
-			cards[2] = deck[i];
-			for (int j = i + 1; j < deckSize; j++) {
-				cards[3] = deck[j];
-				for (int k = j + 1; k < deckSize; k++) {
-					cards[4] = deck[k];
-					for (int l = k + 1; l < deckSize; l++) {
-						cards[5] = deck[l];
-						for (int m = l + 1; m < deckSize; m++) {
-							cards[6] = deck[m];
-							for (int h = 0; h < holeCount; h++) {
-								final Hole hole = holes[h];
-								cards[0] = hole.get(0);
-								cards[1] = hole.get(1);
-								handValues[h] = Combination.getHandValue(CardSet.fromCards(cards));
-							}
-							final int max = ArrayUtils.max(handValues);
-							final int count = ArrayUtils.count(handValues, max);
-							for (int h = 0; h < holeCount; h++) {
-								if (handValues[h] < max) {
-									nWaySplits[h][0]++;
-								} else {
-									nWaySplits[h][count]++;
-								}
-							}
-							total++;
-						}
-					}
-				}
-			}
-		}
-		final Odds[] odds = new Odds[holeCount];
-		for (int h = 0; h < holeCount; h++) {
-			odds[h] = new BasicOdds(nWaySplits[h]);
-		}
-		return odds;
-	}
-
 	public static void main(final String[] args) throws IOException {
 		if (args.length != 2 && args.length != 3) {
-			System.err.println("usage: " + PreflopHoleOddsDatabaseGenerator.class.getName() + " <players> <outpuFileName> [handValueDBFileName]");
+			System.err.println("usage: " + HoldemPreflopOddsDatabaseGenerator.class.getName() + " <players> <outpuFileName> [handValueDBFileName]");
 			System.exit(1);
 		}
-		final PreflopHoleOddsDatabaseGenerator generator = new PreflopHoleOddsDatabaseGenerator(args.length == 3 ? args[2] : null, args[1], Integer.parseInt(args[0]));
+		final HoldemPreflopOddsDatabaseGenerator generator = new HoldemPreflopOddsDatabaseGenerator(args.length == 3 ? args[2] : null, args[1], Integer.parseInt(args[0]));
 		generator.generate();
 	}
 
