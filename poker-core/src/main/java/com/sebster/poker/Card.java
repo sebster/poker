@@ -1,7 +1,5 @@
 package com.sebster.poker;
 
-import java.util.EnumMap;
-
 import com.sebster.util.LinearOrder;
 
 /**
@@ -63,21 +61,6 @@ public enum Card implements LinearOrder<Card> {
 	ACE_DIAMONDS(Rank.ACE, Suit.DIAMONDS),
 	ACE_HEARTS(Rank.ACE, Suit.HEARTS),
 	ACE_SPADES(Rank.ACE, Suit.SPADES);
-
-	/**
-	 * A map of the cards by their rank and suit.
-	 */
-	private static final EnumMap<Rank, EnumMap<Suit, Card>> BY_RANK_AND_SUIT;
-
-	static {
-		BY_RANK_AND_SUIT = new EnumMap<Rank, EnumMap<Suit, Card>>(Rank.class);
-		for (final Rank rank : Rank.values()) {
-			BY_RANK_AND_SUIT.put(rank, new EnumMap<Suit, Card>(Suit.class));
-		}
-		for (final Card card : Card.values()) {
-			BY_RANK_AND_SUIT.get(card.getRank()).put(card.getSuit(), card);
-		}
-	}
 
 	/**
 	 * The rank of the card.
@@ -196,7 +179,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the card with the specified rank and suit
 	 */
 	public static Card byRankAndSuit(final Rank rank, final Suit suit) {
-		return BY_RANK_AND_SUIT.get(rank).get(suit);
+		return values()[(rank.ordinal() << 2) + suit.ordinal()];
 	}
 
 	/**
