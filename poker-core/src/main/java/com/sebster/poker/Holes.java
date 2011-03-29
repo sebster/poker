@@ -11,39 +11,39 @@ public final class Holes {
 	}
 
 	public static int[] normalize(final Hole[] holes) {
-		final int[] indexes = ArrayUtils.trackedInsertionSort(holes, HoleRankComparator.INSTANCE);
-		final Permutation permutation = new Permutation();
+		final int[] indexes = ArrayUtils.trackedInsertionSort(holes, HoleByRankComparator.INSTANCE);
+		final SuitPermutation suitPermutation = new SuitPermutation();
 		for (final Hole hole : holes) {
-			permutation.fix(hole);
-			if (permutation.isFixed()) {
+			suitPermutation.fix(hole);
+			if (suitPermutation.isFixed()) {
 				break;
 			}
 		}
-		permutation.applyTo(holes);
+		suitPermutation.applyTo(holes);
 		return indexes;
 	}
 
-	private static enum HoleRankComparator implements Comparator<Hole> {
+	private static enum HoleByRankComparator implements Comparator<Hole> {
 
 		INSTANCE;
 
 		@Override
 		public int compare(final Hole hole1, final Hole hole2) {
-			final int c = hole1.getFirst().getRank().compareTo(hole2.getFirst().getRank());
+			final int c = hole1.getFirst().getRank().ordinal() - hole2.getFirst().getRank().ordinal();
 			if (c != 0) {
 				return c;
 			}
-			return hole1.getSecond().getRank().compareTo(hole2.getSecond().getRank());
+			return hole1.getSecond().getRank().ordinal() - hole2.getSecond().getRank().ordinal();
 		}
 
 	}
 
-	private static class Permutation {
+	private static final class SuitPermutation {
 
 		private final int[] choices = new int[] { 0x0f, 0x0f, 0x0f, 0x0f };
 
 		public void applyTo(final Hole[] holes) {
-			final int[] permutation = asArray();
+			final int[] permutation = toArray();
 			final Suit[] suits = Suit.values();
 			for (int i = 0; i < holes.length; i++) {
 				final Hole hole = holes[i];
@@ -60,18 +60,10 @@ public final class Holes {
 		}
 
 		public boolean isFixed() {
-			for (int suit = 0; suit < 4; suit++) {
-				final int suitChoices = choices[suit];
-				if (suitChoices != firstMask(suitChoices)) {
-					// More than one choice for this suit.
-					return false;
-				}
-			}
-			// All suits have 1 choice only.
-			return true;
+			return choices[0] + choices[1] + choices[2] + choices[3] == 0x0f;
 		}
 
-		private int[] asArray() {
+		private int[] toArray() {
 			int mappedTargetSuits = 0;
 			final int[] permutation = new int[4];
 			for (int sourceSuit = 0; sourceSuit < 4; sourceSuit++) {
@@ -88,32 +80,33 @@ public final class Holes {
 		}
 
 		private int firstMask(final int value) {
-			int mask = 1;
-			for (int i = 0; i < 4; i++) {
+			for (int mask = 1; (mask & 0xf) != 0; mask <<= 1) {
 				if ((value & mask) != 0) {
 					return mask;
 				}
-				mask <<= 1;
 			}
 			return 0;
 		}
 
 		private int firstTwoMask(final int value) {
-			int count = 0, mask = 1, result = 0;
-			for (int i = 0; i < 4; i++) {
-				if ((value & mask) > 0) {
-					result |= mask;
-					if (++count == 2) {
-						break;
+			if (value != 0) {
+				int firstMask = 0;
+				for (int mask = 1; (mask & 0xf) != 0; mask <<= 1) {
+					if ((value & mask) != 0) {
+						// Nonzero bit.
+						if (firstMask != 0) {
+							// Already have a bit, this is the second bit.
+							return firstMask | mask;
+						}
+						// First bit.
+						firstMask = mask;
 					}
 				}
-				mask <<= 1;
 			}
-			return count == 2 ? result : 0;
+			return 0;
 		}
 
-		private void fix(final Card card) {
-			final int suit = card.getSuit().ordinal();
+		private void fixSuit(final int suit) {
 			final int suitChoices = choices[suit];
 			final int mask = firstMask(suitChoices);
 			if (suitChoices != mask) {
@@ -128,15 +121,12 @@ public final class Holes {
 
 		public void fix(final Hole hole) {
 			final Card card1 = hole.getFirst(), card2 = hole.getSecond();
-			if (!hole.isPair()) {
-				fix(card1);
-				fix(card2);
-			} else {
-				final int suit1 = card1.getSuit().ordinal(), suit2 = card2.getSuit().ordinal();
+			final int suit1 = card1.getSuit().ordinal(), suit2 = card2.getSuit().ordinal();
+			if (hole.isPair()) {
 				final int mask = firstTwoMask(choices[suit1] & choices[suit2]);
 				if (mask == 0) {
-					fix(card1);
-					fix(card2);
+					fixSuit(suit1);
+					fixSuit(suit2);
 				} else {
 					choices[suit1] = choices[suit2] = mask;
 					for (int i = 0; i < 4; i++) {
@@ -145,6 +135,9 @@ public final class Holes {
 						}
 					}
 				}
+			} else {
+				fixSuit(suit1);
+				fixSuit(suit2);
 			}
 		}
 
