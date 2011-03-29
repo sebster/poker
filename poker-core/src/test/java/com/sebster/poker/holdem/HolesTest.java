@@ -1,5 +1,6 @@
 package com.sebster.poker.holdem;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,6 +19,13 @@ import com.sebster.util.collections.Pair;
 public class HolesTest {
 
 	private static final Logger LOG = LoggerFactory.getLogger(HolesTest.class);
+
+	@Test
+	public void testNormalize2() {
+		final Hole[] holes = new Hole[] { Hole.fromString("5c,Jh"), Hole.fromString("7s,Qs"), Hole.fromString("3c,4d") };
+		Holes.normalize(holes);
+		System.out.println(Arrays.toString(holes));
+	}
 
 	@Test
 	public void testNormalize() {
