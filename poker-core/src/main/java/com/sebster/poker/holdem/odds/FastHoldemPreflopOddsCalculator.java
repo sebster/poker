@@ -19,7 +19,7 @@ import com.sebster.poker.odds.Odds;
 import com.sebster.util.ArrayUtils;
 
 @NotThreadSafe
-public class PreflopOddsCalculator {
+public class FastHoldemPreflopOddsCalculator implements HoldemPreflopOddsCalculator {
 
 	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
 
@@ -43,7 +43,7 @@ public class PreflopOddsCalculator {
 
 	private int lastCompareTime;
 
-	public PreflopOddsCalculator(final CompressedHandValueDB db) {
+	public FastHoldemPreflopOddsCalculator(final CompressedHandValueDB db) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
@@ -51,7 +51,8 @@ public class PreflopOddsCalculator {
 		Arrays.fill(udataIndexes, -1);
 	}
 
-	public final Odds[] calculateOdds(final Hole[] holes) {
+	@Override
+	public final Odds[] calculateOdds(final Hole... holes) {
 
 		final int numHoles = holes.length;
 		if (numHoles < 2 || numHoles > 10) {
@@ -182,7 +183,7 @@ public class PreflopOddsCalculator {
 		final CompressedHandValueDB db = new CompressedHandValueDB(in);
 		in.close();
 
-		final PreflopOddsCalculator calculator = new PreflopOddsCalculator(db);
+		final FastHoldemPreflopOddsCalculator calculator = new FastHoldemPreflopOddsCalculator(db);
 
 		final Random random = new Random();
 		final Deck deck = new Deck(random);

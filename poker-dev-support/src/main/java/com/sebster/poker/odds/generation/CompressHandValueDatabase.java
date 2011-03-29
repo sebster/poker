@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import com.sebster.io.compress.CompressLZFI;
 import com.sebster.poker.odds.Constants;
 
-public class CompressHandValueDB {
+public class CompressHandValueDatabase {
 
-	private static final Logger logger = LoggerFactory.getLogger(CompressHandValueDB.class);
+	private static final Logger logger = LoggerFactory.getLogger(CompressHandValueDatabase.class);
 
 	private static final String DEFAULT_INPUT_FILENAME = "hand_values.dat.gz";
 	
