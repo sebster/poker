@@ -13,7 +13,7 @@ import net.jcip.annotations.NotThreadSafe;
 import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
 import com.sebster.poker.odds.BasicOdds;
-import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 import com.sebster.util.ArrayUtils;
@@ -23,7 +23,7 @@ public class FastHoldemPreflopOddsCalculator implements HoldemPreflopOddsCalcula
 
 	public static final String DB_FILENAME = "holdem_hand_value_db.lzfi.gz";
 
-	private final CompressedHandValueDB db;
+	private final CompressedHandValueDatabase db;
 
 	/**
 	 * The uncompressed hand value arrays for up to 10 hands.
@@ -43,7 +43,7 @@ public class FastHoldemPreflopOddsCalculator implements HoldemPreflopOddsCalcula
 
 	private int lastCompareTime;
 
-	public FastHoldemPreflopOddsCalculator(final CompressedHandValueDB db) {
+	public FastHoldemPreflopOddsCalculator(final CompressedHandValueDatabase db) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
@@ -180,7 +180,7 @@ public class FastHoldemPreflopOddsCalculator implements HoldemPreflopOddsCalcula
 		}
 
 		final InputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(dbFilename)));
-		final CompressedHandValueDB db = new CompressedHandValueDB(in);
+		final CompressedHandValueDatabase db = new CompressedHandValueDatabase(in);
 		in.close();
 
 		final FastHoldemPreflopOddsCalculator calculator = new FastHoldemPreflopOddsCalculator(db);
