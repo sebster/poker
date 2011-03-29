@@ -1,9 +1,19 @@
 package com.sebster.io.compress;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import com.sebster.util.Validate;
 
 public final class CompressLZFI {
 
@@ -76,7 +86,7 @@ public final class CompressLZFI {
 
 		@Override
 		public int hashCode() {
-			return 31 + ((v1 * 37 + v2) * 37) + v3;
+			return 31 + (v1 * 37 + v2) * 37 + v3;
 		}
 
 		@Override
@@ -137,14 +147,14 @@ public final class CompressLZFI {
 				} else {
 					// Set the control word at the start of the literal run
 					// to store the number of literals
-					out[outPos - literals - 1] = (literals - 1);
+					out[outPos - literals - 1] = literals - 1;
 					literals = 0;
 				}
 
 				// Find reference with longest match.
 				int bestOff = 0;
 				int bestLen = 0;
-				for (int ref : locations) {
+				for (final int ref : locations) {
 					if (ref >= inPos) {
 						// Can't do forward references.
 						throw new IllegalStateException("ref " + ref + " not a backreference (inPos = " + inPos + ")");
@@ -177,7 +187,7 @@ public final class CompressLZFI {
 					}
 				}
 
-				out[outPos++] = 0x80000000 | (bestOff << LENGTH_BITS) | bestLen;
+				out[outPos++] = 0x80000000 | bestOff << LENGTH_BITS | bestLen;
 				// Move one word forward to allow for a literal run control
 				// word.
 				outPos++;
@@ -188,7 +198,7 @@ public final class CompressLZFI {
 				out[outPos++] = in[inPos++];
 				literals++;
 				if (literals == MAX_LITERALS) {
-					out[outPos - literals - 1] = (literals - 1);
+					out[outPos - literals - 1] = literals - 1;
 					literals = 0;
 					outPos++;
 				}
@@ -200,13 +210,13 @@ public final class CompressLZFI {
 			out[outPos++] = in[inPos++];
 			literals++;
 			if (literals == MAX_LITERALS) {
-				out[outPos - literals - 1] = (literals - 1);
+				out[outPos - literals - 1] = literals - 1;
 				literals = 0;
 				outPos++;
 			}
 		}
 		// Writes the final literal run length to the control byte
-		out[outPos - literals - 1] = (literals - 1);
+		out[outPos - literals - 1] = literals - 1;
 		if (literals == 0) {
 			outPos--;
 		}
@@ -245,7 +255,7 @@ public final class CompressLZFI {
 				inPos += len;
 			} else {
 				// Back reference, get the length and offset from ctrl.
-				final int len = (ctrl & ((1 << LENGTH_BITS) - 1)) + 3;
+				final int len = (ctrl & (1 << LENGTH_BITS) - 1) + 3;
 				final int off = ((ctrl & Integer.MAX_VALUE) >> LENGTH_BITS) + 1;
 
 				/*
@@ -265,6 +275,50 @@ public final class CompressLZFI {
 					out[outPos++] = out[ref++];
 				}
 			}
+		}
+	}
+
+	public static void main(final String[] args) throws IOException {
+		if (args.length != 3 || !"c".equals(args[0]) && !"x".equals(args[0])) {
+			System.err.println("usage: " + CompressLZFI.class.getSimpleName() + " <c|x> <infile> <outfile>");
+			System.exit(1);
+		}
+		final File infile = new File(args[1]);
+		final DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(infile)));
+		int size = (int) infile.length();
+		Validate.isTrue(size % 4 == 0, "file must be multiple of 4 bytes long");
+		size = size / 4;
+		if ("c".equals(args[0])) {
+			System.out.println("compressing file of size=" + size);
+			final int[] inbuf = new int[size], outbuf = new int[size];
+			int index = 0;
+			while (index < size) {
+				inbuf[index++] = in.readInt();
+			}
+			in.close();
+			final int outSize = compress(inbuf, size, outbuf, 0);
+			System.out.println("compressed size=" + outSize);
+			final DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(args[2])));
+			out.writeInt(outSize);
+			for (int i = 0; i < outSize; i++) {
+				out.writeInt(outbuf[i]);
+			}
+			out.close();
+		} else {
+			final int outSize = in.readInt();
+			size--;
+			int index = 0;
+			final int[] inbuf = new int[size], outbuf = new int[outSize];
+			while (index < size) {
+				inbuf[index++] = in.readInt();
+			}
+			in.close();
+			expand(inbuf, 0, size, outbuf, 0);
+			final DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(args[2])));
+			for (int i = 0; i < outSize; i++) {
+				out.writeInt(outbuf[i]);
+			}
+			out.close();
 		}
 	}
 
