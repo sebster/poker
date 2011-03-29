@@ -4,7 +4,9 @@ import java.util.Collection;
 
 public final class Hole4 extends CardSet {
 
-	private static final int[][] twoCardHoleCombinations = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
+	private static final long serialVersionUID = 277473471732391645L;
+
+	private static final int[][] TWO_CARD_COMBINATIONS = { { 0, 1 }, { 0, 2 }, { 0, 3 }, { 1, 2 }, { 1, 3 }, { 2, 3 } };
 
 	private Hole4(final Card cards[]) {
 		super(cards);
@@ -28,7 +30,7 @@ public final class Hole4 extends CardSet {
 	public Hole[] getAll2CardHoles() {
 		final Hole[] holes = new Hole[6];
 		for (int i = 0; i < 6; i++) {
-			holes[i] = Hole.fromCards(cards[twoCardHoleCombinations[i][0]], cards[twoCardHoleCombinations[i][1]]);
+			holes[i] = Hole.fromCards(cards[TWO_CARD_COMBINATIONS[i][0]], cards[TWO_CARD_COMBINATIONS[i][1]]);
 		}
 		return holes;
 	}
