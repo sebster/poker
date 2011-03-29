@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.sebster.poker.Card;
 import com.sebster.poker.Hole;
 import com.sebster.poker.holdem.odds.PostFlopOddsCalculator;
-import com.sebster.poker.holdem.odds.PreflopOddsCalculator;
+import com.sebster.poker.holdem.odds.FastHoldemPreflopOddsCalculator;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
 import com.sebster.poker.odds.CompressedHandValueDB;
 import com.sebster.poker.odds.Odds;
@@ -31,7 +31,7 @@ public class HoldemWebServices {
 
 	private final ExecutorService executor;
 
-	private final ThreadLocal<PreflopOddsCalculator> calculator = new ThreadLocal<PreflopOddsCalculator>();
+	private final ThreadLocal<FastHoldemPreflopOddsCalculator> calculator = new ThreadLocal<FastHoldemPreflopOddsCalculator>();
 
 	private final LRUMap cache;
 
@@ -99,9 +99,9 @@ public class HoldemWebServices {
 		@Override
 		public Odds[] call() throws Exception {
 			final long t1 = System.currentTimeMillis();
-			PreflopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
+			FastHoldemPreflopOddsCalculator calculator = HoldemWebServices.this.calculator.get();
 			if (calculator == null) {
-				calculator = new PreflopOddsCalculator(db);
+				calculator = new FastHoldemPreflopOddsCalculator(db);
 				HoldemWebServices.this.calculator.set(calculator);
 			}
 			final Odds[] odds = calculator.calculateOdds(holes);
