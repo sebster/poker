@@ -18,7 +18,7 @@ import com.sebster.poker.Hole;
 import com.sebster.poker.holdem.odds.PostFlopOddsCalculator;
 import com.sebster.poker.holdem.odds.FastHoldemPreflopOddsCalculator;
 import com.sebster.poker.holdem.odds.TwoPlayerPreFlopOddsDB;
-import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Odds;
 import com.sebster.poker.odds.TwoPlayerOdds;
 import com.sebster.util.arrays.ObjectArrayWrapper;
@@ -27,7 +27,7 @@ public class HoldemWebServices {
 
 	private static final Logger logger = LoggerFactory.getLogger(HoldemWebServices.class);
 
-	private final CompressedHandValueDB db;
+	private final CompressedHandValueDatabase db;
 
 	private final ExecutorService executor;
 
@@ -41,7 +41,7 @@ public class HoldemWebServices {
 		InputStream in = null;
 		try {
 			in = new GZIPInputStream(new FileInputStream(dbPath));
-			db = new CompressedHandValueDB(in);
+			db = new CompressedHandValueDatabase(in);
 		} finally {
 			IOUtils.closeQuietly(in);
 		}

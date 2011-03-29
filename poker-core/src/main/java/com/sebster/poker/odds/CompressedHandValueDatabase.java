@@ -16,16 +16,16 @@ import com.sebster.io.compress.CompressLZFI;
  * @author sebster
  * 
  */
-public final class CompressedHandValueDB {
+public final class CompressedHandValueDatabase {
 
-	private static final Logger logger = LoggerFactory.getLogger(CompressedHandValueDB.class);
+	private static final Logger logger = LoggerFactory.getLogger(CompressedHandValueDatabase.class);
 
 	/**
 	 * The compressed hand value database.
 	 */
 	private final int[][] data = new int[Constants.HOLE_COUNT][];
 
-	public CompressedHandValueDB(final InputStream in) throws IOException {
+	public CompressedHandValueDatabase(final InputStream in) throws IOException {
 		final long t1 = System.currentTimeMillis();
 		final DataInputStream dis = new DataInputStream(in);
 		for (int i = 0; i < Constants.HOLE_COUNT; i++) {
