@@ -16,6 +16,9 @@ public final class Hole extends CardSet {
 	@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached computation")
 	private transient Hole prev;
 
+	@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached computation")
+	private transient int indexPlusOne;
+
 	private Hole(final Card first, final Card second) {
 		super(new Card[] { first, second });
 	}
@@ -47,6 +50,14 @@ public final class Hole extends CardSet {
 			prev = (Hole) super.prev();
 		}
 		return prev;
+	}
+
+	@Override
+	public int getIndex() {
+		if (indexPlusOne == 0) {
+			indexPlusOne = super.getIndex() + 1;
+		}
+		return indexPlusOne - 1;
 	}
 
 	@Override
