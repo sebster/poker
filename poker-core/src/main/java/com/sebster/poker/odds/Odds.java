@@ -67,14 +67,14 @@ public abstract class Odds implements Comparable<Odds> {
 	@Override
 	public String toString() {
 		final StringBuilder builder = new StringBuilder();
-		builder.append("[ ");
+		builder.append('[');
 		final int maxN = getMaxN();
 		for (int n = 0; n < maxN; n++) {
 			builder.append(String.valueOf(getNWaySplits(n)));
 			builder.append(", ");
 		}
 		builder.append(String.valueOf(getNWaySplits(maxN)));
-		builder.append(" ]");
+		builder.append(']');
 		return builder.toString();
 	}
 
@@ -99,20 +99,20 @@ public abstract class Odds implements Comparable<Odds> {
 		if (this == object) {
 			return true;
 		}
-		if (!(object instanceof Odds)) {
-			return false;
-		}
-		final Odds other = (Odds) object;
-		final int maxN = getMaxN();
-		if (maxN != other.getMaxN()) {
-			return false;
-		}
-		for (int n = 0; n < maxN; n++) {
-			if (getNWaySplits(n) != other.getNWaySplits(n)) {
+		if (object instanceof Odds) {
+			final Odds other = (Odds) object;
+			final int maxN = getMaxN();
+			if (maxN != other.getMaxN()) {
 				return false;
 			}
+			for (int n = 0; n < maxN; n++) {
+				if (getNWaySplits(n) != other.getNWaySplits(n)) {
+					return false;
+				}
+			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 }
