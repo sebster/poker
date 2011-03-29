@@ -12,7 +12,7 @@ import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
 import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.BasicOdds;
-import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 
@@ -25,7 +25,7 @@ public class PreFlopOddsCalculator3 {
 	/**
 	 * The compressed hand value database.
 	 */
-	private final CompressedHandValueDB db;
+	private final CompressedHandValueDatabase db;
 
 	/**
 	 * The uncompressed hand value arrays for up to 6 omaha hands.
@@ -41,11 +41,11 @@ public class PreFlopOddsCalculator3 {
 
 	private int lastCompareTime;
 
-	public PreFlopOddsCalculator3(final CompressedHandValueDB db) {
+	public PreFlopOddsCalculator3(final CompressedHandValueDatabase db) {
 		this(db, new int[6][Constants.BOARD_COUNT_52], new int[6][Constants.BOARD_COUNT_52]);
 	}
 
-	public PreFlopOddsCalculator3(final CompressedHandValueDB db, int[][] udata, int[][] hdata) {
+	public PreFlopOddsCalculator3(final CompressedHandValueDatabase db, int[][] udata, int[][] hdata) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
@@ -209,7 +209,7 @@ public class PreFlopOddsCalculator3 {
 		}
 
 		final InputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(dbFilename)));
-		final CompressedHandValueDB db = new CompressedHandValueDB(in);
+		final CompressedHandValueDatabase db = new CompressedHandValueDatabase(in);
 		in.close();
 
 		final PreFlopOddsCalculator3 calculator = new PreFlopOddsCalculator3(db);

@@ -12,7 +12,7 @@ import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
 import com.sebster.poker.Hole4;
 import com.sebster.poker.odds.BasicOdds;
-import com.sebster.poker.odds.CompressedHandValueDB;
+import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Constants;
 import com.sebster.poker.odds.Odds;
 import com.sebster.util.ArrayUtils;
@@ -21,7 +21,7 @@ public class PreFlopOddsCalculator {
 
 	public static final String DB_FILENAME = "omaha_hand_value_db.lzfi.gz";
 
-	private final CompressedHandValueDB db;
+	private final CompressedHandValueDatabase db;
 
 	/**
 	 * The uncompressed hand value arrays for up to 6 omaha hands, which is 36
@@ -42,7 +42,7 @@ public class PreFlopOddsCalculator {
 
 	private int lastCompareTime;
 
-	public PreFlopOddsCalculator(final CompressedHandValueDB db) {
+	public PreFlopOddsCalculator(final CompressedHandValueDatabase db) {
 		if (db == null) {
 			throw new NullPointerException("db");
 		}
@@ -182,7 +182,7 @@ public class PreFlopOddsCalculator {
 		}
 
 		final InputStream in = new GZIPInputStream(new BufferedInputStream(new FileInputStream(dbFilename)));
-		final CompressedHandValueDB db = new CompressedHandValueDB(in);
+		final CompressedHandValueDatabase db = new CompressedHandValueDatabase(in);
 		in.close();
 
 		final PreFlopOddsCalculator calculator = new PreFlopOddsCalculator(db);
