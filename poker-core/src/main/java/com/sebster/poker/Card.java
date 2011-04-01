@@ -63,6 +63,16 @@ public enum Card implements LinearOrder<Card> {
 	ACE_SPADES(Rank.ACE, Suit.SPADES);
 
 	/**
+	 * Compile time constant for the number of cards.
+	 */
+	private static final int NUMBER_OF_CARDS = 13 * 4;
+
+	/**
+	 * Cached static copy of the values array.
+	 */
+	private static final Card[] VALUES = values();
+
+	/**
 	 * The rank of the card.
 	 */
 	private final Rank rank;
@@ -129,7 +139,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the first card
 	 */
 	public static Card first() {
-		return values()[0];
+		return VALUES[0];
 	}
 
 	/**
@@ -138,7 +148,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the last card
 	 */
 	public static Card last() {
-		return values()[values().length - 1];
+		return VALUES[NUMBER_OF_CARDS - 1];
 	}
 
 	/**
@@ -149,8 +159,8 @@ public enum Card implements LinearOrder<Card> {
 	@Override
 	public Card next() {
 		final int i = ordinal() + 1;
-		if (i < values().length) {
-			return values()[i];
+		if (i < NUMBER_OF_CARDS) {
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -164,7 +174,7 @@ public enum Card implements LinearOrder<Card> {
 	public Card prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {
-			return values()[i];
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -179,7 +189,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the card with the specified rank and suit
 	 */
 	public static Card byRankAndSuit(final Rank rank, final Suit suit) {
-		return values()[(rank.ordinal() << 2) + suit.ordinal()];
+		return VALUES[(rank.ordinal() << 2) + suit.ordinal()];
 	}
 
 	/**

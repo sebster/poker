@@ -35,9 +35,19 @@ public enum Suit {
 	 */
 	private static final Map<String, Suit> byName;
 
+	/**
+	 * Compile time constant for the number of suits.
+	 */
+	private static final int NUMBER_OF_SUITS = 4;
+
+	/**
+	 * Cached static copy of the values array.
+	 */
+	private static final Suit[] VALUES = values();
+
 	static {
 		byName = new HashMap<String, Suit>();
-		for (final Suit suit : Suit.values()) {
+		for (final Suit suit : VALUES) {
 			byName.put(suit.getName().toLowerCase(), suit);
 			byName.put(suit.getShortName().toLowerCase(), suit);
 			byName.put(suit.getSingularName().toLowerCase(), suit);
@@ -104,7 +114,7 @@ public enum Suit {
 	 * @return the first suit
 	 */
 	public static Suit first() {
-		return values()[0];
+		return VALUES[0];
 	}
 
 	/**
@@ -113,7 +123,7 @@ public enum Suit {
 	 * @return the last suit
 	 */
 	public static Suit last() {
-		return values()[values().length - 1];
+		return VALUES[NUMBER_OF_SUITS - 1];
 	}
 
 	/**
@@ -123,8 +133,8 @@ public enum Suit {
 	 */
 	public Suit next() {
 		final int i = ordinal() + 1;
-		if (i < values().length) {
-			return values()[i];
+		if (i < NUMBER_OF_SUITS) {
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -137,7 +147,7 @@ public enum Suit {
 	public Suit prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {
-			return values()[i];
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -191,10 +201,10 @@ public enum Suit {
 	 *             if the value is invalid
 	 */
 	public static Suit byValue(final int value) {
-		if (value < 0 || value > 3) {
+		if (value < 0 || value >= NUMBER_OF_SUITS) {
 			throw new IllegalArgumentException("invalid suit value: " + value);
 		}
-		return values()[value];
+		return VALUES[value];
 	}
 
 }

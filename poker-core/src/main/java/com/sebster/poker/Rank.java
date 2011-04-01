@@ -30,6 +30,16 @@ public enum Rank implements LinearOrder<Rank> {
 	ACE("ace", "aces", "A");
 
 	/**
+	 * Compile time constant for the number of ranks.
+	 */
+	private static final int NUMBER_OF_RANKS = 13;
+
+	/**
+	 * Cached static copy of the values array.
+	 */
+	private static final Rank[] VALUES = values();
+
+	/**
 	 * The name of the rank, e.g. "two", "ten", "ace".
 	 */
 	private final String name;
@@ -51,7 +61,7 @@ public enum Rank implements LinearOrder<Rank> {
 
 	static {
 		byName = new HashMap<String, Rank>();
-		for (final Rank rank : Rank.values()) {
+		for (final Rank rank : VALUES) {
 			byName.put(rank.getName().toLowerCase(), rank);
 			byName.put(rank.getPluralName().toLowerCase(), rank);
 			byName.put(rank.getShortName().toLowerCase(), rank);
@@ -111,23 +121,23 @@ public enum Rank implements LinearOrder<Rank> {
 	public String toString() {
 		return getShortName();
 	}
-	
+
 	/**
 	 * Get the first rank, which is two.
 	 * 
 	 * @return the first rank
 	 */
 	public Rank first() {
-		return values()[0];
+		return VALUES[0];
 	}
-	
+
 	/**
 	 * Get the last rank, which is ace.
 	 * 
 	 * @return the last rank
 	 */
 	public Rank last() {
-		return values()[values().length - 1];
+		return VALUES[NUMBER_OF_RANKS - 1];
 	}
 
 	/**
@@ -138,8 +148,8 @@ public enum Rank implements LinearOrder<Rank> {
 	@Override
 	public Rank next() {
 		final int i = ordinal() + 1;
-		if (i < values().length) {
-			return values()[i];
+		if (i < NUMBER_OF_RANKS) {
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -153,7 +163,7 @@ public enum Rank implements LinearOrder<Rank> {
 	public Rank prev() {
 		final int i = ordinal() - 1;
 		if (i >= 0) {
-			return values()[i];
+			return VALUES[i];
 		}
 		return null;
 	}
@@ -207,10 +217,10 @@ public enum Rank implements LinearOrder<Rank> {
 	 *             if the value is invalid
 	 */
 	public static Rank byValue(final int value) {
-		if (value < 2 || value > 14) {
+		if (value < 2 || value >= NUMBER_OF_RANKS + 2) {
 			throw new IllegalArgumentException("invalid rank value: " + value);
 		}
-		return values()[value - 2];
+		return VALUES[value - 2];
 	}
 
 }
