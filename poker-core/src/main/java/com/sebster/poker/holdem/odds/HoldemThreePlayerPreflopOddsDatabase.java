@@ -26,7 +26,7 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 
 	private static final int PLAYERS = 3;
 
-	private static final class ThreePlayerPreflopOddsDatabaseHolder {
+	private static final class HoldemThreePlayerPreflopOddsDatabaseHolder {
 
 		private static final HoldemThreePlayerPreflopOddsDatabase database;
 
@@ -46,7 +46,7 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 	}
 
 	public static HoldemThreePlayerPreflopOddsDatabase getInstance() {
-		return ThreePlayerPreflopOddsDatabaseHolder.database;
+		return HoldemThreePlayerPreflopOddsDatabaseHolder.database;
 	}
 
 	private final int records;
