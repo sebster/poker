@@ -1,13 +1,14 @@
 package com.sebster.poker;
 
-import com.sebster.util.LinearOrder;
+import com.sebster.util.LinearOrderElement;
 
 /**
- * Enumeration of the cards.
+ * Enumeration of the cards. The cards are ordered lexicographically, first by
+ * {@link Rank}, then by {@link Suit}.
  * 
- * @author sebster
+ * @author Sebastiaan van Erk
  */
-public enum Card implements LinearOrder<Card> {
+public enum Card implements LinearOrderElement<Card> {
 
 	TWO_CLUBS(Rank.TWO, Suit.CLUBS),
 	TWO_DIAMONDS(Rank.TWO, Suit.DIAMONDS),
@@ -111,7 +112,11 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the name of the card
 	 */
 	public String getName() {
-		return rank.getName() + " of " + suit.getName();
+		final StringBuilder buffer = new StringBuilder();
+		buffer.append(rank.getName());
+		buffer.append(" of ");
+		buffer.append(suit.getName());
+		return buffer.toString();
 	}
 
 	/**
@@ -143,7 +148,7 @@ public enum Card implements LinearOrder<Card> {
 	}
 
 	/**
-	 * Get the last cart, which is the ace of spades.
+	 * Get the last card, which is the ace of spades.
 	 * 
 	 * @return the last card
 	 */
@@ -152,9 +157,9 @@ public enum Card implements LinearOrder<Card> {
 	}
 
 	/**
-	 * Get the next card, or null if this is the last card.
+	 * Get the next card, or {@code null} if this is the last card.
 	 * 
-	 * @return the card suit or null if this is the last card
+	 * @return the card suit or {@code null} if this is the last card
 	 */
 	@Override
 	public Card next() {
@@ -166,9 +171,9 @@ public enum Card implements LinearOrder<Card> {
 	}
 
 	/**
-	 * Get the previous card, or null if this is the previous card.
+	 * Get the previous card, or {@code null} if this is the previous card.
 	 * 
-	 * @return the previous card or null if this is the first card
+	 * @return the previous card or {@code null} if this is the first card
 	 */
 	@Override
 	public Card prev() {
@@ -189,7 +194,7 @@ public enum Card implements LinearOrder<Card> {
 	 * @return the card with the specified rank and suit
 	 */
 	public static Card byRankAndSuit(final Rank rank, final Suit suit) {
-		return VALUES[(rank.ordinal() << 2) + suit.ordinal()];
+		return VALUES[rank.ordinal() << 2 | suit.ordinal()];
 	}
 
 	/**
@@ -197,7 +202,7 @@ public enum Card implements LinearOrder<Card> {
 	 * "2s" or "Tc", or the long name, e.g., "two of spades" or "ten of clubs".
 	 * The name is case insensitive. If an invalid name is given an
 	 * {@link IllegalArgumentException} is thrown. This method never returns
-	 * <code>null</code>.
+	 * {@code null}.
 	 * 
 	 * @param name
 	 *            the name of the card

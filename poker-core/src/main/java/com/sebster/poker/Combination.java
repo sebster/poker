@@ -1,6 +1,38 @@
 package com.sebster.poker;
 
+import com.sebster.util.Validate;
 
+/**
+ * Utility class to calculate and use the value of the best 5-card combination
+ * of a poker hand. The combination value of a hand is given as follows:
+ * 
+ * <pre>
+ * High Card:
+ * 		HIGH_CARD      | (kick1 | kick2 | kick3 | kick4 | kick5)
+ * Pair:
+ * 		PAIR	       | (      | pair  | kick1 | kick2 | kick3)
+ * Two Pair:
+ * 		TWO_PAIR       | (      |       | pair1 | pair2 | kick )
+ * Three of a Kind:
+ * 		TRIPS	       | (      |       | trips | kick1 | kick2)
+ * Straight:
+ * 		STRAIGHT       | (      |       |       |       | high )
+ * Flush:
+ * 		FLUSH	       | (rank1 | rank2 | rank3 | rank4 | rank5)
+ * Full House:
+ * 		FULL_HOUSE     | (      |       |       | trips | pair )
+ * Four of a Kind:
+ * 		QUADS          | (      |       |       | quads | kick )
+ * Straight Flush:
+ * 		STRAIGHT_FLUSH | (      |       |       |       | high )
+ * </pre>
+ * 
+ * The capital letters indicate the respective constant, and the ( | | | | )
+ * notation refers to the lowest 5 nibbles. Each nibble contains the rank of the
+ * respective card, or the value 0 if is empty.
+ * 
+ * @author Sebastiaan van Erk
+ */
 public class Combination {
 
 	private Combination() {
@@ -8,48 +40,30 @@ public class Combination {
 	}
 
 	/**
-	 * Get the hand value of the best 5-card hand in the specified array of
-	 * cards. The hand values are determined as follows:
-	 * 
-	 * <pre>
-	 * High Card:
-	 * 		HIGH_CARD      + (kick1 | kick2 | kick3 | kick4 | kick5)
-	 * Pair:
-	 * 		PAIR	       + (      | pair  | kick1 | kick2 | kick3)
-	 * Two Pair:
-	 * 		TWO_PAIR       + (      |       | pair1 | pair2 | kick )
-	 * Three of a Kind:
-	 * 		TRIPS	       + (      |       | trips | kick1 | kick2)
-	 * Straight:
-	 * 		STRAIGHT       + (      |       |       |       | high )
-	 * Flush:
-	 * 		FLUSH	       + (rank1 | rank2 | rank3 | rank4 | rank5)
-	 * Full House:
-	 * 		FULL_HOUSE     + (      |       |       | trips | pair )
-	 * Four of a Kind:
-	 * 		QUADS          + (      |       |       | quads | kick )
-	 * Straight Flush:
-	 * 		STRAIGHT_FLUSH + (      |       |       |       | high )
-	 * </pre>
-	 * 
-	 * The capital letters indicate the respective constant, and the ( | | | | )
-	 * notation refers to the lowest 5 nibbles. Each nibble contains the rank of
-	 * the respective card, or the value 0 if is empty.
+	 * Get the value of the best 5-card combination that can be made from the
+	 * specified card set.
 	 * 
 	 * @param cardSet
-	 *            the card set to scan
-	 * @return the hand value of the best 5-card hand found
+	 *            the card set
+	 * @return the value of the best 5-card combination found
 	 */
-	public static int getHandValue(final CardSet cardSet) {
+	public static int getBestValue(final CardSet cardSet) {
+		Validate.notNull(cardSet, "cardSet");
+		Validate.isTrue(cardSet.size() >= 5, "cardSet.size() < 5");
 
-		// nOfAKind[i] contains how many (i+1) of a kinds were found.
+		/*
+		 * nOfAKind[i] contains how many (i+1) of a kinds were found (counting 1
+		 * of a kinds is not necessary).
+		 */
 		final int[] nOfAKind = new int[4];
 
 		// The rank and suit of the previous card.
 		int previousRank = -1, previousSuit = -1;
 
-		// The number of time the previous rank is repeated minus one (so 2
-		// kings, means repeatCount is 1).
+		/*
+		 * The number of times the previous rank is repeated minus one (so 2
+		 * kings, means repeatCount is 1).
+		 */
 		int repeatCount = 0;
 
 		// The number of cards with each suit.
@@ -64,7 +78,7 @@ public class Combination {
 		// The length of the straight we are currently scanning.
 		int straightLength = 0;
 
-		// Whether or not a straigt was found.
+		// Whether or not a straight was found.
 		boolean straight = false;
 
 		// Scan the cards for quads, trips, pairs, flushes and straights.
@@ -91,7 +105,7 @@ public class Combination {
 				// No straight was found yet.
 				if (straightHighRank > rank + straightLength) {
 					/*
-					 * The current card is not consecutive to the any previous
+					 * The current card is not consecutive to the previous
 					 * straight cards, so the current straight is broken. The
 					 * current card may be the high card of a straight though.
 					 */
@@ -172,70 +186,70 @@ public class Combination {
 		return getHighCardValue(cardSet);
 	}
 
-	public static int getHandType(final int handValue) {
-		return handValue & HAND_TYPE_MASK;
+	public static int getCombinationType(final int combinationValue) {
+		return combinationValue & COMBINATION_TYPE_MASK;
 	}
 
-	public static boolean isHighCard(final int handValue) {
-		return getHandType(handValue) == HIGH_CARD;
+	public static boolean isHighCard(final int combinationValue) {
+		return getCombinationType(combinationValue) == HIGH_CARD;
 	}
 
-	public static boolean isPair(final int handValue) {
-		return getHandType(handValue) == PAIR;
+	public static boolean isPair(final int combinationValue) {
+		return getCombinationType(combinationValue) == PAIR;
 	}
 
-	public static boolean isTwoPair(final int handValue) {
-		return getHandType(handValue) == TWO_PAIR;
+	public static boolean isTwoPair(final int combinationValue) {
+		return getCombinationType(combinationValue) == TWO_PAIR;
 	}
 
-	public static boolean isTrips(final int handValue) {
-		return getHandType(handValue) == TRIPS;
+	public static boolean isTrips(final int combinationValue) {
+		return getCombinationType(combinationValue) == TRIPS;
 	}
 
-	public static boolean isStraight(final int handValue) {
-		return getHandType(handValue) == STRAIGHT;
+	public static boolean isStraight(final int combinationValue) {
+		return getCombinationType(combinationValue) == STRAIGHT;
 	}
 
-	public static boolean isFlush(final int handValue) {
-		return getHandType(handValue) == FLUSH;
+	public static boolean isFlush(final int combinationValue) {
+		return getCombinationType(combinationValue) == FLUSH;
 	}
 
-	public static boolean isFullHouse(final int handValue) {
-		return getHandType(handValue) == FULL_HOUSE;
+	public static boolean isFullHouse(final int combinationValue) {
+		return getCombinationType(combinationValue) == FULL_HOUSE;
 	}
 
-	public static boolean isQuads(final int handValue) {
-		return getHandType(handValue) == QUADS;
+	public static boolean isQuads(final int combinationValue) {
+		return getCombinationType(combinationValue) == QUADS;
 	}
 
-	public static boolean isStraightFlush(final int handValue) {
-		return getHandType(handValue) == STRAIGHT_FLUSH;
+	public static boolean isStraightFlush(final int combinationValue) {
+		return getCombinationType(combinationValue) == STRAIGHT_FLUSH;
 	}
 
-	public static final String toString(final int handValue) {
+	public static final String toString(final int combinationValue) {
 		// FIXME implement
 		return null;
 	}
-	
-	public static final int fromString(final String handValueString) {
+
+	public static final int fromString(final String combinationString) {
 		// FIXME implement
 		return -1;
 	}
 
 	/**
-	 * Get the hand value of a high card hand.
+	 * Get the combination value of a high card hand.
 	 * 
 	 * @param cardSet
 	 *            the sorted cards
-	 * @return the high card hand value of the cards
+	 * @return the high card combination value of the cards
 	 */
 	protected static int getHighCardValue(final CardSet cardSet) {
 		int value = 0;
 		// Get the value of the best 5 cards.
 		for (int i = 1; i <= 5; i++) {
-			value = (value << 4) + cardSet.get(cardSet.size() - i).getRank().getValue();
+			value = value << 4 | cardSet.get(cardSet.size() - i).getRank().getValue();
 		}
-		return HIGH_CARD + value;
+		return HIGH_CARD | value;
 	}
 
 	/**
@@ -250,11 +264,11 @@ public class Combination {
 	}
 
 	/**
-	 * Get the hand value of a two pair hand.
+	 * Get the combination value of a two pair hand.
 	 * 
 	 * @param cardSet
 	 *            the sorted cards
-	 * @return the pair hand value of the cards
+	 * @return the pair combination value of the cards
 	 */
 	protected static int getTwoPairValue(final CardSet cardSet) {
 		final int[] pairs = new int[2];
@@ -271,9 +285,9 @@ public class Combination {
 		}
 		if (pair == 2) {
 			for (int i = cardSet.size() - 1; i >= 0; i--) {
-				int rank = cardSet.get(i).getRank().getValue();
+				final int rank = cardSet.get(i).getRank().getValue();
 				if (rank != pairs[0] && rank != pairs[1]) {
-					return TWO_PAIR + (((pairs[0] << 4) + pairs[1]) << 4) + rank;
+					return TWO_PAIR | pairs[0] << 8 | pairs[1] << 4 | rank;
 				}
 			}
 		}
@@ -281,11 +295,11 @@ public class Combination {
 	}
 
 	/**
-	 * Get the hand value of a three of a kind hand.
+	 * Get the combination value of a three of a kind hand.
 	 * 
 	 * @param cardSet
 	 *            the sorted cards
-	 * @return the three of a kind hand value of the cards
+	 * @return the three of a kind combinatino value of the cards
 	 */
 	protected static int getTripsValue(final CardSet cardSet) {
 		return getNOfAKindValue(cardSet, 3, TRIPS);
@@ -300,11 +314,11 @@ public class Combination {
 				high = rank;
 				length = 1;
 			} else if (high == rank + length && ++length == 5) {
-				return STRAIGHT + high;
+				return STRAIGHT | high;
 			}
 		}
 		if (high == Rank.FIVE.getValue() && length == 4 && cardSet.last().getRank() == Rank.ACE) {
-			return STRAIGHT + high;
+			return STRAIGHT | high;
 		}
 		return 0;
 	}
@@ -315,7 +329,7 @@ public class Combination {
 			final int suit = cardSet.get(i).getSuit().getValue();
 			value[suit] = (value[suit] << 4) + cardSet.get(i).getRank().getValue();
 			if (++count[suit] == 5) {
-				return FLUSH + value[suit];
+				return FLUSH | value[suit];
 			}
 		}
 		return 0;
@@ -324,7 +338,7 @@ public class Combination {
 	protected static int getFullHouseValue(final CardSet cardSet) {
 		int trips = -1, pair = -1, current = -1, count = 0;
 		for (int i = cardSet.size() - 1; i >= 0; i--) {
-			int rank = cardSet.get(i).getRank().getValue();
+			final int rank = cardSet.get(i).getRank().getValue();
 			if (current != rank) {
 				current = rank;
 				count = 1;
@@ -339,7 +353,7 @@ public class Combination {
 					}
 				}
 				if (trips >= 0 && pair >= 0) {
-					return FULL_HOUSE + (trips << 4) + pair;
+					return FULL_HOUSE | trips << 4 | pair;
 				}
 			}
 		}
@@ -347,11 +361,11 @@ public class Combination {
 	}
 
 	/**
-	 * Get the hand value of a four of a kind hand.
+	 * Get the combination value of a four of a kind hand.
 	 * 
 	 * @param cardSet
 	 *            the sorted cards
-	 * @return the four of a kind hand value of the cards
+	 * @return the four of a kind combination value of the cards
 	 */
 	protected static int getQuadsValue(final CardSet cardSet) {
 		return getNOfAKindValue(cardSet, 4, QUADS);
@@ -366,7 +380,7 @@ public class Combination {
 				high[suit] = rank;
 				length[suit] = 1;
 			} else if (++length[suit] == 5) {
-				return STRAIGHT_FLUSH + high[suit];
+				return STRAIGHT_FLUSH | high[suit];
 			}
 		}
 		final boolean[] hasAce = new boolean[4];
@@ -375,25 +389,25 @@ public class Combination {
 		}
 		for (int suit = 0; suit < 4; suit++) {
 			if (high[suit] == Rank.FIVE.getValue() && length[suit] == 4 && hasAce[suit]) {
-				return STRAIGHT_FLUSH + high[suit];
+				return STRAIGHT_FLUSH | high[suit];
 			}
 		}
 		return 0;
 	}
 
 	/**
-	 * Get the hand value of a n-of-a-kind hand.
+	 * Get the combination value of a n-of-a-kind hand.
 	 * 
 	 * @param cardSet
 	 *            the sorted cards
 	 * @param n
 	 *            the number of a kind
-	 * @param handRank
-	 *            base hand value of the n-of-a-kind
+	 * @param baseCombinationValue
+	 *            base combination value of the n-of-a-kind
 	 * 
 	 * @return the n-of-a-kind hand value of the cards
 	 */
-	private static int getNOfAKindValue(final CardSet cardSet, final int n, final int handRank) {
+	private static int getNOfAKindValue(final CardSet cardSet, final int n, final int baseCombinationValue) {
 		int nOfAKindRank = -1, repeatCount = 1;
 		for (int i = cardSet.size() - 1; i >= 0 && repeatCount < n; i--) {
 			final int rank = cardSet.get(i).getRank().getValue();
@@ -409,13 +423,13 @@ public class Combination {
 			int value = nOfAKindRank;
 			// Add the value of the remaining cards from high to low.
 			for (int i = cardSet.size() - 1, j = 5 - n; i >= 0 && j > 0; i--) {
-				int rank = cardSet.get(i).getRank().getValue();
+				final int rank = cardSet.get(i).getRank().getValue();
 				if (rank != nOfAKindRank) {
-					value = (value << 4) + rank;
+					value = value << 4 | rank;
 					j--;
 				}
 			}
-			return handRank + value;
+			return baseCombinationValue | value;
 		}
 		return 0;
 	}
@@ -466,8 +480,8 @@ public class Combination {
 	public static final int STRAIGHT_FLUSH = 0x00800000;
 
 	/**
-	 * The mask to get the hand type.
+	 * The mask to get the combination type.
 	 */
-	public static final int HAND_TYPE_MASK = 0x00F00000;
+	public static final int COMBINATION_TYPE_MASK = 0x00F00000;
 
 }

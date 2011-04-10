@@ -71,7 +71,7 @@ public class GenerateHandValueDB {
 										cards[0] = board[c[0]];
 										cards[1] = board[c[1]];
 										cards[2] = board[c[2]];
-										final int value = Combination.getHandValue(CardSet.fromCards(cards));
+										final int value = Combination.getBestValue(CardSet.fromCards(cards));
 										if (value == -1) {
 											// Invalid hand/board combination.
 											maxValue = -1;

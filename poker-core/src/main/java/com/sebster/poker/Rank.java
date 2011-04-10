@@ -3,14 +3,14 @@ package com.sebster.poker;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.sebster.util.LinearOrder;
+import com.sebster.util.LinearOrderElement;
 
 /**
  * Enumeration of the ranks.
  * 
  * @author sebster
  */
-public enum Rank implements LinearOrder<Rank> {
+public enum Rank implements LinearOrderElement<Rank> {
 
 	/**
 	 * The ranks.

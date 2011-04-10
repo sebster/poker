@@ -59,7 +59,7 @@ public class GenerateHandValueDB {
 								cards[5] = Card.values()[n];
 								for (int o = n + 1; o < 52; o++) { // board 5
 									cards[6] = Card.values()[o];
-									dos.writeInt(Combination.getHandValue(CardSet.fromCards(cards)));
+									dos.writeInt(Combination.getBestValue(CardSet.fromCards(cards)));
 								}
 							}
 						}

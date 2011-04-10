@@ -10,7 +10,7 @@ public class CombinationTest {
 	@Test
 	public void testHighCardValue() {
 		final CardSet cards1 = CardSet.fromString("Js,Ah,2d,8s,Qc,Tc,3d");
-		assertEquals(Combination.HIGH_CARD + (((((((Rank.ACE.getValue() << 4) + Rank.QUEEN.getValue()) << 4) + Rank.JACK.getValue()) << 4) + Rank.TEN.getValue()) << 4) + Rank.EIGHT.getValue(), Combination.getHighCardValue(cards1));
+		assertEquals(Combination.HIGH_CARD + ((((Rank.ACE.getValue() << 4) + Rank.QUEEN.getValue() << 4) + Rank.JACK.getValue() << 4) + Rank.TEN.getValue() << 4) + Rank.EIGHT.getValue(), Combination.getHighCardValue(cards1));
 
 		final CardSet cards2 = CardSet.fromString("Js,Ah,2d,8s,Qc,Tc,9d");
 		assertTrue(Combination.getHighCardValue(cards2) > Combination.getHighCardValue(cards1));
@@ -19,19 +19,19 @@ public class CombinationTest {
 	@Test
 	public void testPairValue() {
 		final CardSet cards = CardSet.fromString("Js,Ah,8s,2c,Tc,Td,9d");
-		assertEquals(Combination.PAIR + ((((((Rank.TEN.getValue() << 4) + Rank.ACE.getValue()) << 4) + Rank.JACK.getValue()) << 4) + Rank.NINE.getValue()), Combination.getPairValue(cards));
+		assertEquals(Combination.PAIR + (((Rank.TEN.getValue() << 4) + Rank.ACE.getValue() << 4) + Rank.JACK.getValue() << 4) + Rank.NINE.getValue(), Combination.getPairValue(cards));
 	}
 
 	@Test
 	public void testTwoPairValue() {
 		final CardSet cards = CardSet.fromString("Qs,Jh,Qh,2c,Tc,Td,9d");
-		assertEquals(Combination.TWO_PAIR + ((((Rank.QUEEN.getValue() << 4) + Rank.TEN.getValue()) << 4) + Rank.JACK.getValue()), Combination.getTwoPairValue(cards));
+		assertEquals(Combination.TWO_PAIR + ((Rank.QUEEN.getValue() << 4) + Rank.TEN.getValue() << 4) + Rank.JACK.getValue(), Combination.getTwoPairValue(cards));
 	}
 
 	@Test
 	public void testTripsValue() {
 		final CardSet cards = CardSet.fromString("Ks,5h,2s,Tc,Td,Th,3d");
-		assertEquals(Combination.TRIPS + ((((Rank.TEN.getValue() << 4) + Rank.KING.getValue()) << 4) + Rank.FIVE.getValue()), Combination.getTripsValue(cards));
+		assertEquals(Combination.TRIPS + ((Rank.TEN.getValue() << 4) + Rank.KING.getValue() << 4) + Rank.FIVE.getValue(), Combination.getTripsValue(cards));
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class CombinationTest {
 	@Test
 	public void testFlushValue() {
 		final CardSet cards1 = CardSet.fromString("Js,Ah,8S,Qs,2s,3s,9s");
-		assertEquals(Combination.FLUSH + (((((((Rank.QUEEN.getValue() << 4) + Rank.JACK.getValue()) << 4) + Rank.NINE.getValue()) << 4) + Rank.EIGHT.getValue()) << 4) + Rank.THREE.getValue(), Combination.getFlushValue(cards1));
+		assertEquals(Combination.FLUSH + ((((Rank.QUEEN.getValue() << 4) + Rank.JACK.getValue() << 4) + Rank.NINE.getValue() << 4) + Rank.EIGHT.getValue() << 4) + Rank.THREE.getValue(), Combination.getFlushValue(cards1));
 
 		final CardSet cards2 = CardSet.fromString("Js,Ah,8s,Qs,2h,3s,9d");
 		assertEquals(0, Combination.getFlushValue(cards2));

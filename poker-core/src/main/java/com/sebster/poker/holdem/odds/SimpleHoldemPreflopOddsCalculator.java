@@ -40,7 +40,7 @@ public class SimpleHoldemPreflopOddsCalculator implements HoldemPreflopOddsCalcu
 								final Hole hole = holes[h];
 								cards[0] = hole.get(0);
 								cards[1] = hole.get(1);
-								handValues[h] = Combination.getHandValue(CardSet.fromCards(cards));
+								handValues[h] = Combination.getBestValue(CardSet.fromCards(cards));
 							}
 							final int max = ArrayUtils.max(handValues);
 							final int count = ArrayUtils.count(handValues, max);

@@ -146,10 +146,10 @@ public class GenerateTwoPlayerPreflopOddsDB {
 							cards[6] = deck[m];
 							cards[0] = card0;
 							cards[1] = card1;
-							final int handValue1 = Combination.getHandValue(CardSet.fromCards(cards));
+							final int handValue1 = Combination.getBestValue(CardSet.fromCards(cards));
 							cards[0] = card2;
 							cards[1] = card3;
-							final int handValue2 = Combination.getHandValue(CardSet.fromCards(cards));
+							final int handValue2 = Combination.getBestValue(CardSet.fromCards(cards));
 							if (handValue1 > handValue2) {
 								win++;
 							} else if (handValue2 > handValue1) {

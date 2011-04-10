@@ -67,12 +67,12 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 	public Odds[] getOdds(final Hole hole1, final Hole hole2, final Hole hole3) {
 		final Hole[] normalizedHoles = new Hole[] { hole1, hole2, hole3 };
 		final int[] indexes = Holes.normalize(normalizedHoles);
-		long longHandIndex = 0;
+		long longMatchupIndex = 0;
 		for (int i = 0; i < PLAYERS; i++) {
-			longHandIndex = longHandIndex * Constants.HOLE_COUNT + normalizedHoles[i].getIndex();
+			longMatchupIndex = longMatchupIndex * Constants.HOLE_COUNT + normalizedHoles[i].getIndex();
 		}
-		final int handIndex = Integer.MIN_VALUE + (int) longHandIndex;
-		final int dataIndex = findDataIndex(handIndex);
+		final int matchupIndex = (int) (Integer.MIN_VALUE + longMatchupIndex);
+		final int dataIndex = findDataIndex(matchupIndex);
 		final int offset = dataIndex * (1 + PLAYERS * PLAYERS) + 1;
 		final Odds[] odds = new Odds[3];
 		for (int i = 0; i < PLAYERS; i++) {

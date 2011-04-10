@@ -33,7 +33,7 @@ public class PostFlopOddsCalculator2 {
 		// Singleton.
 		CardSet board = CardSet.firstSet(5);
 		for (int i = 0; i < HAND_VALUES.length; i++) {
-			HAND_VALUES[i] = Combination.getHandValue(board);
+			HAND_VALUES[i] = Combination.getBestValue(board);
 			board = board.next();
 		}
 	}
@@ -83,7 +83,7 @@ public class PostFlopOddsCalculator2 {
 			for (int i = 0; i < numHoles; i++) {
 				cards[5] = holes[i].first();
 				cards[6] = holes[i].last();
-				handValues[i] = Combination.getHandValue(CardSet.fromCards(cards));
+				handValues[i] = Combination.getBestValue(CardSet.fromCards(cards));
 				if (handValues[i] > max) {
 					max = handValues[i];
 					count = 1;

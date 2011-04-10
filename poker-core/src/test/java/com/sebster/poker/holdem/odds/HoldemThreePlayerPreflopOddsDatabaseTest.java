@@ -32,7 +32,7 @@ public class HoldemThreePlayerPreflopOddsDatabaseTest {
 
 	@Test
 	public void testThreePlayerPreflopOddsDatabase() {
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			final Deck deck = new Deck();
 			final Hole[] holes = new Hole[3];
 			for (int j = 0; j < 3; j++) {

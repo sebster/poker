@@ -37,7 +37,7 @@ public final class Nuts {
 			cards[0] = available[i];
 			for (int j = i + 1; j < available.length; j++) {
 				cards[1] = available[j];
-				int value1 = Combination.getHandValue(CardSet.fromCards(cards));
+				int value1 = Combination.getBestValue(CardSet.fromCards(cards));
 //				int count = value1;
 //				int count = 0;
 //				for (int k = 0; k < available.length; k++) {

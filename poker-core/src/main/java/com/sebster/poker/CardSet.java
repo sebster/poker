@@ -12,12 +12,12 @@ import net.jcip.annotations.Immutable;
 
 import com.sebster.poker.util.Combinatorics;
 import com.sebster.util.ArrayUtils;
-import com.sebster.util.LinearOrder;
+import com.sebster.util.LinearOrderElement;
 
 import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 @Immutable
-public class CardSet extends AbstractSet<Card> implements LinearOrder<CardSet>, NavigableSet<Card>, Serializable {
+public class CardSet extends AbstractSet<Card> implements LinearOrderElement<CardSet>, NavigableSet<Card>, Serializable {
 
 	private static final long serialVersionUID = 6615016694702661720L;
 

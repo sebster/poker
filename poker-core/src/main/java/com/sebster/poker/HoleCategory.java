@@ -2,9 +2,9 @@ package com.sebster.poker;
 
 import com.sebster.math.rational.Rational;
 import com.sebster.poker.odds.Constants;
-import com.sebster.util.LinearOrder;
+import com.sebster.util.LinearOrderElement;
 
-public enum HoleCategory implements LinearOrder<HoleCategory> {
+public enum HoleCategory implements LinearOrderElement<HoleCategory> {
 
 	p22, s32, s42, s52, s62, s72, s82, s92, sT2, sJ2, sQ2, sK2, sA2,
 	o32, p33, s43, s53, s63, s73, s83, s93, sT3, sJ3, sQ3, sK3, sA3,
