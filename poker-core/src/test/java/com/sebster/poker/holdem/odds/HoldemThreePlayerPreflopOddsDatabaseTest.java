@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
+import com.sebster.poker.holdem.odds.HoldemThreePlayerPreflopOddsDatabase.IndexedOdds;
+import com.sebster.poker.odds.BasicOdds;
 import com.sebster.poker.odds.CompressedHandValueDatabase;
 import com.sebster.poker.odds.Odds;
 
@@ -26,7 +28,8 @@ public class HoldemThreePlayerPreflopOddsDatabaseTest {
 
 	@BeforeClass
 	public static void loadDatabases() throws IOException {
-		calculator = new FastHoldemPreflopOddsCalculator(new CompressedHandValueDatabase(new BufferedInputStream(new GZIPInputStream(HoldemThreePlayerPreflopOddsDatabase.class.getResourceAsStream("holdem_hand_value_db.lzfi.gz")))));
+		final CompressedHandValueDatabase db = new CompressedHandValueDatabase(new BufferedInputStream(new GZIPInputStream(HoldemThreePlayerPreflopOddsDatabase.class.getResourceAsStream("holdem_hand_value_db.lzfi.gz"))));
+		calculator = new FastHoldemPreflopOddsCalculator(db);
 		database = HoldemThreePlayerPreflopOddsDatabase.getInstance();
 	}
 
@@ -40,8 +43,16 @@ public class HoldemThreePlayerPreflopOddsDatabaseTest {
 			}
 			LOG.debug("comparing hand odds for hand {}", Arrays.toString(holes));
 			final Odds[] calculatedOdds = calculator.calculateOdds(holes);
-			final Odds[] odds = database.getOdds(holes[0], holes[1], holes[2]);
-			Assert.assertArrayEquals("odds mismatch for hands " + Arrays.toString(holes), calculatedOdds, odds);
+			final IndexedOdds odds = database.getOdds(holes[0], holes[1], holes[2]);
+			final Odds[] odds2 = new Odds[3];
+			for (int p = 0; p < 3; p++) {
+				final int[] nWaySplits = new int[4];
+				for (int n = 0; n <= 3; n++) {
+					nWaySplits[n] = odds.getNWaySplits(p, n);
+				}
+				odds2[p] = new BasicOdds(nWaySplits);
+			}
+			Assert.assertArrayEquals("odds mismatch for hands " + Arrays.toString(holes), calculatedOdds, odds2);
 		}
 	}
 
