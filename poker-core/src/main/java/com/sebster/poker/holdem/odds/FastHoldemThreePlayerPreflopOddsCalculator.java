@@ -122,41 +122,41 @@ public class FastHoldemThreePlayerPreflopOddsCalculator {
 				}
 			}
 			// Find the number of times each different outcome occurs.
-			final int v0 = udata[0][i], v1 = udata[1][i], v2 = udata[2][i];
-			if (v0 < v1) {
-				if (v2 < v0) {
+			final int v1 = udata[0][i], v2 = udata[1][i], v3 = udata[2][i];
+			if (v1 < v2) {
+				if (v1 > v3) {
 					odds[RANK_213]++;
-				} else if (v2 > v0) {
-					if (v1 < v2) {
+				} else if (v1 < v3) {
+					if (v2 < v3) {
 						odds[RANK_321]++;
-					} else if (v2 > v1) {
+					} else if (v2 > v3) {
 						odds[RANK_312]++;
-					} else { // v1 == v2
+					} else { // v2 == v3
 						odds[RANK_211]++;
 					}
-				} else { // v2 == v0
+				} else { // v1 == v3
 					odds[RANK_212]++;
 				}
-			} else if (v0 > v1) {
-				if (v2 > v0) {
+			} else if (v1 > v2) {
+				if (v1 < v3) {
 					odds[RANK_231]++;
-				} else if (v2 < v0) {
-					if (v1 < v2) {
+				} else if (v1 > v3) {
+					if (v2 < v3) {
 						odds[RANK_132]++;
-					} else if (v2 > v1) {
+					} else if (v2 > v3) {
 						odds[RANK_123]++;
-					} else { // v1 == v2
+					} else { // v2 == v3
 						odds[RANK_122]++;
 					}
-				} else { // v2 == v0
+				} else { // v1 == v3
 					odds[RANK_121]++;
 				}
-			} else { // v0 == v1
-				if (v0 < v2) {
+			} else { // v1 == v2
+				if (v1 < v3) {
 					odds[RANK_221]++;
-				} else if (v0 > v2) {
+				} else if (v1 > v3) {
 					odds[RANK_112]++;
-				} else { // v0 == v2
+				} else { // v1 == v3
 					odds[RANK_111]++;
 				}
 			}

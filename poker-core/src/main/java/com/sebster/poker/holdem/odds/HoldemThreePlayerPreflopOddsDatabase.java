@@ -13,10 +13,7 @@ import com.sebster.poker.Deck;
 import com.sebster.poker.Hole;
 import com.sebster.poker.Holes;
 import com.sebster.poker.odds.Constants;
-import com.sebster.poker.odds.Odds;
 import com.sebster.util.IOUtil;
-
-import edu.umd.cs.findbugs.annotations.SuppressWarnings;
 
 public final class HoldemThreePlayerPreflopOddsDatabase {
 
@@ -56,7 +53,7 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 	public HoldemThreePlayerPreflopOddsDatabase(final InputStream in) throws IOException {
 		final long t1 = System.currentTimeMillis();
 		records = IOUtil.readInt4(in);
-		data = new int[records * (1 + PLAYERS * PLAYERS)];
+		data = new int[records * 14];
 		for (int k = 0; k < data.length; k++) {
 			data[k] = IOUtil.readInt4(in);
 		}
@@ -64,7 +61,7 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 		LOG.info("3 player db init in {} ms, {} records", t2 - t1, records);
 	}
 
-	public Odds[] getOdds(final Hole hole1, final Hole hole2, final Hole hole3) {
+	public IndexedOdds getOdds(final Hole hole1, final Hole hole2, final Hole hole3) {
 		final Hole[] normalizedHoles = new Hole[] { hole1, hole2, hole3 };
 		final int[] indexes = Holes.normalize(normalizedHoles);
 		long longMatchupIndex = 0;
@@ -73,12 +70,8 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 		}
 		final int matchupIndex = (int) (Integer.MIN_VALUE + longMatchupIndex);
 		final int dataIndex = findDataIndex(matchupIndex);
-		final int offset = dataIndex * (1 + PLAYERS * PLAYERS) + 1;
-		final Odds[] odds = new Odds[3];
-		for (int i = 0; i < PLAYERS; i++) {
-			odds[indexes[i]] = new IndexedOdds(offset + i * PLAYERS);
-		}
-		return odds;
+		final int offset = dataIndex * 14 + 1;
+		return new IndexedOdds(data, offset, indexes);
 	}
 
 	private int findDataIndex(final int handIndex) {
@@ -87,7 +80,7 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 
 		while (low <= high) {
 			final int mid = low + high >>> 1;
-			final int midVal = data[mid * (1 + PLAYERS * PLAYERS)];
+			final int midVal = data[mid * 14];
 
 			if (midVal < handIndex) {
 				low = mid + 1;
@@ -101,40 +94,67 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 	}
 
 	@Immutable
-	private final class IndexedOdds extends Odds {
+	public final static class IndexedOdds {
 
-		private final int index;
+		public static final int RANK_111 = 0;
+		public static final int RANK_112 = 1;
+		public static final int RANK_121 = 2;
+		public static final int RANK_122 = 3;
+		public static final int RANK_123 = 4;
+		public static final int RANK_132 = 5;
+		public static final int RANK_211 = 6;
+		public static final int RANK_212 = 7;
+		public static final int RANK_213 = 8;
+		public static final int RANK_221 = 9;
+		public static final int RANK_231 = 10;
+		public static final int RANK_312 = 11;
+		public static final int RANK_321 = 12;
 
-		@SuppressWarnings(value = "JCIP_FIELD_ISNT_FINAL_IN_IMMUTABLE_CLASS", justification = "cached value")
-		private int losses;
+		private final int[] data;
 
-		public IndexedOdds(final int index) {
-			this.index = index;
+		private final int offset;
+
+		private final int[] indexes;
+
+		public IndexedOdds(final int[] data, final int offset, final int[] indexes) {
+			this.data = data;
+			this.offset = offset;
+			this.indexes = indexes;
 		}
 
-		@Override
-		public int getNWaySplits(final int n) {
-			if (n > 0) {
-				return data[index + n - 1];
-			}
-			if (losses == 0) {
-				int losses = getTotal();
-				for (int i = 0; i < PLAYERS; i++) {
-					losses -= data[index + i];
+		public int get(final int n) {
+			return data[offset + n];
+		}
+
+		public int getNWaySplits(final int player, final int n) {
+			final int realPlayer = indexes[player];
+			if (realPlayer == 0) {
+				if (n == 0) { // losses of player 1
+					return get(RANK_211) + get(RANK_212) + get(RANK_213) + get(RANK_221) + get(RANK_231) + get(RANK_312) + get(RANK_321);
+				} else if (n == 1) { // wins of player 1
+					return get(RANK_122) + get(RANK_123) + get(RANK_132);
+				} else if (n == 2) { // 2-way splits in 1st place of player 1
+					return get(RANK_112) + get(RANK_121);
 				}
-				this.losses = losses;
+			} else if (realPlayer == 1) {
+				if (n == 0) { // losses of player 2
+					return get(RANK_121) + get(RANK_122) + get(RANK_123) + get(RANK_132) + get(RANK_221) + get(RANK_231) + get(RANK_321);
+				} else if (n == 1) { // wins of player 2
+					return get(RANK_212) + get(RANK_213) + get(RANK_312);
+				} else if (n == 2) { // 2-way splits in 1st place of player 2
+					return get(RANK_112) + get(RANK_211);
+				}
+			} else if (realPlayer == 2) {
+				if (n == 0) { // losses op player 3
+					return get(RANK_112) + get(RANK_122) + get(RANK_123) + get(RANK_132) + get(RANK_212) + get(RANK_213) + get(RANK_312);
+				} else if (n == 1) { // wins of player 3
+					return get(RANK_221) + get(RANK_231) + get(RANK_321);
+				} else if (n == 2) { // 2-way splits in 1st place of player 3
+					return get(RANK_121) + get(RANK_211);
+				}
 			}
-			return losses;
-		}
-
-		@Override
-		public int getMaxN() {
-			return PLAYERS;
-		}
-
-		@Override
-		public int getTotal() {
-			return Constants.BOARD_COUNT_46;
+			// 3-way split (of any player)
+			return get(RANK_111);
 		}
 
 	}
@@ -154,8 +174,8 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 			for (int j = 0; j < PLAYERS; j++) {
 				holes[j] = Hole.fromCards(deck.draw(), deck.draw());
 			}
-			final Odds[] odds = database.getOdds(holes[0], holes[1], holes[2]);
-			t += odds[0].getWins() + odds[1].getWins() + odds[2].getWins();
+			final IndexedOdds odds = database.getOdds(holes[0], holes[1], holes[2]);
+			t += odds.get(0);
 		}
 		final long t2 = System.currentTimeMillis();
 		LOG.info("calculated value (to avoid code removal by optimiser) t={}", t);
