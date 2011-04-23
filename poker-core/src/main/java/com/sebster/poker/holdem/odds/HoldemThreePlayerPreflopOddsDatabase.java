@@ -71,7 +71,12 @@ public final class HoldemThreePlayerPreflopOddsDatabase {
 		final int matchupIndex = (int) (Integer.MIN_VALUE + longMatchupIndex);
 		final int dataIndex = findDataIndex(matchupIndex);
 		final int offset = dataIndex * 14 + 1;
-		return new IndexedOdds(data, offset, indexes);
+		final int[] inverseIndexes = new int[3];
+		for (int i = 0; i < PLAYERS; i++) {
+			inverseIndexes[indexes[i]] = i;
+		}
+
+		return new IndexedOdds(data, offset, inverseIndexes);
 	}
 
 	private int findDataIndex(final int handIndex) {
