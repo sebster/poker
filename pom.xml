@@ -21,7 +21,6 @@
 		<module>poker-core</module>
 		<module>poker-dev-support</module>
 		<module>poker-calculations</module>
-		<module>poker-simulator</module>
 		<module>poker-web</module>
 	</modules>
 	<properties>
